@@ -16,15 +16,29 @@ scripts/add-claude-account.sh work   # CLAUDE_CONFIG_DIR=~/.claude-work claude �
 - **observed**: a poll shows `resets_at` jumped forward and usage dropped.
 Resets are deduped per account + window + reset time.
 
-## Signals (all fire on every reset)
+## Events
+`reset` (tank refilled), `warning` (used % crossed a threshold, default 80/95), `empty` (hit 100%), `test`.
+Each event carries a `title` and `message` written in Drip's voice (Drip is the mascot), plus a light color (lime/amber/red).
+
+## Signals
 | Sink | Details |
 |---|---|
-| Notification + sound | toggle/pick sound in Settings |
-| Shell hook | `~/.config/refill/on-reset` (sample installed). Event JSON on stdin, `REFILL_*` env vars |
-| Webhook | POST event JSON to any URL (ntfy, Slack, Home Assistant…) |
-| Distributed notification | `cz.stepanblaha.refill.reset`, userInfo = `REFILL_*` keys. Other Mac apps can listen |
-| Files | `~/.config/refill/status.json` (live), `events.jsonl` (history) |
-| Dashboard | `http://127.0.0.1:7788` flashes green and beeps on reset. JSON at `/status` and `/events` |
+| Notification + sound | set in Settings → General |
+| Shell hook | `~/.config/refill/on-reset`. Gets event JSON on stdin plus `REFILL_KIND`, `REFILL_COLOR`, `REFILL_MESSAGE`… env vars |
+| Integrations | Settings → Integrations, each with its own Test button and per-event toggles. Stored in `~/.config/refill/integrations.json` (0600) |
+| Distributed notification | `cz.stepanblaha.refill.<kind>` |
+| Files | `~/.config/refill/status.json`, `events.jsonl` |
+| Dashboard | `http://127.0.0.1:7788`, with a "Visible on Wi-Fi" toggle for phones. Tanks, Drip, toasts and chimes. `/status` and `/events` return JSON |
+
+Integrations:
+- **Phone:** ntfy (free), Pushover, Telegram
+- **Chat:** Discord, Slack
+- **Lights:** Home Assistant webhook (any brand; payload has `rgb`/`color`), Philips Hue (group flash), WLED (color or preset)
+- **Custom webhook:** method, headers, body template with `{{kind}} {{title}} {{message}} {{color}} {{r}} {{g}} {{b}} {{json}}` and more
+
+Launch at login: on by default when run from /Applications (Settings → General).
+
+Design review: `Refill --render <dir>` writes `menu.png` and `moods.png` and exits.
 
 ## Build
 ```bash
