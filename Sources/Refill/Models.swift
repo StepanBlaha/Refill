@@ -19,22 +19,47 @@ struct AccountSnapshot: Codable, Identifiable {
     var error: String?
 }
 
-struct ResetEvent: Codable {
+enum EventKind: String, Codable, CaseIterable {
+    case reset, warning, empty, test
+    var title: String {
+        switch self {
+        case .reset: return "Refilled"
+        case .warning: return "Getting low"
+        case .empty: return "Tank empty"
+        case .test: return "Test"
+        }
+    }
+    /// Light color for integrations (Hue/WLED/webhook {{color}}).
+    var rgb: (Int, Int, Int) {
+        switch self {
+        case .reset, .test: return (200, 255, 77)
+        case .warning: return (255, 181, 71)
+        case .empty: return (255, 80, 60)
+        }
+    }
+    var hex: String { let c = rgb; return String(format: "#%02X%02X%02X", c.0, c.1, c.2) }
+}
+
+struct RefillEvent: Codable {
+    let kind: EventKind
     let provider: String
     let accountId: String
     let accountName: String
     let window: String
     let windowLabel: String
-    let previousUtilization: Double
-    let resetsAt: Date
+    let utilization: Double      // used % at the moment of the event (pre-reset for resets)
+    let resetsAt: Date?
     let detectedAt: Date
-    let reason: String           // "scheduled" | "observed" | "test"
+    let reason: String           // scheduled | observed | threshold | test
+    let title: String
+    let message: String
 }
 
 enum Paths {
     static let home = FileManager.default.homeDirectoryForCurrentUser
     static let config = home.appendingPathComponent(".config/refill", isDirectory: true)
     static let hook = config.appendingPathComponent("on-reset")
+    static let integrationsFile = config.appendingPathComponent("integrations.json")
     static let statusFile = config.appendingPathComponent("status.json")
     static let eventsFile = config.appendingPathComponent("events.jsonl")
     static let stateFile = config.appendingPathComponent("state.json")
