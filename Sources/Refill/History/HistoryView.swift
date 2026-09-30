@@ -88,7 +88,7 @@ struct HistoryView: View {
         Chart {
             ForEach(series, id: \.self) { s in
                 AreaMark(x: .value("Time", s.t), y: .value("Used", s.utilization))
-                    .foregroundStyle(LinearGradient(colors: [Theme.amber.opacity(0.35), Theme.amber.opacity(0.02)],
+                    .foregroundStyle(LinearGradient(colors: [Theme.lime.opacity(0.18), Theme.lime.opacity(0.0)],
                                                     startPoint: .top, endPoint: .bottom))
                     .interpolationMethod(.monotone)
                 LineMark(x: .value("Time", s.t), y: .value("Used", s.utilization))
