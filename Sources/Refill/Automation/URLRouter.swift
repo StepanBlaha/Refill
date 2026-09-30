@@ -4,7 +4,7 @@ import Foundation
 /// Handles refill:// URLs. Wire: `.onOpenURL { URLRouter.handle($0) }`.
 @MainActor
 enum URLRouter {
-    static let uiRoutes: Set<String> = ["dashboard", "settings", "history", "onboarding"]
+    static let uiRoutes: Set<String> = ["open", "dashboard", "settings", "history", "onboarding"]
 
     static func name(_ route: String) -> Notification.Name { Notification.Name("refill.open.\(route)") }
 

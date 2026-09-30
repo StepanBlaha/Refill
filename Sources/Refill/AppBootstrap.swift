@@ -12,6 +12,10 @@ enum AppBootstrap {
             if NotchController.shared.enabled { NotchController.shared.show(e) }
         }
         AppHooks.onRefresh.append { HistoryStore.shared.record($0) }
+        AppHooks.onRefresh.append { [weak monitor] in SharedStatus.write($0, lastEvent: monitor?.events.last) }
+        AppHooks.onEvent.append { [weak monitor] e in
+            if let monitor { SharedStatus.write(monitor.accounts, lastEvent: e) }
+        }
 
         NSAppleEventManager.shared().setEventHandler(
             urlHandler, andSelector: #selector(URLEventHandler.handle(_:reply:)),
@@ -26,6 +30,7 @@ enum AppBootstrap {
         on("dashboard") { NSWorkspace.shared.open(URL(string: "http://127.0.0.1:\(Prefs.current.port)")!) }
         on("settings") { openSettings() }
         on("history") { HistoryWindow.show() }
+        on("open") { HistoryWindow.show() }   // widget tap
         on("onboarding") { Onboarding.show(monitor: monitor) }
 
         DispatchQueue.main.async { Onboarding.showIfNeeded(monitor: monitor) }
