@@ -3,60 +3,79 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy — Refill</title>
-<meta name="description" content="Refill's privacy policy in plain language: no data collection, everything stays on your Mac.">
+<title>Privacy | Refill</title>
+<meta name="description" content="Refill's privacy policy: no data collection by the developer, everything stays on your Mac.">
+<meta name="theme-color" content="#000000">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://stepanblaha.github.io/refill/privacy.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Refill">
+<meta property="og:title" content="Privacy | Refill">
+<meta property="og:description" content="Refill's privacy policy: no data collection by the developer, everything stays on your Mac.">
+<meta property="og:image" content="https://stepanblaha.github.io/refill/assets/og.png">
+<meta property="og:url" content="https://stepanblaha.github.io/refill/privacy.html">
+<meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <main class="legal">
   <a class="back" href="index.html">&larr; Back to Refill</a>
-  <h1>Privacy, in plain words</h1>
+  <h1>Privacy Policy</h1>
   <p class="fine">Last updated 2026-09-30</p>
 
-  <p>Short version: Refill runs on your Mac and stays there. The developer collects nothing. There is no Refill server, no account, no analytics and no telemetry.</p>
+  <p>Refill is a Mac menu-bar app that watches your AI usage limits and signals when they reset. It is built to keep your data on your Mac. The developer collects nothing: there is no Refill server, no account, no analytics and no telemetry.</p>
 
-  <h2>What we collect</h2>
-  <p>Nothing. The developer of Refill does not receive, store or process any of your data. There is no backend for it to reach.</p>
+  <h2>What Refill reads on your Mac</h2>
+  <table><thead><tr><th>Data</th><th>Where it comes from</th><th>Why</th></tr></thead><tbody>
+    <tr><td>Claude Code login (access and refresh tokens)</td><td>macOS Keychain, items named <code>Claude Code-credentials*</code></td><td>To ask Anthropic for your own usage</td></tr>
+    <tr><td>Claude config folders and account email</td><td><code>~/.claude</code>, <code>~/.claude-*</code>, and the <code>.claude.json</code> in each</td><td>To find your accounts and label them</td></tr>
+    <tr><td>Codex CLI rate-limit data</td><td>Session logs in <code>~/.codex/sessions</code></td><td>To show Codex usage, offline</td></tr>
+  </tbody></table>
 
-  <h2>What the app reads on your Mac</h2>
-  <p>To show your usage, Refill reads sign-in information that your other tools already keep locally:</p>
+  <h2>What Refill stores</h2>
+  <table><thead><tr><th>Data</th><th>Where it is stored</th><th>Why</th></tr></thead><tbody>
+    <tr><td>Usage snapshot, event log, history, state</td><td><code>~/.config/refill/</code> (<code>status.json</code>, <code>events.jsonl</code>, <code>history.jsonl</code>, <code>state.json</code>)</td><td>To show gauges and trends and to notice resets</td></tr>
+    <tr><td>Integration settings and tokens</td><td><code>~/.config/refill/integrations.json</code> (permissions 0600)</td><td>To send signals to services you set up. It may hold webhook URLs, bot tokens or API keys</td></tr>
+    <tr><td>On-reset hook script (optional)</td><td><code>~/.config/refill/</code></td><td>To run your own script when a limit resets</td></tr>
+    <tr><td>Widget data</td><td>App-group container shared with Refill widgets</td><td>To show usage in widgets</td></tr>
+    <tr><td>Refreshed Claude login</td><td>Written back to the same Keychain item it was read from</td><td>So Claude Code keeps working after a token refresh</td></tr>
+    <tr><td>Settings</td><td>macOS user defaults</td><td>To remember your preferences</td></tr>
+  </tbody></table>
+
+  <h2>Where your data goes</h2>
   <ul>
-    <li><b>Claude Code:</b> the login stored in your macOS Keychain, and the Claude config folders (<code>~/.claude</code>, any <code>~/.claude-*</code>, and folders you add in Settings). Refreshed tokens are written back to the same Keychain item.</li>
-    <li><b>Codex CLI:</b> rate-limit data from your local session logs in <code>~/.codex/sessions</code>.</li>
-    <li><b>Gemini, Cursor and GitHub Copilot:</b> the local sign-in tokens those tools store on your Mac.</li>
+    <li><b>Anthropic.</b> <code>api.anthropic.com</code> receives your access token and returns your usage. <code>console.anthropic.com</code> receives your refresh token when the access token has expired. This is under <a href="https://www.anthropic.com/legal/privacy">Anthropic's privacy policy</a>.</li>
+    <li><b>Integrations you configure.</b> Only if you set them up: ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Philips Hue, WLED and custom webhooks. They receive the event text and color you configured, at the address you chose, and nothing more. Their handling of that data is governed by their own policies.</li>
+    <li><b>Nothing else.</b> No developer server, no analytics, no crash reporting, no advertising, no cookies. Credentials are never sent anywhere except the service they belong to. This website sets no cookies either.</li>
+    <li><b>Codex</b> is read from local files only. Refill makes no OpenAI request.</li>
   </ul>
-  <p>These credentials are used only to ask the provider for your own usage numbers. They are never sent anywhere else.</p>
 
-  <h2>Who the app talks to</h2>
-  <p>Only the AI providers' own services, using your own login, and only what is needed to read usage:</p>
-  <ul>
-    <li><code>api.anthropic.com</code> for Claude usage</li>
-    <li><code>console.anthropic.com</code> to refresh an expired Claude token</li>
-    <li><code>api.github.com</code> for Copilot usage</li>
-    <li><code>cursor.com</code> for Cursor usage</li>
-    <li>Google's <code>cloudcode-pa</code> endpoint for Gemini quota</li>
-  </ul>
-  <p>Plus any integration you set up yourself (ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Hue, WLED, or a custom webhook). Those receive the event text and color you configured, at the address you chose, and nothing more. Their handling of that data is up to them.</p>
+  <h2>Local dashboard and iPhone companion</h2>
+  <p>Refill can serve a read-only dashboard on port 7788. It is off by default. When you turn on network access, <b>anyone on your local network can see your usage</b> while it is on. It never goes to the internet. The iPhone companion talks only to your Mac on the local network.</p>
 
-  <h2>Files Refill creates</h2>
-  <p>Everything lives in <code>~/.config/refill</code>: settings, <code>integrations.json</code> (permissions 0600, since it may hold your webhook URLs or bot tokens), <code>status.json</code> and <code>events.jsonl</code>. Delete the folder and it is all gone.</p>
-
-  <h2>Local dashboard</h2>
-  <p>Refill serves a small dashboard at <code>127.0.0.1:7788</code>, reachable only from your Mac. If you switch on "Visible on Wi-Fi", other devices on your local network can open it. That is off by default, and it never goes to the internet.</p>
-
-  <h2>Analytics and tracking</h2>
-  <p>None. No analytics, no crash reporting, no advertising IDs, no cookies. This website sets no cookies either. Fonts are your system fonts, so nothing is loaded from third parties.</p>
+  <h2>Optional shell hook</h2>
+  <p>If you choose to set an on-reset hook, Refill runs your own script when a limit resets. What that script does is your responsibility.</p>
 
   <h2>Your control</h2>
-  <p>Remove any integration, turn off the dashboard, or delete <code>~/.config/refill</code> at any time. Quitting and deleting the app ends everything it does.</p>
+  <ul>
+    <li><b>Remove an integration</b> in Settings, or delete <code>integrations.json</code>.</li>
+    <li><b>Turn off the dashboard</b> in Settings.</li>
+    <li><b>Delete all local data:</b> quit Refill and delete <code>~/.config/refill/</code>. Refill never removes Claude Code's own Keychain login.</li>
+    <li>Uninstalling the app ends everything it does.</li>
+  </ul>
+
+  <h2>Data protection (GDPR)</h2>
+  <p>The developer processes no personal data, so there is no controller relationship with the developer. You are the controller of the data on your Mac. Recipients of integrations are separate controllers under their own policies.</p>
+
+  <h2>Children</h2>
+  <p>Refill is not directed at children under 13 (16 in the EU).</p>
 
   <h2>Changes</h2>
-  <p>If this policy changes, the date at the top changes with it.</p>
+  <p>Updates to this policy will be dated above and shipped with the app.</p>
 
   <h2>Contact</h2>
-  <p>Questions? <a href="mailto:tools@czechitacademy.cz">tools@czechitacademy.cz</a></p>
+  <p>Stepan Blaha, Czech Republic: <a href="mailto:tools@czechitacademy.cz">tools@czechitacademy.cz</a></p>
 </main>
-<footer class="foot"><div class="wrap foot-row"><a class="brand" href="index.html"><img class="brand-drip" src="assets/favicon.svg" alt="" width="26" height="26"><span>Refill</span></a><nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://github.com/StepanBlaha/refill">GitHub</a></nav></div></footer>
+<footer class="foot"><div class="wrap foot-row"><a class="brand" href="index.html"><img class="brand-drip" src="assets/favicon.svg" alt="" width="26" height="26"><span>Refill</span></a><nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="notice.html">Notice</a><a href="https://github.com/StepanBlaha/refill">GitHub</a><a href="mailto:tools@czechitacademy.cz">Contact</a></nav><p class="fine">Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.</p></div></footer>
 </body>
 </html>

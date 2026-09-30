@@ -3,10 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Refill — Your AI tanks, watched.</title>
-<meta name="description" content="Refill is a macOS menu-bar app that watches your AI usage limits (Claude, Codex, Copilot, Cursor, Gemini) and signals the second they reset.">
+<title>Refill: Your AI tanks, watched.</title>
+<meta name="description" content="Refill is a macOS menu-bar app that watches your Claude and Codex usage limits and signals the second they reset.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://stepanblaha.github.io/refill/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Refill">
+<meta property="og:title" content="Refill: Your AI tanks, watched.">
+<meta property="og:description" content="Refill is a macOS menu-bar app that watches your Claude and Codex usage limits and signals the second they reset.">
+<meta property="og:image" content="https://stepanblaha.github.io/refill/assets/og.png">
+<meta property="og:url" content="https://stepanblaha.github.io/refill/">
+<meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -47,15 +55,12 @@
 <section class="sec" id="tank">
   <div class="wrap">
     <p class="eyebrow">Sources</p>
-    <h2>Every AI, one tank.</h2>
-    <p class="sub">No more tab-hopping to see who is dry. Each provider gets its own gauge in the menu bar.</p>
+    <h2>Claude and Codex, one tank.</h2>
+    <p class="sub">No more tab-hopping to see who is dry. Each source gets its own gauge in the menu bar.</p>
     <div class="cards">
       <article class="card wide"><h3>Claude <span class="tag">multi-account</span></h3><p>Reads every Claude Code login on your Mac: the default <code>~/.claude</code>, any <code>~/.claude-*</code>, plus dirs you add. 5-hour session, weekly, Opus and Sonnet windows, each with its own tank. Expired tokens get refreshed for you.</p>
         <div class="bars"><div><span>work</span><i style="--w:82%"></i></div><div><span>personal</span><i class="amber" style="--w:41%"></i></div><div><span>side-hustle</span><i class="coral" style="--w:9%"></i></div></div></article>
       <article class="card"><h3>Codex</h3><p>Reads rate limits from your local Codex session logs. Offline, updates when you use it.</p></article>
-      <article class="card"><h3>Copilot</h3><p>Premium requests, tracked via GitHub. Watch the month drain.</p></article>
-      <article class="card"><h3>Cursor</h3><p>Plan usage from your signed-in Cursor. No copy-pasting cookies.</p></article>
-      <article class="card"><h3>Gemini</h3><p>Gemini CLI quota, picked up from your local login.</p></article>
     </div>
   </div>
 </section>
@@ -150,7 +155,7 @@
       <div><b>Everything local</b><p>Usage, history and settings live on your Mac in <code>~/.config/refill</code>.</p></div>
       <div><b>No account</b><p>Nothing to sign up for. There is no Refill server.</p></div>
       <div><b>No telemetry</b><p>No analytics, no crash pings, no "anonymous" stats.</p></div>
-      <div><b>Credentials stay put</b><p>Tokens never leave your Mac. Refill only talks to the AI providers' own APIs and the integrations you add yourself.</p></div>
+      <div><b>Credentials stay put</b><p>Tokens never leave your Mac. Refill only talks to Anthropic's own endpoints and the integrations you add yourself. Because those endpoints are undocumented, they can change.</p></div>
     </div>
     <p class="fine"><a href="privacy.html">Read the full privacy policy</a></p>
   </div>
@@ -161,9 +166,9 @@
     <p class="eyebrow">FAQ</p>
     <h2>Questions, answered short.</h2>
     <details><summary>Does it work offline?</summary><p>Partly. A known reset time is tracked locally, so a scheduled reset still fires. Fresh usage numbers need the provider's API.</p></details>
-    <details><summary>Will it get my account banned?</summary><p>Refill reads the same usage endpoints your own tools read, with your own login, at a polite pace. It doesn't send prompts or spend your quota.</p></details>
+    <details><summary>Will it get my account banned?</summary><p>Refill reads usage endpoints that are undocumented and may change or be restricted, the same ones your own tools use, with your own login, at a polite pace. It doesn't send prompts or spend your quota.</p></details>
     <details><summary>Which macOS versions?</summary><p>macOS 14 Sonoma and newer.</p></details>
-    <details><summary>Is it free?</summary><p>Yes, and the source is on GitHub.</p></details>
+    <details><summary>Is it free?</summary><p>Yes. It costs nothing to use. It is proprietary software, all rights reserved.</p></details>
     <details><summary>Is it affiliated with Anthropic, OpenAI, GitHub, Cursor or Google?</summary><p>No. It's an independent tool. Those names belong to their owners.</p></details>
     <details><summary>Why a tank?</summary><p>A battery icon with a little personality. Drip is a small glass tank, so you can see what is left.</p></details>
   </div>
@@ -175,18 +180,12 @@
     <h2>Get Refill.</h2>
     <p class="sub">Lives in your menu bar. Costs nothing. Judges nobody.</p>
     <a class="btn btn-lg" href="#download" aria-disabled="true">Coming soon</a>
-    <p class="fine">Coming soon &mdash; <a href="https://github.com/StepanBlaha/refill">join via GitHub</a></p>
+    <p class="fine">Coming soon. <a href="https://github.com/StepanBlaha/refill">join via GitHub</a></p>
   </div>
 </section>
 </main>
 
-<footer class="foot">
-  <div class="wrap foot-row">
-    <a class="brand" href="#top"><img class="brand-drip" src="assets/favicon.svg" alt="" width="26" height="26"><span>Refill</span></a>
-    <nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://github.com/StepanBlaha/refill">GitHub</a><a href="mailto:tools@czechitacademy.cz">Contact</a></nav>
-    <p class="fine">&copy; 2026 Refill. Not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.</p>
-  </div>
-</footer>
+<footer class="foot"><div class="wrap foot-row"><a class="brand" href="#top"><img class="brand-drip" src="assets/favicon.svg" alt="" width="26" height="26"><span>Refill</span></a><nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="notice.html">Notice</a><a href="https://github.com/StepanBlaha/refill">GitHub</a><a href="mailto:tools@czechitacademy.cz">Contact</a></nav><p class="fine">Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.</p></div></footer>
 <script src="main.js"></script>
 </body>
 </html>
