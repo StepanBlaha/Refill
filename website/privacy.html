@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — Refill</title>
+<meta name="description" content="Refill's privacy policy in plain language: no data collection, everything stays on your Mac.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="legal">
+  <a class="back" href="index.html">&larr; Back to Refill</a>
+  <h1>Privacy, in plain words.</h1>
+  <p class="fine">Last updated 2026-09-30</p>
+
+  <p>Short version: Refill runs on your Mac and stays there. The developer collects nothing. There is no Refill server, no account, no analytics and no telemetry.</p>
+
+  <h2>What we collect</h2>
+  <p>Nothing. The developer of Refill does not receive, store or process any of your data. There is no backend for it to reach.</p>
+
+  <h2>What the app reads on your Mac</h2>
+  <p>To show your usage, Refill reads sign-in information that your other tools already keep locally:</p>
+  <ul>
+    <li><b>Claude Code:</b> the login stored in your macOS Keychain, and the Claude config folders (<code>~/.claude</code>, any <code>~/.claude-*</code>, and folders you add in Settings). Refreshed tokens are written back to the same Keychain item.</li>
+    <li><b>Codex CLI:</b> rate-limit data from your local session logs in <code>~/.codex/sessions</code>.</li>
+    <li><b>Gemini, Cursor and GitHub Copilot:</b> the local sign-in tokens those tools store on your Mac.</li>
+  </ul>
+  <p>These credentials are used only to ask the provider for your own usage numbers. They are never sent anywhere else.</p>
+
+  <h2>Who the app talks to</h2>
+  <p>Only the AI providers' own services, using your own login, and only what is needed to read usage:</p>
+  <ul>
+    <li><code>api.anthropic.com</code> for Claude usage</li>
+    <li><code>console.anthropic.com</code> to refresh an expired Claude token</li>
+    <li><code>api.github.com</code> for Copilot usage</li>
+    <li><code>cursor.com</code> for Cursor usage</li>
+    <li>Google's <code>cloudcode-pa</code> endpoint for Gemini quota</li>
+  </ul>
+  <p>Plus any integration you set up yourself (ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Hue, WLED, or a custom webhook). Those receive the event text and color you configured, at the address you chose, and nothing more. Their handling of that data is up to them.</p>
+
+  <h2>Files Refill creates</h2>
+  <p>Everything lives in <code>~/.config/refill</code>: settings, <code>integrations.json</code> (permissions 0600, since it may hold your webhook URLs or bot tokens), <code>status.json</code> and <code>events.jsonl</code>. Delete the folder and it is all gone.</p>
+
+  <h2>Local dashboard</h2>
+  <p>Refill serves a small dashboard at <code>127.0.0.1:7788</code>, reachable only from your Mac. If you switch on "Visible on Wi-Fi", other devices on your local network can open it. That is off by default, and it never goes to the internet.</p>
+
+  <h2>Analytics and tracking</h2>
+  <p>None. No analytics, no crash reporting, no advertising IDs, no cookies. This website sets no cookies either, though it loads fonts from Google Fonts, which means Google sees a standard font request from your browser.</p>
+
+  <h2>Your control</h2>
+  <p>Remove any integration, turn off the dashboard, or delete <code>~/.config/refill</code> at any time. Quitting and deleting the app ends everything it does.</p>
+
+  <h2>Changes</h2>
+  <p>If this policy changes, the date at the top changes with it.</p>
+
+  <h2>Contact</h2>
+  <p>Questions? <a href="mailto:tools@czechitacademy.cz">tools@czechitacademy.cz</a></p>
+</main>
+<footer class="foot"><div class="wrap foot-row"><a class="brand" href="index.html"><img class="brand-drip" src="assets/favicon.svg" alt="" width="26" height="26"><span>Refill</span></a><nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://github.com/StepanBlaha/refill">GitHub</a></nav></div></footer>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refill — Your AI tanks, watched.</title>
+<meta name="description" content="Refill is a macOS menu-bar app that watches your AI usage limits (Claude, Codex, Copilot, Cursor, Gemini) and signals the second they reset.">
+<meta name="theme-color" content="#0D0E11">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="drip-body" d="M60 8C60 8 20 56 20 86a40 40 0 0 0 80 0C100 56 60 8 60 8z"/>
+    <radialGradient id="drip-shine" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="#E6FF9E"/><stop offset="1" stop-color="#C8FF4D"/></radialGradient>
+  </defs>
+  <symbol id="drip-happy" viewBox="0 0 120 130">
+    <use href="#drip-body" fill="url(#drip-shine)"/>
+    <ellipse cx="42" cy="70" rx="5" ry="9" fill="#fff" opacity=".35" transform="rotate(20 42 70)"/>
+    <ellipse cx="47" cy="84" rx="4.5" ry="6" fill="#0D0E11"/><ellipse cx="73" cy="84" rx="4.5" ry="6" fill="#0D0E11"/>
+    <path d="M48 98q12 12 24 0" stroke="#0D0E11" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <circle cx="38" cy="96" r="5" fill="#FF6B5B" opacity=".45"/><circle cx="82" cy="96" r="5" fill="#FF6B5B" opacity=".45"/>
+  </symbol>
+  <symbol id="drip-sweaty" viewBox="0 0 120 130">
+    <use href="#drip-body" fill="url(#drip-shine)"/>
+    <ellipse cx="47" cy="84" rx="5.5" ry="7" fill="#0D0E11"/><ellipse cx="73" cy="84" rx="5.5" ry="7" fill="#0D0E11"/>
+    <circle cx="45" cy="82" r="1.8" fill="#C8FF4D"/><circle cx="71" cy="82" r="1.8" fill="#C8FF4D"/>
+    <path d="M47 102q6-5 13 0t13 0" stroke="#0D0E11" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M96 52c0 0-8 10-8 15a8 8 0 0 0 16 0c0-5-8-15-8-15z" fill="#7FD6FF"/>
+    <path d="M22 68c0 0-5 6-5 9.500a5 5 0 0 0 10 0c0-3.500-5-9.500-5-9.500z" fill="#7FD6FF" opacity=".8"/>
+  </symbol>
+  <symbol id="drip-asleep" viewBox="0 0 120 130">
+    <use href="#drip-body" fill="#7E9A3A"/>
+    <path d="M40 86q7 6 14 0M66 86q7 6 14 0" stroke="#0D0E11" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="60" cy="102" rx="5" ry="4" fill="#0D0E11"/>
+    <text x="88" y="46" font-family="JetBrains Mono, monospace" font-weight="500" font-size="17" fill="#8B8F98">z</text>
+    <text x="98" y="30" font-family="JetBrains Mono, monospace" font-weight="500" font-size="12" fill="#8B8F98">z</text>
+  </symbol>
+  <symbol id="drip-party" viewBox="0 0 120 130">
+    <use href="#drip-body" fill="url(#drip-shine)"/>
+    <path d="M46 4l14-2-4 22z" fill="#FF6B5B"/><circle cx="52" cy="3" r="4" fill="#FFB547"/>
+    <path d="M40 82q7-9 14 0M66 82q7-9 14 0" stroke="#0D0E11" stroke-width="4.500" fill="none" stroke-linecap="round"/>
+    <path d="M44 94h32q-2 20-16 20T44 94z" fill="#0D0E11"/><path d="M52 108q8 6 16 0" stroke="#FF6B5B" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M12 40l6 6M108 30l-6 6M14 100l8-2M106 108l-8-4" stroke="#FFB547" stroke-width="3.500" stroke-linecap="round"/>
+    <circle cx="104" cy="70" r="3" fill="#FF6B5B"/><circle cx="14" cy="72" r="3" fill="#C8FF4D"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Refill home"><svg class="brand-drip" viewBox="0 0 120 130" aria-hidden="true"><use href="#drip-happy"/></svg><span>Refill</span></a>
+  <nav aria-label="Primary">
+    <a href="#tank">Sources</a><a href="#signals">Signals</a><a href="#wire">Integrations</a><a href="#private">Privacy</a><a href="#faq">FAQ</a>
+  </nav>
+  <a class="btn btn-sm" href="#download">Get Refill</a>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="menubar" aria-hidden="true">
+    <span class="mb-apple">&#63743;</span><span class="mb-app">Finder</span><span class="mb-dim">File</span><span class="mb-dim">Edit</span><span class="mb-dim">View</span>
+    <span class="mb-spacer"></span>
+    <span class="mb-tank"><i class="mb-fill" id="mb-fill"></i></span>
+    <span class="mb-pct" id="mb-pct">72%</span>
+    <span class="mb-dim">Wi-Fi</span><span class="mb-clock">Tue 9:41</span>
+  </div>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">macOS menu-bar app</p>
+      <h1>Your AI tanks, watched.<br><span class="hl">Refilled? You'll know.</span></h1>
+      <p class="lede">Refill keeps an eye on every AI limit you burn through and pings you the second one resets. Lights, phone, Discord, whatever. Drip does the worrying.</p>
+      <div class="cta-row"><a class="btn" href="#download">Download for macOS</a><a class="btn btn-ghost" href="#signals">See it react</a></div>
+      <p class="fine">macOS 14+ &middot; free &middot; no account</p>
+    </div>
+    <div class="stage" id="stage" data-mood="happy">
+      <div class="bubble" id="bubble">Tanks full. Go wild.</div>
+      <div class="tank-wrap">
+        <div class="tank" role="img" aria-label="Animated usage tank draining and refilling">
+          <div class="tank-liquid" id="liquid"><span class="wave"></span></div>
+          <div class="tank-ticks"><i></i><i></i><i></i><i></i></div>
+          <div class="tank-read"><b id="read">72%</b><small>left in session</small></div>
+        </div>
+        <svg class="drip" viewBox="0 0 120 130" aria-hidden="true"><use id="drip-use" href="#drip-happy"/></svg>
+      </div>
+      <div class="chips"><span class="chip"><i class="dot lime"></i>5h session</span><span class="chip"><i class="dot amber"></i>week</span><span class="chip"><i class="dot coral"></i>Opus</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="tank">
+  <div class="wrap">
+    <p class="eyebrow">Sources</p>
+    <h2>Every AI, one tank.</h2>
+    <p class="sub">Stop tab-hopping to check who's dry. Each provider gets its own gauge in the menu bar.</p>
+    <div class="cards">
+      <article class="card wide"><h3>Claude <span class="tag">multi-account</span></h3><p>Reads every Claude Code login on your Mac: the default <code>~/.claude</code>, any <code>~/.claude-*</code>, plus dirs you add. 5-hour session, weekly, Opus and Sonnet windows, each with its own tank. Expired tokens get refreshed for you.</p>
+        <div class="bars"><div><span>work</span><i style="--w:82%"></i></div><div><span>personal</span><i class="amber" style="--w:41%"></i></div><div><span>side-hustle</span><i class="coral" style="--w:9%"></i></div></div></article>
+      <article class="card"><h3>Codex</h3><p>Reads rate limits from your local Codex session logs. Offline, updates when you use it.</p></article>
+      <article class="card"><h3>Copilot</h3><p>Premium requests, tracked via GitHub. Watch the month drain.</p></article>
+      <article class="card"><h3>Cursor</h3><p>Plan usage from your signed-in Cursor. No copy-pasting cookies.</p></article>
+      <article class="card"><h3>Gemini</h3><p>Gemini CLI quota, picked up from your local login.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="signals">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Signals</p>
+      <h2>Know the second it refills.</h2>
+      <p class="sub">A limit resets. Refill notices, even if you were offline when it happened. Then it gets loud, in whatever way you like.</p>
+      <ul class="ticks">
+        <li><b>Notch pop-up.</b> Drip drops down from the top of your screen and celebrates.</li>
+        <li><b>Native notification.</b> With words written by a droplet.</li>
+        <li><b>Sound.</b> A chime you can actually tell apart from Slack.</li>
+        <li><b>Warnings too.</b> Nudges at 80% and 95%, and a dry-tank alert at 100%.</li>
+      </ul>
+    </div>
+    <div class="notch-demo" aria-hidden="true">
+      <div class="notch"><svg viewBox="0 0 120 130"><use href="#drip-party"/></svg><div><b>Tank's full &#9889;</b><span>work: 5h session is fresh. Go break something.</span></div></div>
+      <div class="notif"><svg viewBox="0 0 120 130"><use href="#drip-sweaty"/></svg><div><b>Running warm</b><span>personal at 82%. Refill in 1h 12m.</span></div></div>
+      <div class="notif dry"><svg viewBox="0 0 120 130"><use href="#drip-asleep"/></svg><div><b>Tank's dry</b><span>side-hustle hit the limit. Touch grass?</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="wire">
+  <div class="wrap">
+    <p class="eyebrow">Integrations</p>
+    <h2>Wire it to anything.</h2>
+    <p class="sub">Each integration has its own Test button and per-event toggles. Reset, warning, empty: pick who hears what.</p>
+    <div class="grid">
+      <div class="tile"><span class="ico">&#128241;</span><h3>Phone push</h3><p>ntfy, Pushover, Telegram</p></div>
+      <div class="tile"><span class="ico">&#128172;</span><h3>Chat</h3><p>Discord, Slack</p></div>
+      <div class="tile"><span class="ico">&#128161;</span><h3>Room lights</h3><p>Home Assistant, Hue, WLED. Lime for refilled, amber for warming, red for dry.</p></div>
+      <div class="tile"><span class="ico">&#128279;</span><h3>Webhook</h3><p>Any URL, custom headers, body templates with <code>{{title}}</code> <code>{{color}}</code> <code>{{json}}</code></p></div>
+      <div class="tile"><span class="ico">&#9000;</span><h3>Shell hook</h3><p>Drop a script at <code>~/.config/refill/on-reset</code>. Event JSON on stdin.</p></div>
+      <div class="tile"><span class="ico">&#9889;</span><h3>Shortcuts</h3><p>Fire a Shortcut, or listen for the distributed notification.</p></div>
+      <div class="tile"><span class="ico">&#9636;</span><h3>Widgets</h3><p>Status files plus a local dashboard for phones on your Wi-Fi. Opt-in.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="resume">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Auto-resume</p>
+      <h2>Go to bed. Wake up to work done.</h2>
+      <p class="sub">Queue a <code>claude -p</code> task. When the window resets, Refill runs it for you. The tank refills, the work resumes, you don't have to be awake for it.</p>
+    </div>
+    <div class="term" aria-hidden="true">
+      <div class="term-bar"><i></i><i></i><i></i><span>queue</span></div>
+<pre><span class="m">01:12</span> hit limit &middot; work &middot; 5h session
+<span class="m">01:12</span> queued: <span class="g">claude -p "finish the migration"</span>
+<span class="m">03:47</span> <span class="l">reset detected</span> (scheduled)
+<span class="m">03:47</span> running queued task&hellip;
+<span class="m">03:58</span> done &middot; exit 0
+<span class="m">03:58</span> Drip is very proud.</pre>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="burn">
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">Burn rate</p>
+      <h2>See how fast you're drinking it.</h2>
+      <p class="sub">A little chart per tank shows your pace against the clock, so you know whether the refactor fits before the reset. Or whether Drip should start sweating.</p>
+    </div>
+    <figure class="burn" aria-label="Sample burn rate chart">
+      <svg viewBox="0 0 400 200" role="img" aria-label="Usage climbing from 0 to 78 percent over five hours, projected to hit the limit before reset">
+        <g stroke="#262A31" stroke-width="1"><path d="M30 20H390M30 70H390M30 120H390M30 170H390"/></g>
+        <path d="M30 170L390 20" stroke="#8B8F98" stroke-width="1.500" stroke-dasharray="4 5" fill="none"/>
+        <path class="area" d="M30 170L90 158 150 150 210 112 270 84 300 72V170z" fill="rgba(200,255,77,.12)"/>
+        <path class="line" d="M30 170L90 158 150 150 210 112 270 84 300 72" stroke="#C8FF4D" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M300 72L370 8" stroke="#FFB547" stroke-width="2.500" stroke-dasharray="2 6" stroke-linecap="round" fill="none"/>
+        <circle cx="300" cy="72" r="5" fill="#C8FF4D"/>
+        <text x="30" y="192" fill="#8B8F98" font-family="JetBrains Mono, monospace" font-size="11">0h</text>
+        <text x="352" y="192" fill="#8B8F98" font-family="JetBrains Mono, monospace" font-size="11">5h reset</text>
+        <text x="306" y="98" fill="#C8FF4D" font-family="JetBrains Mono, monospace" font-size="12">now &middot; 78%</text>
+        <text x="256" y="22" fill="#FFB547" font-family="JetBrains Mono, monospace" font-size="11">dry in ~40m</text>
+      </svg>
+      <figcaption>Dashed grey is an even pace. Amber is where you're headed.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec alt" id="private">
+  <div class="wrap">
+    <p class="eyebrow">Private by design</p>
+    <h2>Your Mac. Your tanks. Nobody else.</h2>
+    <div class="priv">
+      <div><b>Everything local</b><p>Usage, history and settings live on your Mac in <code>~/.config/refill</code>.</p></div>
+      <div><b>No account</b><p>Nothing to sign up for. There is no Refill server.</p></div>
+      <div><b>No telemetry</b><p>No analytics, no crash pings, no "anonymous" stats.</p></div>
+      <div><b>Credentials stay put</b><p>Tokens never leave your Mac. Refill only talks to the AI providers' own APIs and the integrations you add yourself.</p></div>
+    </div>
+    <p class="fine"><a href="privacy.html">Read the full privacy policy</a></p>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap narrow">
+    <p class="eyebrow">FAQ</p>
+    <h2>Questions, answered short.</h2>
+    <details><summary>Does it work offline?</summary><p>Partly. A known reset time is tracked locally, so a scheduled reset still fires. Fresh usage numbers need the provider's API.</p></details>
+    <details><summary>Will it get my account banned?</summary><p>Refill reads the same usage endpoints your own tools read, with your own login, at a polite pace. It doesn't send prompts or spend your quota.</p></details>
+    <details><summary>Which macOS versions?</summary><p>macOS 14 Sonoma and newer.</p></details>
+    <details><summary>Is it free?</summary><p>Yes, and the source is on GitHub.</p></details>
+    <details><summary>Is it affiliated with Anthropic, OpenAI, GitHub, Cursor or Google?</summary><p>No. It's an independent tool. Those names belong to their owners.</p></details>
+    <details><summary>Why a droplet?</summary><p>Have you seen a battery icon with a personality? Exactly.</p></details>
+  </div>
+</section>
+
+<section class="sec cta" id="download">
+  <div class="wrap center">
+    <svg class="cta-drip" viewBox="0 0 120 130" aria-hidden="true"><use href="#drip-party"/></svg>
+    <h2>Get Refill.</h2>
+    <p class="sub">Lives in your menu bar. Costs nothing. Judges nobody (Drip judges a little).</p>
+    <a class="btn btn-lg" href="#download" aria-disabled="true">Coming soon</a>
+    <p class="fine">Coming soon &mdash; <a href="https://github.com/StepanBlaha/refill">join via GitHub</a></p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-row">
+    <a class="brand" href="#top"><svg class="brand-drip" viewBox="0 0 120 130" aria-hidden="true"><use href="#drip-happy"/></svg><span>Refill</span></a>
+    <nav aria-label="Footer"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://github.com/StepanBlaha/refill">GitHub</a><a href="mailto:tools@czechitacademy.cz">Contact</a></nav>
+    <p class="fine">&copy; 2026 Refill. Not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.</p>
+  </div>
+</footer>
+<script src="main.js"></script>
+</body>
+</html>
