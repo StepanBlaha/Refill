@@ -40,9 +40,9 @@ struct MenuView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 12) {
-                Drip(mood: monitor.mood, size: 46)
+                Drip(mood: monitor.mood, size: 34, level: monitor.lowestRemaining)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Refill").font(Theme.rounded(22, .heavy)).foregroundStyle(Theme.text)
+                    Text("Refill").font(.system(size: 19, weight: .semibold)).foregroundStyle(Theme.text)
                     Text(tagline).font(Theme.rounded(12, .medium)).foregroundStyle(Theme.muted).lineLimit(1)
                 }
                 Spacer()
@@ -92,17 +92,17 @@ struct AccountCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: account.provider == "codex" ? "chevron.left.forwardslash.chevron.right" : "sparkle")
-                    .font(.system(size: 10, weight: .bold)).foregroundStyle(Theme.ink)
-                    .frame(width: 20, height: 20).background(Theme.lime, in: Circle())
+                    .font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.muted)
+                    .frame(width: 22, height: 22).background(Theme.raised, in: RoundedRectangle(cornerRadius: Theme.radius + 1))
                 VStack(alignment: .leading, spacing: 0) {
                     Text(account.email ?? account.name).font(Theme.rounded(13, .semibold)).foregroundStyle(Theme.text).lineLimit(1)
                     if account.email != nil { Text(account.name).font(Theme.rounded(10)).foregroundStyle(Theme.muted) }
                 }
                 Spacer()
                 if let plan = account.plan {
-                    Text(plan.uppercased()).font(Theme.mono(9, .bold)).foregroundStyle(Theme.lime)
+                    Text(plan.capitalized).font(Theme.rounded(11, .medium)).foregroundStyle(Theme.muted)
                         .padding(.horizontal, 6).padding(.vertical, 2)
-                        .overlay(Capsule().stroke(Theme.lime.opacity(0.5)))
+                        .background(Theme.raised, in: RoundedRectangle(cornerRadius: Theme.radius))
                 }
             }
             ForEach(account.windows) { TankRow(window: $0, accountId: account.id) }
@@ -112,8 +112,7 @@ struct AccountCard: View {
             }
         }
         .padding(12)
-        .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.line))
+        .background(Theme.panel, in: RoundedRectangle(cornerRadius: Theme.panelRadius, style: .continuous))
     }
 }
 
@@ -129,20 +128,19 @@ struct TankRow: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(window.label).font(Theme.rounded(12, .medium)).foregroundStyle(Theme.text)
                 Spacer()
-                Text("\(Int(left.rounded()))%").font(Theme.mono(13, .bold)).foregroundStyle(color)
+                Text("\(Int(left.rounded()))%").font(Theme.mono(13, .semibold)).foregroundStyle(window.utilization >= 70 ? color : Theme.text)
                 Text("left").font(Theme.rounded(10)).foregroundStyle(Theme.muted)
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Theme.line)
+                    Capsule().fill(Color.white.opacity(0.12))
                     Capsule()
-                        .fill(LinearGradient(colors: [color.opacity(0.65), color], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: max(left > 0 ? 8 : 0, g.size.width * left / 100))
-                        .shadow(color: color.opacity(0.5), radius: 4)
+                        .fill(color)
+                        .frame(width: max(left > 0 ? 4 : 0, g.size.width * left / 100))
                 }
             }
-            .frame(height: 8)
-            .animation(.spring(response: 0.8, dampingFraction: 0.7), value: left)
+            .frame(height: 4)
+            .animation(Theme.unfold, value: left)
             HStack {
                 TimelineView(.periodic(from: .now, by: 30)) { ctx in
                     Text(subtitle(ctx.date)).font(Theme.mono(10)).foregroundStyle(Theme.muted)
@@ -164,11 +162,10 @@ struct Pill: View {
     @State private var hover = false
     var body: some View {
         Button(action: action) {
-            Label(label, systemImage: symbol).font(Theme.rounded(12, .semibold))
-                .foregroundStyle(hover ? Theme.ink : Theme.text)
-                .padding(.horizontal, 11).padding(.vertical, 6)
-                .background(hover ? Theme.lime : Theme.panel, in: Capsule())
-                .overlay(Capsule().stroke(Theme.line))
+            Label(label, systemImage: symbol).font(Theme.rounded(12, .medium)).lineLimit(1).fixedSize()
+                .foregroundStyle(Theme.text)
+                .padding(.horizontal, 10).padding(.vertical, 5)
+                .background(hover ? Theme.hover : Theme.panel, in: RoundedRectangle(cornerRadius: Theme.radius + 2))
         }
         .buttonStyle(.plain).onHover { hover = $0 }
     }
@@ -182,10 +179,10 @@ struct IconButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: symbol).font(.system(size: 12, weight: .bold))
-                .foregroundStyle(hover ? Theme.lime : Theme.muted)
+                .foregroundStyle(hover ? Theme.text : Theme.muted)
                 .rotationEffect(.degrees(spinning ? 360 : 0))
                 .animation(spinning ? .linear(duration: 0.9).repeatForever(autoreverses: false) : .default, value: spinning)
-                .frame(width: 28, height: 28).background(Theme.panel, in: Circle())
+                .frame(width: 26, height: 26).background(hover ? Theme.hover : .clear, in: RoundedRectangle(cornerRadius: Theme.radius + 2))
         }
         .buttonStyle(.plain).onHover { hover = $0 }
     }

@@ -54,7 +54,7 @@ struct NotchView: View {
                     VStack {
                         Spacer()
                         LinearGradient(colors: [.clear, c, .clear], startPoint: .leading, endPoint: .trailing)
-                            .frame(height: 2).shadow(color: c, radius: 6)
+                            .frame(height: 2)
                             .padding(.horizontal, 40)
                     }
                 }
