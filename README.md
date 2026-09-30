@@ -42,9 +42,14 @@ Design review: `Refill --render <dir>` writes `menu.png` and `moods.png` and exi
 
 ## Build
 ```bash
-scripts/build.sh --run            # build/Refill.app
-scripts/build.sh --install --run  # copy to /Applications
+scripts/run-xcode.sh      # full app + widgets → /Applications/Refill.app (Xcode, team FW5CYB98R7)
+scripts/package.sh        # Release .dmg in build/ (set DEVELOPER_ID / NOTARY_PROFILE to sign + notarize)
+swift build && swift test # quick compile + unit tests (reset detection, parsing, integrations)
+Refill --render <dir>     # design snapshots: menu, moods, settings, history, accounts
 ```
+Companion iPhone app: `cd Companion && xcodegen generate`, then open `RefillCompanion.xcodeproj`.
+
+Reliability: HTTP 429 pauses that account (honors Retry-After, default 15 min). "Renew expired logins" can be turned off in Settings → Accounts, so Refill never races Claude Code for a refresh token.
 
 ## Legal
 - [LICENSE](LICENSE) (proprietary, all rights reserved)
