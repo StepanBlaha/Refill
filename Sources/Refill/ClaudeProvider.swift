@@ -46,12 +46,14 @@ struct ClaudeCredentials {
 }
 
 enum ClaudeError: LocalizedError {
-    case noCredentials, http(Int, String), badResponse
+    case noCredentials, http(Int, String), badResponse, rateLimited(Date), expired
     var errorDescription: String? {
         switch self {
         case .noCredentials: return "Not signed in. Run claude and type /login."
         case .http(let c, let b): return "HTTP \(c): \(b.prefix(120))"
         case .badResponse: return "Unexpected response"
+        case .rateLimited(let d): return "Rate limited. Next try at \(d.formatted(date: .omitted, time: .shortened))."
+        case .expired: return "Login expired. Run claude once to renew it."
         }
     }
 }
@@ -134,6 +136,12 @@ enum ClaudeProvider {
 
     // MARK: Usage
 
+    /// Per-profile pause after HTTP 429 (honors Retry-After, else 15 min).
+    nonisolated(unsafe) static var backoff: [String: Date] = [:]
+
+    /// Off = Refill never renews logins itself (no chance of racing Claude Code).
+    static var mayRefresh: Bool { UserDefaults.standard.object(forKey: "refreshTokens") as? Bool ?? true }
+
     static func fetch(_ p: ClaudeProfile) async -> AccountSnapshot {
         var snap = AccountSnapshot(id: p.id, provider: "claude", name: p.displayName,
                                    email: accountEmail(p), plan: nil, windows: [], updatedAt: Date())
@@ -142,16 +150,25 @@ enum ClaudeProvider {
             return snap
         }
         snap.plan = creds.plan
+        if let until = backoff[p.id], until > Date() {
+            snap.error = ClaudeError.rateLimited(until).localizedDescription
+            return snap
+        }
         do {
             if let exp = creds.expiresAt, exp < Date().addingTimeInterval(60) {
+                guard mayRefresh else { throw ClaudeError.expired }
                 try await refresh(&creds)
             }
             do {
                 snap.windows = try await usage(token: creds.accessToken!)
             } catch ClaudeError.http(401, _) {
+                guard mayRefresh else { throw ClaudeError.expired }
                 try await refresh(&creds)
                 snap.windows = try await usage(token: creds.accessToken!)
             }
+        } catch ClaudeError.rateLimited(let until) {
+            backoff[p.id] = until
+            snap.error = ClaudeError.rateLimited(until).localizedDescription
         } catch {
             snap.error = error.localizedDescription
         }
@@ -164,8 +181,18 @@ enum ClaudeProvider {
         req.setValue("oauth-2025-04-20", forHTTPHeaderField: "anthropic-beta")
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         let (data, resp) = try await URLSession.shared.data(for: req)
-        let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+        let http = resp as? HTTPURLResponse
+        let code = http?.statusCode ?? 0
+        if code == 429 {
+            let wait = (http?.value(forHTTPHeaderField: "Retry-After")).flatMap(Double.init) ?? 900
+            throw ClaudeError.rateLimited(Date().addingTimeInterval(max(60, wait)))
+        }
         guard code == 200 else { throw ClaudeError.http(code, String(data: data, encoding: .utf8) ?? "") }
+        return try parseUsage(data)
+    }
+
+    /// Anthropic usage JSON → windows. Unknown buckets without a reset time are dropped.
+    static func parseUsage(_ data: Data) throws -> [UsageWindow] {
         guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw ClaudeError.badResponse
         }
