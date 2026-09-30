@@ -45,3 +45,9 @@ Design review: `Refill --render <dir>` writes `menu.png` and `moods.png` and exi
 scripts/build.sh --run            # build/Refill.app
 scripts/build.sh --install --run  # copy to /Applications
 ```
+
+## Legal
+- [LICENSE](LICENSE) (proprietary, all rights reserved)
+- [Privacy Policy](legal/PRIVACY.md), [Terms of Use](legal/TERMS.md), [Third-party notices](legal/NOTICE.md)
+
+Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.

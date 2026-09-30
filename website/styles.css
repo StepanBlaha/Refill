@@ -159,3 +159,10 @@ details p{color:var(--sec);margin:.8em 0 0}
   *,*::before,*::after{animation:none!important;transition:none!important}
   html{scroll-behavior:auto}.rv{opacity:1;transform:none}.burn .line{stroke-dashoffset:0}
 }
+
+/* legal tables, lists */
+.legal table{width:100%;border-collapse:collapse;font-size:.88rem;margin:0 0 1em;display:block;overflow-x:auto}
+.legal th,.legal td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line);color:#c8c8c8}
+.legal th{color:var(--sec);font-weight:500;font-size:.78rem}
+.legal ol.terms{padding-left:1.3em}
+.legal{overflow-wrap:anywhere}
