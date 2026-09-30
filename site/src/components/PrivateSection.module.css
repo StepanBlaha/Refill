@@ -1,0 +1,35 @@
+.priv {
+  display: grid;
+  gap: var(--s3);
+  margin-top: var(--s7);
+}
+.item {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s5);
+}
+.item b {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.item p {
+  color: var(--text-2);
+  font-size: 15px;
+  margin-top: var(--s2);
+}
+.more {
+  margin-top: var(--s6);
+  font-size: 15px;
+}
+@media (min-width: 700px) {
+  .priv {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1000px) {
+  .priv {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

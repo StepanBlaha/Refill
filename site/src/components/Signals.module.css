@@ -1,0 +1,91 @@
+.ticks {
+  list-style: none;
+  padding: 0;
+  margin: var(--s6) 0 0;
+  display: grid;
+  gap: var(--s3);
+}
+.ticks li {
+  color: var(--text-2);
+  padding-left: var(--s5);
+  position: relative;
+}
+.ticks li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.ticks b {
+  color: var(--text);
+  font-weight: 600;
+}
+.scene {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  min-height: 420px;
+  padding: 0 var(--s4) var(--s5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s6);
+  overflow: hidden;
+}
+.notch {
+  width: min(100%, 360px);
+  height: 84px;
+  background: #000;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 22px 22px;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 0 var(--s4);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #000;
+}
+.peek {
+  display: block;
+  flex: none;
+  line-height: 0;
+}
+.toast {
+  display: grid;
+  min-width: 0;
+}
+.toast b,
+.notif b {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.toast span,
+.notif span {
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.notifs {
+  width: min(100%, 400px);
+  display: grid;
+  gap: var(--s3);
+}
+.notif {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s3) var(--s4);
+}
+.notif > div {
+  display: grid;
+  min-width: 0;
+}
