@@ -7,6 +7,7 @@ struct RefillApp: App {
 
     init() {
         PreviewIcon.runIfRequested()
+        PreviewOG.runIfRequested()
         if let i = CommandLine.arguments.firstIndex(of: "--render") {
             PreviewRender.run(dir: CommandLine.arguments.dropFirst(i + 1).first ?? ".")
         }

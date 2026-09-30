@@ -4,7 +4,7 @@ import AppKit
 /// `Refill --render <dir>`: renders UI states to PNG for design review, then exits.
 @MainActor
 enum PreviewRender {
-    static func run(dir: String) {
+    static func sampleAccounts() -> [AccountSnapshot] {
         let now = Date()
         func w(_ k: String, _ l: String, _ u: Double, _ h: Double) -> UsageWindow {
             UsageWindow(key: k, label: l, utilization: u, resetsAt: now.addingTimeInterval(h * 3600))
@@ -17,7 +17,11 @@ enum PreviewRender {
             AccountSnapshot(id: "codex", provider: "codex", name: "Codex", email: nil, plan: "plus",
                             windows: [w("primary", "5h session", 21, 3.9)], updatedAt: now),
         ]
-        let m = Monitor(preview: sample)
+        return sample
+    }
+
+    static func run(dir: String) {
+        let m = Monitor(preview: sampleAccounts())
         save(MenuView().environmentObject(m), "\(dir)/menu.png")
         let row = HStack(spacing: 24) {
             ForEach([Voice.Mood.happy, .focused, .sweaty, .asleep, .party], id: \.self) { Drip(mood: $0, size: 64) }
