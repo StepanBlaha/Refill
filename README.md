@@ -2,6 +2,8 @@
 
 [**Download for macOS**](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg) · [Website](https://stepanblaha.github.io/Refill/) · MIT
 
+> **First launch:** Refill isn't notarized by Apple, so macOS blocks it once. Open it, then go to **System Settings → Privacy & Security → Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/Refill.app`.
+
 
 Menu bar app for macOS 14+. It watches your AI subscription limits and **signals the moment a limit resets**.
 

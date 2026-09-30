@@ -31,4 +31,4 @@ if [[ -n "${NOTARY_PROFILE:-}" ]]; then
   xcrun stapler staple "$DMG"
 fi
 echo "Built $DMG ($(du -h "$DMG" | cut -f1))"
-[[ -z "${DEVELOPER_ID:-}" ]] && echo "Note: not Developer ID signed; other Macs will need right-click → Open."
+[[ -z "${DEVELOPER_ID:-}" ]] && echo "Note: not Developer ID signed; first launch on other Macs: System Settings → Privacy & Security → Open Anyway."
