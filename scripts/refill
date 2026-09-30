@@ -1,0 +1,55 @@
+#!/bin/zsh
+# refill — CLI for the Refill menu-bar app. Reads ~/.config/refill/status.json
+STATUS="${REFILL_STATUS:-$HOME/.config/refill/status.json}"
+
+need() { [[ -f "$STATUS" ]] || { echo "refill: no status file ($STATUS). Is Refill running?" >&2; exit 1 }; }
+
+case "${1:-status}" in
+  status)
+    need
+    python3 - "$STATUS" <<'PY'
+import json, sys, datetime as dt
+d = json.load(open(sys.argv[1]))
+now = dt.datetime.now(dt.timezone.utc)
+def left(w): return max(0, round(100 - w["utilization"]))
+def eta(s):
+    if not s: return "-"
+    t = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    m = int((t - now).total_seconds() // 60)
+    if m <= 0: return "now"
+    return f"{m//1440}d {m%1440//60}h" if m >= 1440 else f"{m//60}h {m%60}m"
+rows = [("ACCOUNT", "PROVIDER", "WINDOW", "LEFT", "REFILLS IN")]
+for a in d.get("accounts", []):
+    who = a.get("email") or a.get("name")
+    if a.get("error"):
+        rows.append((who, a["provider"], "error", "-", a["error"][:30])); continue
+    for w in a.get("windows", []):
+        rows.append((who, a["provider"], w["label"], f'{left(w)}%', eta(w.get("resetsAt"))))
+wd = [max(len(str(r[i])) for r in rows) for i in range(5)]
+for i, r in enumerate(rows):
+    print("  ".join(str(c).ljust(wd[j]) for j, c in enumerate(r)))
+    if i == 0: print("  ".join("-" * x for x in wd))
+PY
+    ;;
+  left)
+    need
+    python3 - "$STATUS" "${2:-}" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1])); p = sys.argv[2].lower()
+best = None
+for a in d.get("accounts", []):
+    if p and a["provider"] != p: continue
+    for w in a.get("windows", []):
+        if w["key"] == "five_hour":
+            l = max(0, round(100 - w["utilization"]))
+            best = l if best is None else min(best, l)
+if best is None: sys.exit(1)
+print(best)
+PY
+    ;;
+  json) need; cat "$STATUS" ;;
+  open)
+    [[ -n "$2" ]] || { echo "usage: refill open <refresh|test|dashboard|settings|history|onboarding|status>" >&2; exit 2 }
+    open "refill://$2" ;;
+  *) echo "usage: refill [status|left [claude|codex]|json|open <route>]" >&2; exit 2 ;;
+esac
