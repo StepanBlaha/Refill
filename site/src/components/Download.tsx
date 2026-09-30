@@ -55,8 +55,16 @@ export default function Download() {
           <a className={`${c.btn} ${c.ghost} ${s.lg}`} href={REPO}>View on GitHub</a>
         </div>
         <p className={c.fine}>
-          macOS 14+ &middot; free &amp; open source &middot; first launch: right-click &rarr; Open
+          macOS 14+ &middot; free &amp; open source
         </p>
+        <details className={c.fine}>
+          <summary>First launch: macOS says it can&apos;t verify the app</summary>
+          <p>
+            Refill is open source and not notarized by Apple. Open it once, then go to System Settings &rarr;
+            Privacy &amp; Security and click <b>Open Anyway</b>. Or run{" "}
+            <code>xattr -dr com.apple.quarantine /Applications/Refill.app</code> in Terminal.
+          </p>
+        </details>
         {version && <Status kind="success">Latest release: {version}</Status>}
         {failed && !version && (
           <Status kind="warning">Could not check the latest version. The download button still gets the newest release.</Status>
