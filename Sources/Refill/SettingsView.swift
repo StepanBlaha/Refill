@@ -152,6 +152,7 @@ struct AccountsTab: View {
     @EnvironmentObject var monitor: Monitor
     @AppStorage(Prefs.K.codex) var codex = true
     @AppStorage(Prefs.K.extraDirs) var extraDirs = ""
+    @AppStorage("refreshTokens") var refreshTokens = true
     @State private var newName = ""
     @State private var status = ""
 
@@ -183,6 +184,10 @@ struct AccountsTab: View {
 
         Panel(title: "Other tools") {
             ToggleRow(title: "Codex CLI", subtitle: "Reads ~/.codex/sessions, offline", isOn: $codex)
+        }
+
+        Panel(title: "Login renewal", footer: "When off, Refill never renews a Claude login itself. Safer if Claude Code runs all day; an idle account then shows \"Login expired\" until you run claude.") {
+            ToggleRow(title: "Renew expired logins", isOn: $refreshTokens)
         }
     }
 }

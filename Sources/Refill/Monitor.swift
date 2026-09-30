@@ -15,8 +15,7 @@ struct Prefs {
     /// Quiet hours: no sounds (lights and hooks still run).
     var isQuietNow: Bool {
         guard quiet else { return false }
-        let h = Calendar.current.component(.hour, from: Date())
-        return quietFrom <= quietTo ? (h >= quietFrom && h < quietTo) : (h >= quietFrom || h < quietTo)
+        return ResetDetector.isQuiet(hour: Calendar.current.component(.hour, from: Date()), from: quietFrom, to: quietTo)
     }
 
     static var current: Prefs {
@@ -101,11 +100,8 @@ final class Monitor: ObservableObject {
 
     /// Fires as soon as a known resets_at passes — works even if the network/token is dead.
     private func checkScheduled() {
-        let now = Date()
         for a in accounts {
-            for w in a.windows where w.utilization > 0 {
-                if let r = w.resetsAt, r <= now { fire(a, w, kind: .reset, reason: "scheduled") }
-            }
+            for w in ResetDetector.scheduledResets(a.windows) { fire(a, w, kind: .reset, reason: "scheduled") }
         }
     }
 
@@ -131,17 +127,11 @@ final class Monitor: ObservableObject {
                 fresh[i].windows = old.windows      // keep last known so scheduled detection still works
                 continue
             }
-            for nw in fresh[i].windows {
-                let before = old.windows.first(where: { $0.key == nw.key })?.utilization ?? nw.utilization
-                for t in prefs.thresholds + [100] where before < t && nw.utilization >= t {
-                    fire(fresh[i], nw, kind: t >= 100 ? .empty : .warning, reason: "threshold", tag: "t\(Int(t))")
-                }
+            for c in ResetDetector.crossings(old: old.windows, new: fresh[i].windows, thresholds: prefs.thresholds) {
+                fire(fresh[i], c.window, kind: c.threshold >= 100 ? .empty : .warning, reason: "threshold", tag: "t\(Int(c.threshold))")
             }
-            for ow in old.windows where ow.utilization > 0 {
-                guard let oldReset = ow.resetsAt,
-                      let nw = fresh[i].windows.first(where: { $0.key == ow.key }) else { continue }
-                let moved = nw.resetsAt.map { $0 > oldReset.addingTimeInterval(600) } ?? (oldReset < Date())
-                if moved && nw.utilization < ow.utilization { fire(old, ow, kind: .reset, reason: "observed") }
+            for ow in ResetDetector.observedResets(old: old.windows, new: fresh[i].windows) {
+                fire(old, ow, kind: .reset, reason: "observed")
             }
         }
         accounts = fresh
@@ -154,8 +144,8 @@ final class Monitor: ObservableObject {
     private func fire(_ a: AccountSnapshot, _ w: UsageWindow, kind: EventKind, reason: String, tag: String = "") {
         guard let r = w.resetsAt else { return }
         // resets_at jitters by seconds between calls; bucket to 10 min for dedupe.
-        let key = "\(a.id)|\(w.key)|\(Int(r.timeIntervalSince1970 / 600))|\(kind.rawValue)\(tag)"
-        guard fired.insert(key).inserted else { return }
+        guard let key = ResetDetector.key(accountId: a.id, window: w, kind: kind, tag: tag),
+              fired.insert(key).inserted else { return }
         let who = a.email ?? a.name
         let (title, msg) = Voice.line(for: kind, account: who, window: w.label, used: w.utilization,
                                       resetsIn: r.timeIntervalSinceNow)
