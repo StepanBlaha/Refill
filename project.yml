@@ -1,0 +1,91 @@
+name: Refill
+options:
+  bundleIdPrefix: cz.stepanblaha
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: FW5CYB98R7
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  Refill:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Refill      # globs everything, incl. files other workers add
+      - path: Resources/Assets.xcassets
+    dependencies:
+      - target: RefillWidgets
+      - sdk: WidgetKit.framework
+    info:
+      path: Config/Refill-Info.plist
+      properties:
+        CFBundleName: Refill
+        CFBundleDisplayName: Refill
+        CFBundleExecutable: $(EXECUTABLE_NAME)
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleIconName: AppIcon
+        LSUIElement: true
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSLocalNetworkUsageDescription: Refill talks to lights and webhooks on your local network when your tank refills.
+        CFBundleURLTypes:
+          - CFBundleURLName: cz.stepanblaha.refill
+            CFBundleURLSchemes: [refill]
+    settings:
+      base:
+        PRODUCT_NAME: Refill
+        PRODUCT_BUNDLE_IDENTIFIER: cz.stepanblaha.refill
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: Config/Refill.entitlements
+        ENABLE_HARDENED_RUNTIME: NO   # dev: must read ~/.claude and run `security`
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+
+  RefillWidgets:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Widgets
+      - path: Sources/Refill/Shared
+      - path: Sources/Refill/Models.swift
+      - path: Sources/Refill/Theme.swift
+      - path: Sources/Refill/Mascot.swift
+      - path: Sources/Refill/Voice.swift
+    dependencies:
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    info:
+      path: Config/RefillWidgets-Info.plist
+      properties:
+        CFBundleDisplayName: Refill Widgets
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_NAME: RefillWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: cz.stepanblaha.refill.widgets
+        CODE_SIGN_ENTITLEMENTS: Config/RefillWidgets.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks"
+
+schemes:
+  Refill:
+    build:
+      targets:
+        Refill: all
+        RefillWidgets: all
+    run:
+      config: Debug
+    archive:
+      config: Release
