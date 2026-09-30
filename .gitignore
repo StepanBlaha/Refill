@@ -3,3 +3,5 @@ build/
 *.app
 .DS_Store
 .claude/
+Refill.xcodeproj/
+Companion/*.xcodeproj/

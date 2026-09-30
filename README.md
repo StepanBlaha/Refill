@@ -52,7 +52,7 @@ Companion iPhone app: `cd Companion && xcodegen generate`, then open `RefillComp
 Reliability: HTTP 429 pauses that account (honors Retry-After, default 15 min). "Renew expired logins" can be turned off in Settings → Accounts, so Refill never races Claude Code for a refresh token.
 
 ## Legal
-- [LICENSE](LICENSE) (proprietary, all rights reserved)
+- [LICENSE](LICENSE) (MIT)
 - [Privacy Policy](legal/PRIVACY.md), [Terms of Use](legal/TERMS.md), [Third-party notices](legal/NOTICE.md)
 
 Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.

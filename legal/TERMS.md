@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-30_
 
-1. **The software.** Refill is provided by Stepan Blaha ("we") for use on your own Mac. By using it you agree to these terms. Refill is proprietary software; see [LICENSE](../LICENSE).
+1. **The software.** Refill is provided by Stepan Blaha ("we") for use on your own Mac. By using it you agree to these terms. Refill is open-source software under the MIT License; see [LICENSE](../LICENSE). The MIT License governs the source code; these terms cover using the app.
 2. **Your accounts.** Refill uses logins that you already have, such as Claude Code. You are responsible for following each provider's terms, including any limits on automated or third-party access to their services.
 3. **Undocumented endpoints.** Refill relies on endpoints and file formats that providers do not document. They may change or stop working at any time, and a provider may restrict such use. Usage numbers and reset times may be late, wrong or unavailable. Do not rely on Refill where a missed or false signal would cause harm.
 4. **Integrations, hooks and dashboard.** You choose which services Refill contacts and which scripts it runs. Refill is not responsible for what your integrations, webhooks or hook scripts do. Turning on the network dashboard lets anyone on your local network see your usage.
@@ -13,4 +13,4 @@ _Last updated: 2026-09-30_
 9. **Changes.** These terms may change with new versions. Continuing to use the app means you accept the updated terms.
 10. **Governing law.** These terms are governed by the laws of the Czech Republic, without limiting any mandatory consumer rights you have where you live.
 
-Contact: tools@czechitacademy.cz
+Contact: GitHub Issues (github.com/StepanBlaha/Refill/issues)

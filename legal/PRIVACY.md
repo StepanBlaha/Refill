@@ -59,4 +59,4 @@ Updates to this policy will be dated above and shipped with the app.
 
 ## Contact
 
-Stepan Blaha, Czech Republic: tools@czechitacademy.cz
+Stepan Blaha, Czech Republic: GitHub Issues (github.com/StepanBlaha/Refill/issues)

@@ -22,6 +22,11 @@ struct IntegrationsTab: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button(s.enabled ? "Turn off" : "Turn on") { toggle(s.id) }
+                        Divider()
+                        Button("Remove", role: .destructive) { remove(s.id) }
+                    }
                 }
                 Spacer()
                 HStack(spacing: Space.xs) {
@@ -34,9 +39,9 @@ struct IntegrationsTab: View {
                     }
                     .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
                     Spacer()
-                    if selection != nil {
-                        Button { remove() } label: { Image(systemName: "trash").font(.system(size: 11)) }
-                            .buttonStyle(.plain).foregroundStyle(Theme.muted).help("Remove")
+                    if let id = selection {
+                        Button { remove(id) } label: { Image(systemName: "trash").font(.system(size: 11)) }
+                            .buttonStyle(.plain).foregroundStyle(Theme.muted).help("Remove (⌫)")
                     }
                 }
                 .padding(.horizontal, Space.s).frame(height: 32)
@@ -47,7 +52,7 @@ struct IntegrationsTab: View {
             Rectangle().fill(Theme.line).frame(width: 1)
 
             if let i = sinks.firstIndex(where: { $0.id == selection }) {
-                Scrolling { SinkEditor(sink: $sinks[i]) }.id(sinks[i].id)
+                Scrolling { SinkEditor(sink: $sinks[i]) { remove(sinks[i].id) } }.id(sinks[i].id)
             } else {
                 VStack(spacing: Space.m) {
                     Drip(mood: .focused, size: 40)
@@ -59,6 +64,12 @@ struct IntegrationsTab: View {
             }
         }
         .onChange(of: sinks) { _, s in Integrations.save(s) }
+        .focusable()
+        .onDeleteCommand { if let id = selection { remove(id) } }
+    }
+
+    func toggle(_ id: UUID) {
+        if let i = sinks.firstIndex(where: { $0.id == id }) { sinks[i].enabled.toggle() }
     }
 
     func add(_ k: SinkKind) {
@@ -70,16 +81,21 @@ struct IntegrationsTab: View {
         selection = s.id
     }
 
-    func remove() {
-        sinks.removeAll { $0.id == selection }
-        selection = nil
+    func remove(_ id: UUID) {
+        guard let i = sinks.firstIndex(where: { $0.id == id }) else { return }
+        withAnimation(.spring(response: 0.3, dampingFraction: 1)) {
+            sinks.remove(at: i)
+            if selection == id { selection = sinks.indices.contains(i) ? sinks[i].id : sinks.last?.id }
+        }
     }
 }
 
 struct SinkEditor: View {
     @EnvironmentObject var monitor: Monitor
     @Binding var sink: Sink
+    var onRemove: () -> Void = {}
     @State private var status = ""
+    @State private var confirming = false
     @State private var testing = false
 
     var body: some View {
@@ -136,6 +152,14 @@ struct SinkEditor: View {
             .buttonStyle(DarkButton(prominent: true)).disabled(testing)
             Text(status).font(.system(size: 11)).monospacedDigit()
                 .foregroundStyle(status.hasPrefix("OK") ? Theme.accent : Theme.amber).lineLimit(2)
+            Spacer()
+            Button { confirming = true } label: {
+                Label("Remove", systemImage: "trash").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.coral)
+            }
+            .buttonStyle(.plain)
+            .confirmationDialog("Remove \(sink.kind.title)?", isPresented: $confirming) {
+                Button("Remove", role: .destructive, action: onRemove)
+            } message: { Text("Its settings, including any tokens, are deleted from this Mac.") }
         }
     }
 }
