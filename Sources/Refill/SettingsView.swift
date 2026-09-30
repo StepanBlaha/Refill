@@ -4,6 +4,7 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralTab().tabItem { Label("General", systemImage: "drop.fill") }
+            HistoryView().tabItem { Label("History", systemImage: "chart.xyaxis.line") }
             IntegrationsTab().tabItem { Label("Integrations", systemImage: "lightbulb.led.fill") }
             AccountsTab().tabItem { Label("Accounts", systemImage: "person.2.fill") }
         }
@@ -25,6 +26,7 @@ struct GeneralTab: View {
     @AppStorage(Prefs.K.quietFrom) var quietFrom = 22
     @AppStorage(Prefs.K.quietTo) var quietTo = 8
     @AppStorage(Prefs.K.quietPush) var quietPush = false
+    @AppStorage("notchEnabled") var notch = true
     @State private var login = LoginItem.isOn
 
     let sounds = ((try? FileManager.default.contentsOfDirectory(atPath: "/System/Library/Sounds")) ?? [])
@@ -51,6 +53,12 @@ struct GeneralTab: View {
                     Text("Tip: run from /Applications for login launch (scripts/build.sh --install).")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+            }
+            Section("Notch") {
+                Toggle("Drip pops out of the notch on events", isOn: $notch)
+                    .onChange(of: notch) { _, v in NotchController.shared.enabled = v }
+                Button("Preview notch") { NotchController.shared.preview() }
+                Button("Show welcome tour") { Onboarding.show(monitor: monitor) }
             }
             Section("On this Mac") {
                 Toggle("Notification", isOn: $notify)

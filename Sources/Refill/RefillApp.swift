@@ -9,8 +9,10 @@ struct RefillApp: App {
         if let i = CommandLine.arguments.firstIndex(of: "--render") {
             PreviewRender.run(dir: CommandLine.arguments.dropFirst(i + 1).first ?? ".")
         }
-        _monitor = StateObject(wrappedValue: Monitor())
+        let m = Monitor()
+        _monitor = StateObject(wrappedValue: m)
         LoginItem.enableOnFirstRun()
+        AppBootstrap.start(m)
     }
 
     var body: some Scene {
@@ -67,6 +69,7 @@ struct MenuView: View {
                 Pill(symbol: "gauge.with.dots.needle.67percent", label: "Dashboard") {
                     NSWorkspace.shared.open(URL(string: "http://127.0.0.1:\(Prefs.current.port)")!)
                 }
+                Pill(symbol: "chart.xyaxis.line", label: "History") { HistoryWindow.show() }
                 Pill(symbol: "bolt.fill", label: "Test") { monitor.sendTest() }
                 Spacer()
                 IconButton(symbol: "gearshape.fill") { NSApp.activate(ignoringOtherApps: true); openSettings() }
@@ -102,7 +105,7 @@ struct AccountCard: View {
                         .overlay(Capsule().stroke(Theme.lime.opacity(0.5)))
                 }
             }
-            ForEach(account.windows) { TankRow(window: $0) }
+            ForEach(account.windows) { TankRow(window: $0, accountId: account.id) }
             if let err = account.error {
                 Label(err, systemImage: "exclamationmark.triangle.fill").font(Theme.rounded(11))
                     .foregroundStyle(Theme.coral).lineLimit(2)
@@ -117,6 +120,7 @@ struct AccountCard: View {
 /// Horizontal tank: liquid = what's LEFT.
 struct TankRow: View {
     let window: UsageWindow
+    var accountId = ""
     var left: Double { max(0, min(100, 100 - window.utilization)) }
     var color: Color { Theme.level(used: window.utilization) }
 
@@ -139,8 +143,12 @@ struct TankRow: View {
             }
             .frame(height: 8)
             .animation(.spring(response: 0.8, dampingFraction: 0.7), value: left)
-            TimelineView(.periodic(from: .now, by: 30)) { ctx in
-                Text(subtitle(ctx.date)).font(Theme.mono(10)).foregroundStyle(Theme.muted)
+            HStack {
+                TimelineView(.periodic(from: .now, by: 30)) { ctx in
+                    Text(subtitle(ctx.date)).font(Theme.mono(10)).foregroundStyle(Theme.muted)
+                }
+                Spacer()
+                BurnBadge(accountId: accountId, windowKey: window.key)
             }
         }
     }
