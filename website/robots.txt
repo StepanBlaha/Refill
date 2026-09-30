@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stepanblaha.github.io/refill/sitemap.xml
+Sitemap: https://stepanblaha.github.io/Refill/sitemap.xml
