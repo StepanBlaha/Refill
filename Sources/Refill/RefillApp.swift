@@ -6,6 +6,7 @@ struct RefillApp: App {
     @StateObject private var monitor: Monitor
 
     init() {
+        PreviewIcon.runIfRequested()
         if let i = CommandLine.arguments.firstIndex(of: "--render") {
             PreviewRender.run(dir: CommandLine.arguments.dropFirst(i + 1).first ?? ".")
         }

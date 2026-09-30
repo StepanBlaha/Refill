@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-/// `Refill --render-icon <path>`: renders the 1024x1024 app icon (Drip on ink squircle, lime glow), then exits.
+/// `Refill --render-icon <path>`: renders the 1024x1024 app icon (flat Drip on black squircle), then exits.
 /// Call `PreviewIcon.runIfRequested()` at the top of RefillApp.init().
 @MainActor
 enum PreviewIcon {
@@ -25,16 +25,11 @@ enum PreviewIcon {
     struct IconView: View {
         var body: some View {
             ZStack {
-                RoundedRectangle(cornerRadius: 185, style: .continuous)
-                    .fill(RadialGradient(colors: [Color(hex: 0x1B2010), Theme.ink], center: .center,
-                                         startRadius: 20, endRadius: 520))
+                RoundedRectangle(cornerRadius: 185, style: .continuous).fill(Color.black)
                     .overlay(RoundedRectangle(cornerRadius: 185, style: .continuous)
-                        .strokeBorder(Theme.lime.opacity(0.25), lineWidth: 4))
+                        .strokeBorder(Color.white.opacity(0.12), lineWidth: 6))
                     .frame(width: 824, height: 824)
-                Circle().fill(RadialGradient(colors: [Theme.lime.opacity(0.3), .clear], center: .center,
-                                             startRadius: 0, endRadius: 320))
-                    .frame(width: 640, height: 640)
-                Drip(mood: .happy, size: 520)
+                Drip(mood: .happy, size: 560, level: 72)
             }            .frame(width: 1024, height: 1024)
         }
     }
