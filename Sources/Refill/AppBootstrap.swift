@@ -9,6 +9,7 @@ enum AppBootstrap {
     static func start(_ monitor: Monitor) {
         AutomationBridge.monitor = monitor
         ExtraProviders.register()
+        UpdateChecker.shared.start()
         self.monitor = monitor
         AppHooks.onEvent.append { e in
             if NotchController.shared.enabled { NotchController.shared.show(e) }

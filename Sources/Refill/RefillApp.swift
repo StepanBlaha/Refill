@@ -35,6 +35,7 @@ struct RefillApp: App {
 
 struct MenuView: View {
     @EnvironmentObject var monitor: Monitor
+    @ObservedObject private var updates = UpdateChecker.shared
     @State private var tagline = ""
 
     var body: some View {
@@ -49,6 +50,16 @@ struct MenuView: View {
                 IconButton(symbol: "arrow.clockwise", spinning: monitor.refreshing) { Task { await monitor.refresh() } }
             }
 
+            if let u = updates.available {
+                HStack(spacing: Space.s) {
+                    Image(systemName: "arrow.down.circle.fill").foregroundStyle(Theme.accent)
+                    Text("Refill \(u.version) is available").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.text)
+                    Spacer()
+                    Button("Download") { updates.download() }.buttonStyle(DarkButton(prominent: true))
+                }
+                .padding(Space.s + 2)
+                .background(Theme.panel, in: RoundedRectangle(cornerRadius: Theme.panelRadius))
+            }
             if monitor.accounts.isEmpty {
                 Text("No tanks found. Log into Claude Code or Codex and I'll sniff them out.")
                     .font(Theme.rounded(12)).foregroundStyle(Theme.muted)

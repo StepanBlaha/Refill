@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: brew install xcodegen
+      - name: Version from tag
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          [[ "$V" == "$GITHUB_REF_NAME" ]] && V=$(cat VERSION)
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+          echo "$V" > VERSION
+      - name: Tests
+        run: swift test
+      - name: Build (ad-hoc signed unless a Developer ID is configured)
+        env:
+          DEVELOPER_ID: ${{ secrets.DEVELOPER_ID }}
+        run: |
+          xcodegen generate
+          if [[ -n "$DEVELOPER_ID" ]]; then SIGN=(); else
+            SIGN=(CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER=); fi
+          xcodebuild -project Refill.xcodeproj -scheme Refill -configuration Release \
+            -derivedDataPath build/xcode MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            "${SIGN[@]}" build | tail -5
+      - name: Package
+        env:
+          DEVELOPER_ID: ${{ secrets.DEVELOPER_ID }}
+        run: SKIP_BUILD=1 scripts/package.sh
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Refill ${{ env.VERSION }}
+          generate_release_notes: true
+          files: |
+            build/Refill.dmg
+            build/Refill-${{ env.VERSION }}.dmg

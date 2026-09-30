@@ -53,6 +53,7 @@ struct GeneralTab: View {
     @AppStorage(Prefs.K.quietTo) var quietTo = 8
     @AppStorage(Prefs.K.quietPush) var quietPush = false
     @AppStorage("notchEnabled") var notch = true
+    @ObservedObject private var updates = UpdateChecker.shared
     @State private var login = LoginItem.isOn
 
     let sounds = ((try? FileManager.default.contentsOfDirectory(atPath: "/System/Library/Sounds")) ?? [])
@@ -133,6 +134,14 @@ struct GeneralTab: View {
             Row(title: "Version", subtitle: "Refill is independent, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.") {
                 Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev")
                     .font(.system(size: 12)).monospacedDigit().foregroundStyle(Theme.muted)
+            }
+            RowDivider()
+            Row(title: "Updates", subtitle: updates.status.isEmpty ? "Checked daily from GitHub Releases" : updates.status) {
+                if updates.available != nil {
+                    Button("Download") { updates.download() }.buttonStyle(DarkButton(prominent: true))
+                } else {
+                    Button("Check now") { Task { await updates.check() } }.buttonStyle(DarkButton())
+                }
             }
             RowDivider()
             Row(title: "Legal") {

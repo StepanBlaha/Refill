@@ -122,3 +122,13 @@ final class IntegrationTests: XCTestCase {
         XCTAssertFalse(Integrations.pushKinds.contains(.homeAssistant))
     }
 }
+
+final class UpdateTests: XCTestCase {
+    func testVersionCompare() {
+        XCTAssertTrue(UpdateChecker.isNewer("0.10.0", than: "0.9.2"))
+        XCTAssertTrue(UpdateChecker.isNewer("1.0", than: "0.9.9"))
+        XCTAssertFalse(UpdateChecker.isNewer("0.1.0", than: "0.1.0"))
+        XCTAssertFalse(UpdateChecker.isNewer("0.1", than: "0.1.0"))
+        XCTAssertFalse(UpdateChecker.isNewer("0.1.0", than: "0.2.0"))
+    }
+}
