@@ -112,7 +112,8 @@ final class Monitor: ObservableObject {
         let prefs = Prefs.current
         let userDirs = Set(prefs.extraDirs.map { ($0 as NSString).expandingTildeInPath })
         var fresh: [AccountSnapshot] = []
-        for p in ClaudeProvider.discover(extraDirs: prefs.extraDirs) {
+        let hidden = AccountActions.hidden
+        for p in ClaudeProvider.discover(extraDirs: prefs.extraDirs) where !hidden.contains(p.id) {
             let s = await ClaudeProvider.fetch(p)
             // Auto-discovered ~/.claude-* dirs that aren't logged in are noise.
             if !p.isDefault, !userDirs.contains(p.configDir), s.windows.isEmpty, s.error != nil { continue }
@@ -120,6 +121,7 @@ final class Monitor: ObservableObject {
         }
         if prefs.codex, CodexProvider.isInstalled { fresh.append(CodexProvider.fetch()) }
         for p in AppHooks.providers { fresh += await p() }
+        fresh.removeAll { hidden.contains($0.id) }
 
         for i in fresh.indices {
             guard let old = accounts.first(where: { $0.id == fresh[i].id }) else { continue }
@@ -178,6 +180,13 @@ final class Monitor: ObservableObject {
         Signals.fire(e, settings: Prefs.current)
         AppHooks.onEvent.forEach { $0(e) }
         persist()
+    }
+
+    /// Drop an account from the live list right away (the next refresh skips it too).
+    func drop(_ id: String) {
+        accounts.removeAll { $0.id == id }
+        persist()
+        AppHooks.onRefresh.forEach { $0(accounts) }
     }
 
     func restartServer() { server?.start(port: UInt16(Prefs.current.port), lan: Prefs.current.lan) }
