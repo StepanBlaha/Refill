@@ -1,0 +1,17 @@
+.burn {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  padding: var(--s5);
+}
+.burn svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.burn figcaption {
+  color: var(--text-2);
+  font-size: 13px;
+  margin-top: var(--s4);
+}
