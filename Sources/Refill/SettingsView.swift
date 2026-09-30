@@ -186,6 +186,8 @@ struct AccountsTab: View {
             ToggleRow(title: "Codex CLI", subtitle: "Reads ~/.codex/sessions, offline", isOn: $codex)
         }
 
+        ProvidersPanel()
+
         Panel(title: "Login renewal", footer: "When off, Refill never renews a Claude login itself. Safer if Claude Code runs all day; an idle account then shows \"Login expired\" until you run claude.") {
             ToggleRow(title: "Renew expired logins", isOn: $refreshTokens)
         }

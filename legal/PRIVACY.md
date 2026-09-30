@@ -11,6 +11,9 @@ Refill is a Mac menu-bar app that watches your AI usage limits and signals when 
 | Claude Code login (access and refresh tokens) | macOS Keychain, items named `Claude Code-credentials*` | To ask Anthropic for your own usage |
 | Claude config folders and account email | `~/.claude`, `~/.claude-*`, and the `.claude.json` in each | To find your accounts and label them |
 | Codex CLI rate-limit data | Session logs in `~/.codex/sessions` | To show Codex usage, offline |
+| GitHub Copilot token (optional) | `gh auth token` (GitHub CLI) or `~/.config/github-copilot/` | To show Copilot quota |
+| Cursor login (optional) | Cursor's local database `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb`, read-only | To show Cursor usage |
+| Gemini CLI login (optional) | `~/.gemini/oauth_creds.json`; a refreshed token is kept in memory only | To show Gemini quota |
 
 ## What Refill stores
 
@@ -26,6 +29,9 @@ Refill is a Mac menu-bar app that watches your AI usage limits and signals when 
 ## Where your data goes
 
 - **Anthropic.** `api.anthropic.com` receives your access token and returns your usage. `console.anthropic.com` receives your refresh token when the access token has expired. This is under [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy).
+- **GitHub.** `api.github.com` receives your GitHub token and returns your Copilot quota ([GitHub's privacy statement](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement)).
+- **Cursor.** `cursor.com` receives your Cursor session and returns your usage ([Cursor's privacy policy](https://cursor.com/privacy)).
+- **Google.** `oauth2.googleapis.com` (token refresh) and `cloudcode-pa.googleapis.com` (quota) receive your Gemini CLI login ([Google's privacy policy](https://policies.google.com/privacy)).
 - **Integrations you configure.** Only if you set them up: ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Philips Hue, WLED and custom webhooks. They receive the event text and color you configured, at the address you chose, and nothing more. Their handling of that data is governed by their own policies.
 - **Nothing else.** No developer server, no analytics, no crash reporting, no advertising, no cookies. Credentials are never sent anywhere except the service they belong to.
 - **Codex** is read from local files only. Refill makes no OpenAI request.
