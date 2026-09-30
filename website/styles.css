@@ -165,4 +165,14 @@ details p{color:var(--sec);margin:.8em 0 0}
 .legal th,.legal td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line);color:#c8c8c8}
 .legal th{color:var(--sec);font-weight:500;font-size:.78rem}
 .legal ol.terms{padding-left:1.3em}
-.legal{overflow-wrap:anywhere}
+.legal{overflow-wrap:break-word}
+
+/* legal tables on phones: stack each row as a small card */
+@media (max-width:560px){
+  .legal table,.legal tbody,.legal tr,.legal td{display:block;width:100%}
+  .legal thead{display:none}
+  .legal tr{padding:12px 0;border-bottom:1px solid var(--line,rgba(255,255,255,.1))}
+  .legal td{padding:2px 0;border:0}
+  .legal td:first-child{font-weight:600;color:var(--text)}
+  .legal td:not(:first-child){color:var(--muted,#808080)}
+}
