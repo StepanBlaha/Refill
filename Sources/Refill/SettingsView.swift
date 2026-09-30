@@ -145,7 +145,7 @@ struct GeneralTab: View {
             }
             RowDivider()
             Row(title: "Legal") {
-                ForEach([("Privacy", "privacy.html"), ("Terms", "terms.html"), ("Notice", "notice.html")], id: \.0) { i in
+                ForEach([("Privacy", "privacy/"), ("Terms", "terms/"), ("Notice", "notice/")], id: \.0) { i in
                     Button(i.0) { NSWorkspace.shared.open(URL(string: "https://stepanblaha.github.io/Refill/" + i.1)!) }.buttonStyle(DarkButton())
                 }
             }
