@@ -10,70 +10,56 @@ enum Dashboard {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Refill">
-    <meta name="theme-color" content="#0D0E11">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#000000">
     <style>
-    :root{--ink:#0D0E11;--panel:#16181D;--line:#262A31;--text:#F3F1EA;--muted:#8B8F98;--lime:#C8FF4D;--amber:#FFB547;--coral:#FF6B5B;
-      --head:'Bricolage Grotesque',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+    :root{--bg:#000;--card:#1C1C1E;--card2:#2C2C2E;--line:rgba(255,255,255,.1);--text:#fff;--sec:#808080;--ter:rgba(255,255,255,.32);--hover:rgba(255,255,255,.16);
+      --green:#30D158;--orange:#FF9F0A;--red:#FF453A;--font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
     *{box-sizing:border-box;margin:0}
-    html{background:var(--ink)}
-    body{background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;
-      padding:max(20px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));
-      background-image:radial-gradient(900px 400px at 15% -10%,rgba(200,255,77,.07),transparent 60%)}
-    main{max-width:980px;margin:0 auto}
-    header{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap}
-    #drip{width:72px;height:72px;flex:none;animation:bob 3.2s ease-in-out infinite}
-    #drip.jump{animation:jump .9s cubic-bezier(.3,1.6,.5,1)}
-    .brand{flex:1;min-width:180px}
-    .word{font:800 34px/1 var(--head);letter-spacing:-.03em}
-    .mood{font:400 14px var(--mono);color:var(--muted);margin-top:6px}
-    #snd{font:600 12px var(--mono);color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:8px 14px;cursor:pointer}
-    #snd.on{color:var(--lime);border-color:rgba(200,255,77,.4)}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:16px}
-    .card.err{border-color:rgba(255,107,91,.45)}
-    .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-    .ch h2{font:700 19px var(--head);letter-spacing:-.01em;margin-right:4px;word-break:break-all}
-    .chip{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 8px}
-    .errtxt{color:var(--coral);font:400 12px var(--mono);margin:-6px 0 12px}
-    .tanks{display:flex;flex-wrap:wrap;gap:18px 26px}
-    .tank{display:flex;gap:14px;align-items:flex-end;min-width:200px;flex:1 1 200px}
-    .glass{position:relative;width:64px;height:150px;flex:none;border-radius:14px 14px 18px 18px;border:2px solid #3a3f49;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.01) 40%,rgba(255,255,255,.06));overflow:hidden}
-    .glass:after{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:5px;border-radius:9px;background:linear-gradient(rgba(255,255,255,.25),rgba(255,255,255,0));pointer-events:none}
-    .liq{position:absolute;left:0;right:0;bottom:0;color:var(--lime);transition:height 1.2s cubic-bezier(.2,.8,.2,1),color .6s}
-    .liq.amber{color:var(--amber)}.liq.coral{color:var(--coral)}
-    .liq .body{position:absolute;left:0;right:0;top:9px;bottom:0;background:currentColor;opacity:.92}
-    .liq svg{position:absolute;top:0;left:0;width:200%;height:10px;fill:currentColor;opacity:.92;animation:wave 2.6s linear infinite}
-    .liq svg.b{opacity:.45;top:-3px;animation-duration:4s;animation-direction:reverse}
-    .liq.fill{animation:rise 1.4s cubic-bezier(.2,.9,.25,1)}
-    .info{min-width:0}
-    .pct{font:600 40px/1 var(--mono);letter-spacing:-.04em}
-    .pct small{font-size:13px;color:var(--muted);margin-left:5px;letter-spacing:0}
-    .wl{font:700 14px var(--head);margin-top:8px}
-    .cd{font:400 12px var(--mono);color:var(--muted);margin-top:4px}
-    h3{font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:30px 0 12px}
-    .ev{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
-    .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}
-    .dot.reset,.dot.test{background:var(--lime)}.dot.warning{background:var(--amber)}.dot.empty{background:var(--coral)}
-    .ev b{font:700 15px var(--head)}.ev span{display:block;font:400 12px var(--mono);color:var(--muted);margin-top:2px;word-break:break-all}
-    .ev time{margin-left:auto;font:400 12px var(--mono);color:var(--muted);white-space:nowrap;padding-left:8px}
-    footer{margin-top:26px;text-align:center;font:400 11px var(--mono);color:var(--muted)}
-    .empty{color:var(--muted);font:400 13px var(--mono);padding:24px 0;text-align:center}
-    #flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:5}
-    #flash.reset{background:radial-gradient(circle at 50% 40%,rgba(200,255,77,.55),rgba(200,255,77,.15) 60%,transparent);animation:flash 1.1s ease-out}
-    #flash.warning{box-shadow:inset 0 0 0 6px var(--amber),inset 0 0 90px rgba(255,181,71,.5);animation:pulse 1.6s ease-out}
-    #flash.empty{box-shadow:inset 0 0 0 6px var(--coral),inset 0 0 90px rgba(255,107,91,.5);animation:pulse 1.6s ease-out}
-    #toast{position:fixed;left:50%;bottom:24px;z-index:6;width:min(92vw,380px);background:var(--panel);border:1px solid var(--lime);border-radius:18px;padding:14px 18px;transform:translate(-50%,calc(100% + 40px));opacity:0;visibility:hidden;transition:transform .5s cubic-bezier(.3,1.4,.5,1),opacity .3s,visibility .5s;box-shadow:0 12px 40px rgba(0,0,0,.6)}
-    #toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}#toast.warning{border-color:var(--amber)}#toast.empty{border-color:var(--coral)}
-    #toast b{font:800 18px var(--head);display:block}#toast span{font:400 13px var(--mono);color:var(--muted);display:block;margin-top:4px}
-    @keyframes wave{to{transform:translateX(-50%)}}
-    @keyframes bob{50%{transform:translateY(-5px) rotate(2deg)}}
-    @keyframes jump{0%{transform:translateY(0)}35%{transform:translateY(-26px) scale(1.12,.94)}70%{transform:translateY(0) scale(.94,1.08)}100%{transform:none}}
-    @keyframes rise{from{transform:translateY(100%)}to{transform:none}}
-    @keyframes flash{0%{opacity:1}100%{opacity:0}}
-    @keyframes pulse{0%,60%{opacity:1}100%{opacity:0}}
-    @keyframes zz{0%{opacity:0;transform:translate(0,4px)}50%{opacity:1}100%{opacity:0;transform:translate(6px,-10px)}}
+    html{background:var(--bg)}
+    body{background:var(--bg);color:var(--text);font:14px/1.4 var(--font);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+      padding:max(24px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom))}
+    main{max-width:760px;margin:0 auto}
+    header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+    #drip{width:56px;height:56px;flex:none}
+    #drip.hop{animation:hop .6s cubic-bezier(.3,1.5,.5,1)}
+    .brand{flex:1;min-width:0}
+    .word{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+    .mood{font-size:14px;color:var(--sec);margin-top:4px}
+    #snd{font:500 12px var(--font);color:var(--sec);background:var(--card);border:0;border-radius:4px;padding:7px 12px;cursor:pointer;transition:background .15s}
+    #snd:hover{background:var(--hover)}#snd.on{color:var(--green)}
+    .card{background:var(--card);border-radius:8px;padding:16px;margin-bottom:12px}
+    .card.err{box-shadow:inset 0 0 0 1px var(--red)}
+    .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+    .ch h2{font-size:16px;font-weight:600;margin-right:4px;word-break:break-all}
+    .chip{font-size:11px;font-weight:500;color:var(--sec);background:var(--card2);border-radius:4px;padding:2px 6px}
+    .errtxt{color:var(--red);font-size:12px;margin:6px 0}
+    .row{padding:12px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
+    .top{display:flex;align-items:baseline;gap:10px}
+    .wl{font-size:14px;font-weight:500;flex:1;min-width:0}
+    .cd{font-size:12px;color:var(--sec);font-variant-numeric:tabular-nums}
+    .pct{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+    .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
+    .fill{height:100%;width:0;border-radius:2px;background:var(--green);transform-origin:left;transition:width .8s cubic-bezier(.2,.9,.25,1),background-color .4s}
+    .fill.orange{background:var(--orange)}.fill.red{background:var(--red)}
+    .fill.pop{animation:pop .7s cubic-bezier(.2,.9,.25,1)}
+    h3{font-size:11px;font-weight:500;color:var(--sec);margin:28px 0 8px}
+    .ev{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+    .dot{width:6px;height:6px;border-radius:50%;flex:none;background:var(--ter)}
+    .dot.reset,.dot.test{background:var(--green)}.dot.warning{background:var(--orange)}.dot.empty{background:var(--red)}
+    .ev b{font-size:14px;font-weight:500}.ev span{display:block;font-size:12px;color:var(--sec);margin-top:1px;word-break:break-all}
+    .ev time{margin-left:auto;font-size:12px;color:var(--ter);white-space:nowrap;padding-left:8px;font-variant-numeric:tabular-nums}
+    footer{margin-top:24px;text-align:center;font-size:11px;font-weight:500;color:var(--ter)}
+    .empty{color:var(--sec);font-size:13px;padding:20px 0;text-align:center}
+    #flash{position:fixed;top:0;left:0;right:0;height:2px;pointer-events:none;opacity:0;z-index:5}
+    #flash.reset{background:var(--green);animation:fade 1.6s ease-out}
+    #flash.warning{background:var(--orange);animation:fade 1.6s ease-out}
+    #flash.empty{background:var(--red);animation:fade 1.6s ease-out}
+    #toast{position:fixed;left:50%;bottom:24px;z-index:6;width:min(92vw,360px);background:var(--card);border-radius:8px;padding:12px 16px;box-shadow:0 0 0 1px var(--line);transform:translate(-50%,16px);opacity:0;visibility:hidden;transition:transform .45s cubic-bezier(.3,1.3,.5,1),opacity .25s,visibility .45s}
+    #toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
+    #toast b{font-size:14px;font-weight:600;display:block}#toast span{font-size:12px;color:var(--sec);display:block;margin-top:2px}
+    @keyframes hop{40%{transform:translateY(-8px)}100%{transform:none}}
+    @keyframes pop{from{transform:scaleX(0)}to{transform:none}}
+    @keyframes fade{0%,50%{opacity:1}100%{opacity:0}}
     @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
     </style>
     </head>
@@ -82,53 +68,62 @@ enum Dashboard {
     <main>
       <header>
         <div id="drip"></div>
-        <div class="brand"><div class="word">Refill</div><div class="mood" id="mood">Checking the tanks...</div></div>
-        <button id="snd" type="button">&#128264; sound off</button>
+        <div class="brand"><div class="word">Refill</div><div class="mood" id="mood">Checking usage</div></div>
+        <button id="snd" type="button">sound off</button>
       </header>
-      <div id="accts"><div class="empty">Waiting for first reading...</div></div>
+      <div id="accts"><div class="empty">Waiting for the first reading.</div></div>
       <h3>Activity</h3>
       <div id="feed"><div class="empty">Nothing yet.</div></div>
-      <footer id="foot">connecting...</footer>
+      <footer id="foot">connecting</footer>
     </main>
     <div id="toast"><b></b><span></span></div>
     <script>
     (function(){
     var $=function(i){return document.getElementById(i)};
     function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-    var WAVE='<svg viewBox="0 0 200 10" preserveAspectRatio="none"><path d="M0 5 Q25 -1 50 5 T100 5 T150 5 T200 5 V10 H0Z"/></svg>';
-    var status=null,events=[],lastKey=null,first=true,lastOk=0,sig='',audio=null,toastT=null,dripMood='';
-    var LINES={happy:['Tanks full. Go wreck something.','Plenty in the tank. Send it.','Brimming. Absolutely brimming.'],
-      focus:['Half a tank. Make it count.','Steady now. No wasted prompts.','Getting thoughtful in here.'],
-      sweaty:['Running on fumes. Pace yourself.','Oof. Ration those tokens.','I can see the bottom. Gulp.'],
-      asleep:["Dry. I'll wake you when it's back.",'Zzz. Wake me at refill.','Bone dry. Go touch grass.']};
+    var status=null,events=[],lastKey=null,first=true,lastOk=0,sig='',audio=null,toastT=null,dripMood='',uid=0;
+    var LINES={happy:['Plenty left.','All clear.','Tanks are full.'],
+      focus:['About half left.','Steady. Pace it.','Worth spending well.'],
+      sweaty:['Running low.','Not much left.','Close to the bottom.'],
+      asleep:['Empty for now.','Resting until the reset.','Back at the next refill.']};
     var pick=function(a){return a[Math.floor(Math.random()*a.length)]};
-    function col(u){return u>=90?'coral':u>=70?'amber':'lime'}
-    function hex(c){return{lime:'#C8FF4D',amber:'#FFB547',coral:'#FF6B5B',muted:'#5b5f68'}[c]}
-    function drip(m,happyEyes){
-      var c=hex(m==='asleep'?'muted':m==='sweaty'?'coral':m==='focus'?'amber':'lime'),k='#0D0E11',f='';
-      var eye=function(x){return happyEyes?'<path d="M'+(x-6)+' 68 Q'+x+' 58 '+(x+6)+' 68" fill="none" stroke="'+k+'" stroke-width="4" stroke-linecap="round"/>':'<circle cx="'+x+'" cy="65" r="5" fill="'+k+'"/><circle cx="'+(x+1.5)+'" cy="63" r="1.6" fill="#fff"/>'};
-      if(happyEyes||m==='happy')f=(happyEyes?eye(39)+eye(61):eye(39)+eye(61))+'<path d="M40 79 Q50 91 60 79" fill="none" stroke="'+k+'" stroke-width="4" stroke-linecap="round"/><circle cx="30" cy="77" r="4" fill="#FF6B5B" opacity=".35"/><circle cx="70" cy="77" r="4" fill="#FF6B5B" opacity=".35"/>';
-      else if(m==='focus')f=eye(39)+eye(61)+'<path d="M41 82 H59" stroke="'+k+'" stroke-width="4" stroke-linecap="round"/>';
-      else if(m==='sweaty')f=eye(39)+eye(61)+'<path d="M31 54 L46 58 M69 54 L54 58" stroke="'+k+'" stroke-width="3.5" stroke-linecap="round"/><path d="M42 84 Q50 78 58 84" fill="none" stroke="'+k+'" stroke-width="4" stroke-linecap="round"/><path d="M82 40 Q88 50 82 54 Q76 50 82 40Z" fill="#7cc7ff"/>';
-      else f='<path d="M32 66 Q39 72 46 66 M54 66 Q61 72 68 66" fill="none" stroke="'+k+'" stroke-width="4" stroke-linecap="round"/><ellipse cx="50" cy="82" rx="4" ry="3" fill="'+k+'"/><text x="70" y="34" font-family="JetBrains Mono,monospace" font-weight="700" font-size="16" fill="#8B8F98" style="animation:zz 2.4s ease-in-out infinite">z</text>';
-      return '<svg viewBox="0 0 100 100" width="72" height="72"><path d="M50 4 C50 4 15 44 15 68 a35 32 0 0 0 70 0 C85 44 50 4 50 4Z" fill="'+c+'"/><path d="M30 60 Q32 46 42 36" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>'+f+'</svg>';
+    function col(u){return u>=90?'red':u>=70?'orange':'green'}
+    function drip(m,pct,size){
+      size=size||56;pct=pct==null?100:pct;if(m==='party')pct=100;
+      var id='dc'+(uid++),L=m==='asleep'?'rgba(255,255,255,.32)':m==='sweaty'?'#FF453A':m==='focus'?'#FF9F0A':'#30D158';
+      var top=96-86*Math.max(0,Math.min(100,pct))/100,k=top<=40?'#000':'#fff',
+        S='fill="none" stroke="'+k+'" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"',
+        dot=function(x){return '<circle cx="'+x+'" cy="44" r="3.4" fill="'+k+'"/>'},f='';
+      if(m==='happy')f=dot(38)+dot(62)+'<path d="M42 57 Q50 64 58 57" '+S+'/>';
+      else if(m==='focus')f='<path d="M33 44 H43 M57 44 H67 M43 60 H57" '+S+'/>';
+      else if(m==='sweaty')f=dot(38)+dot(62)+'<path d="M42 62 Q50 55 58 62" '+S+'/>';
+      else if(m==='asleep')f='<path d="M33 44 Q38 49 43 44 M57 44 Q62 49 67 44" '+S+'/><path d="M45 59 H55" '+S+'/><text x="72" y="28" font-family="-apple-system,system-ui,sans-serif" font-weight="600" font-size="16" fill="#808080">z</text>';
+      else f='<path d="M33 47 L38 40 L43 47 M57 47 L62 40 L67 47" '+S+'/><path d="M40 55 H60 Q60 67 50 67 Q40 67 40 55Z" fill="'+k+'" stroke="'+k+'" stroke-width="2" stroke-linejoin="round"/>';
+      return '<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'" aria-hidden="true"><defs><clipPath id="'+id+'"><rect x="13" y="10" width="74" height="86" rx="19"/></clipPath></defs>'+
+        '<rect x="13" y="10" width="74" height="86" rx="19" fill="#1C1C1E"/><rect x="0" y="'+top+'" width="100" height="100" fill="'+L+'" clip-path="url(#'+id+')"/>'+
+        '<rect x="13" y="10" width="74" height="86" rx="19" fill="none" stroke="rgba(255,255,255,.32)" stroke-width="2"/><rect x="38" y="3" width="24" height="5" rx="2.5" fill="rgba(255,255,255,.32)"/>'+f+'</svg>';
     }
-    function setDrip(m,jump){
+    var curPct=100;
+    function setDrip(m,hop){
       var d=$('drip');
-      if(m!==dripMood||jump){d.innerHTML=drip(m,jump);if(m!==dripMood)$('mood').textContent=pick(LINES[m]);dripMood=m}
-      if(jump){d.classList.remove('jump');void d.offsetWidth;d.classList.add('jump');setTimeout(function(){if(dripMood===m){d.classList.remove('jump');d.innerHTML=drip(m,false)}},1200)}
+      if(m!==dripMood||hop){d.innerHTML=drip(hop?'party':m,curPct);if(m!==dripMood)$('mood').textContent=pick(LINES[m]);dripMood=m}
+      if(hop){d.classList.remove('hop');void d.offsetWidth;d.classList.add('hop');setTimeout(function(){d.classList.remove('hop');d.innerHTML=drip(dripMood,curPct)},1400)}
     }
-    function moodOf(){
+    function lowest(){
       var low=null;
       ((status&&status.accounts)||[]).forEach(function(a){(a.windows||[]).forEach(function(w){
         if(w.key==='five_hour'||w.key==='primary'){var r=Math.max(0,100-w.utilization);if(low===null||r<low)low=r}})});
+      return low;
+    }
+    function moodOf(){
+      var low=lowest();
       if(low===null)return 'happy';
       low=Math.round(low);
       return low<=0?'asleep':low<20?'sweaty':low<50?'focus':'happy';
     }
     function tank(ai,w){
-      return '<div class="tank" data-a="'+ai+'" data-k="'+esc(w.key)+'"><div class="glass"><div class="liq"><div class="body"></div>'+WAVE+WAVE.replace('<svg','<svg class="b"')+'</div></div>'+
-        '<div class="info"><div class="pct"><span class="n">--</span><small>left</small></div><div class="wl">'+esc(w.label||w.key)+'</div><div class="cd"></div></div></div>';
+      return '<div class="row tank" data-a="'+ai+'" data-k="'+esc(w.key)+'"><div class="top"><div class="wl">'+esc(w.label||w.key)+'</div><div class="cd"></div><div class="pct"><span class="n">--</span></div></div>'+
+        '<div class="bar"><div class="fill"></div></div></div>';
     }
     function renderAccounts(){
       var A=(status&&status.accounts)||[],s=JSON.stringify(A.map(function(a){return[a.id,a.error?1:0,a.email,a.plan,(a.windows||[]).map(function(w){return w.key+w.label})]}));
@@ -136,23 +131,24 @@ enum Dashboard {
         sig=s;
         $('accts').innerHTML=A.length?A.map(function(a,i){
           return '<section class="card'+(a.error?' err':'')+'"><div class="ch"><h2>'+esc(a.email||a.name)+'</h2><span class="chip">'+esc(a.provider)+'</span>'+(a.plan?'<span class="chip">'+esc(a.plan)+'</span>':'')+'</div>'+
-            (a.error?'<div class="errtxt">'+esc(a.error)+'</div>':'')+'<div class="tanks">'+(a.windows||[]).map(function(w){return tank(i,w)}).join('')+'</div></section>';
+            (a.error?'<div class="errtxt">'+esc(a.error)+'</div>':'')+(a.windows||[]).map(function(w){return tank(i,w)}).join('')+'</section>';
         }).join(''):'<div class="empty">No accounts yet. Add one from the menu bar.</div>';
       }
       A.forEach(function(a,i){(a.windows||[]).forEach(function(w){
         var t=document.querySelector('.tank[data-a="'+i+'"][data-k="'+w.key+'"]');if(!t)return;
-        var rem=Math.max(0,Math.min(100,Math.round(100-w.utilization))),l=t.querySelector('.liq');
-        l.style.height=rem?'max('+rem+'%,10px)':'0';l.className='liq '+col(w.utilization)+(l.classList.contains('fill')?' fill':'');
-        t.querySelector('.n').textContent=rem+'%';
+        var rem=Math.max(0,Math.min(100,Math.round(100-w.utilization))),l=t.querySelector('.fill');
+        l.style.width=rem+'%';l.className='fill '+col(w.utilization)+(l.classList.contains('pop')?' pop':'');
+        t.querySelector('.n').textContent=rem+'% left';
         t.querySelector('.cd').dataset.r=w.resetsAt||'';
       })});
+      var lo=lowest();curPct=lo===null?100:lo;
       tick();
     }
     function tick(){
       Array.prototype.forEach.call(document.querySelectorAll('.cd'),function(e){
         var r=e.dataset.r;if(!r){e.textContent='no reset scheduled';return}
         var s=Math.floor((Date.parse(r)-Date.now())/1000);
-        if(s<=0){e.textContent='refilling now...';return}
+        if(s<=0){e.textContent='refilling now';return}
         var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
         e.textContent='refills in '+(d?d+'d '+h+'h':h?h+'h '+m+'m':m+'m '+String(s%60).padStart(2,'0')+'s');
       });
@@ -164,7 +160,7 @@ enum Dashboard {
       $('feed').innerHTML=L.length?L.map(function(e){
         var t=Math.max(0,Math.round((Date.now()-Date.parse(e.detectedAt))/1000));
         return '<div class="ev"><i class="dot '+esc(e.kind)+'"></i><div><b>'+esc(e.title)+'</b><span>'+esc(e.accountName)+' &middot; '+esc(e.windowLabel)+'</span></div><time>'+ago(t)+' ago</time></div>';
-      }).join(''):'<div class="empty">Nothing yet. Events show up when a tank refills.</div>';
+      }).join(''):'<div class="empty">Nothing yet. Events appear when a tank refills.</div>';
     }
     function chime(kind){
       if(localStorage_get()!=='1')return;
@@ -179,7 +175,7 @@ enum Dashboard {
       }catch(e){}
     }
     function localStorage_get(){try{return localStorage.getItem('refill.sound')}catch(e){return null}}
-    function syncSnd(){var on=localStorage_get()==='1',b=$('snd');b.className=on?'on':'';b.innerHTML=on?'&#128266; sound on':'&#128264; sound off'}
+    function syncSnd(){var on=localStorage_get()==='1',b=$('snd');b.className=on?'on':'';b.innerHTML=on?'sound on':'sound off'}
     $('snd').onclick=function(){
       var on=localStorage_get()!=='1';
       try{localStorage.setItem('refill.sound',on?'1':'0')}catch(e){}
@@ -189,8 +185,8 @@ enum Dashboard {
       var k=e.kind==='warning'?'warning':e.kind==='empty'?'empty':'reset',f=$('flash');
       f.className='';void f.offsetWidth;f.className=k;
       if(k==='reset'){
-        Array.prototype.forEach.call(document.querySelectorAll('.liq'),function(l){l.classList.remove('fill');void l.offsetWidth;l.classList.add('fill')});
-        setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll('.liq'),function(l){l.classList.remove('fill')})},1600);
+        Array.prototype.forEach.call(document.querySelectorAll('.fill'),function(l){l.classList.remove('pop');void l.offsetWidth;l.classList.add('pop')});
+        setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll('.fill'),function(l){l.classList.remove('pop')})},900);
         setDrip('happy',true);
       }
       var t=$('toast');t.className=k;t.querySelector('b').textContent=e.title||'';t.querySelector('span').textContent=e.message||'';
@@ -201,12 +197,12 @@ enum Dashboard {
       Promise.all([fetch('/status',{cache:'no-store'}).then(function(r){return r.json()}),fetch('/events',{cache:'no-store'}).then(function(r){return r.json()})]).then(function(r){
         status=r[0];events=Array.isArray(r[1])?r[1]:[];lastOk=Date.now();
         renderAccounts();
-        var m=moodOf();if(m!==dripMood&&!$('drip').classList.contains('jump'))setDrip(m,false);
+        var m=moodOf();if(m!==dripMood&&!$('drip').classList.contains('hop'))setDrip(m,false);
         renderFeed();
         var n=events[events.length-1],key=n?[n.detectedAt,n.accountId,n.window,n.kind].join('|'):null;
         if(!first&&key&&key!==lastKey)celebrate(n);
         lastKey=key;first=false;
-      }).catch(function(){$('foot').textContent='offline. retrying...'});
+      }).catch(function(){$('foot').textContent='offline, retrying'});
     }
     syncSnd();setDrip('happy',false);poll();
     setInterval(poll,5000);setInterval(function(){tick();renderFeed()},1000);
