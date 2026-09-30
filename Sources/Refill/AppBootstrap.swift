@@ -17,9 +17,12 @@ enum AppBootstrap {
             if let monitor { SharedStatus.write(monitor.accounts, lastEvent: e) }
         }
 
-        NSAppleEventManager.shared().setEventHandler(
-            urlHandler, andSelector: #selector(URLEventHandler.handle(_:reply:)),
-            forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
+        // SwiftUI installs its own GetURL handler during launch; register ours after it.
+        NotificationCenter.default.addObserver(forName: NSApplication.didFinishLaunchingNotification, object: nil, queue: .main) { _ in
+            NSAppleEventManager.shared().setEventHandler(
+                urlHandler, andSelector: #selector(URLEventHandler.handle(_:reply:)),
+                forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
+        }
 
         let nc = NotificationCenter.default
         func on(_ name: String, _ f: @escaping @MainActor () -> Void) {
