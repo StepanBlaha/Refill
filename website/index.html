@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Refill: Your AI tanks, watched.</title>
-<meta name="description" content="Refill is a macOS menu-bar app that watches your Claude and Codex usage limits and signals the second they reset.">
+<meta name="description" content="Refill is a macOS menu-bar app that watches your Claude, Codex, Copilot, Cursor and Gemini usage limits and signals the second they reset.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://stepanblaha.github.io/Refill/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Refill">
 <meta property="og:title" content="Refill: Your AI tanks, watched.">
-<meta property="og:description" content="Refill is a macOS menu-bar app that watches your Claude and Codex usage limits and signals the second they reset.">
+<meta property="og:description" content="Refill is a macOS menu-bar app that watches your Claude, Codex, Copilot, Cursor and Gemini usage limits and signals the second they reset.">
 <meta property="og:image" content="https://stepanblaha.github.io/Refill/assets/og.png">
 <meta property="og:url" content="https://stepanblaha.github.io/Refill/">
 <meta name="twitter:card" content="summary">
@@ -55,12 +55,15 @@
 <section class="sec" id="tank">
   <div class="wrap">
     <p class="eyebrow">Sources</p>
-    <h2>Claude and Codex, one tank.</h2>
+    <h2>Every AI, one tank.</h2>
     <p class="sub">No more tab-hopping to see who is dry. Each source gets its own gauge in the menu bar.</p>
     <div class="cards">
       <article class="card wide"><h3>Claude <span class="tag">multi-account</span></h3><p>Reads every Claude Code login on your Mac: the default <code>~/.claude</code>, any <code>~/.claude-*</code>, plus dirs you add. 5-hour session, weekly, Opus and Sonnet windows, each with its own tank. Expired tokens get refreshed for you.</p>
         <div class="bars"><div><span>work</span><i style="--w:82%"></i></div><div><span>personal</span><i class="amber" style="--w:41%"></i></div><div><span>side-hustle</span><i class="coral" style="--w:9%"></i></div></div></article>
       <article class="card"><h3>Codex</h3><p>Reads rate limits from your local Codex session logs. Offline, updates when you use it.</p></article>
+      <article class="card"><h3>GitHub Copilot</h3><p>Premium requests and chat quota, read with your GitHub CLI login. Resets monthly.</p></article>
+      <article class="card"><h3>Cursor</h3><p>Monthly usage from the Cursor app you already have signed in.</p></article>
+      <article class="card"><h3>Gemini CLI</h3><p>Per-model quota for your Gemini CLI login, Pro and Flash tracked separately.</p></article>
     </div>
   </div>
 </section>

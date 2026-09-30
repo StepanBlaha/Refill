@@ -30,6 +30,9 @@
     <tr><td>Claude Code login (access and refresh tokens)</td><td>macOS Keychain, items named <code>Claude Code-credentials*</code></td><td>To ask Anthropic for your own usage</td></tr>
     <tr><td>Claude config folders and account email</td><td><code>~/.claude</code>, <code>~/.claude-*</code>, and the <code>.claude.json</code> in each</td><td>To find your accounts and label them</td></tr>
     <tr><td>Codex CLI rate-limit data</td><td>Session logs in <code>~/.codex/sessions</code></td><td>To show Codex usage, offline</td></tr>
+    <tr><td>GitHub Copilot token (optional)</td><td><code>gh auth token</code> (GitHub CLI) or <code>~/.config/github-copilot/</code></td><td>To show Copilot quota</td></tr>
+    <tr><td>Cursor login (optional)</td><td>Cursor's local database <code>~/Library/Application Support/Cursor/User/globalStorage/state.vscdb</code>, read-only</td><td>To show Cursor usage</td></tr>
+    <tr><td>Gemini CLI login (optional)</td><td><code>~/.gemini/oauth_creds.json</code>; a refreshed token is kept in memory only</td><td>To show Gemini quota</td></tr>
   </tbody></table>
 
   <h2>What Refill stores</h2>
@@ -45,6 +48,9 @@
   <h2>Where your data goes</h2>
   <ul>
     <li><b>Anthropic.</b> <code>api.anthropic.com</code> receives your access token and returns your usage. <code>console.anthropic.com</code> receives your refresh token when the access token has expired. This is under <a href="https://www.anthropic.com/legal/privacy">Anthropic's privacy policy</a>.</li>
+    <li><b>GitHub.</b> <code>api.github.com</code> receives your GitHub token and returns your Copilot quota (<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub's privacy statement</a>).</li>
+    <li><b>Cursor.</b> <code>cursor.com</code> receives your Cursor session and returns your usage (<a href="https://cursor.com/privacy">Cursor's privacy policy</a>).</li>
+    <li><b>Google.</b> <code>oauth2.googleapis.com</code> (token refresh) and <code>cloudcode-pa.googleapis.com</code> (quota) receive your Gemini CLI login (<a href="https://policies.google.com/privacy">Google's privacy policy</a>).</li>
     <li><b>Integrations you configure.</b> Only if you set them up: ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Philips Hue, WLED and custom webhooks. They receive the event text and color you configured, at the address you chose, and nothing more. Their handling of that data is governed by their own policies.</li>
     <li><b>Nothing else.</b> No developer server, no analytics, no crash reporting, no advertising, no cookies. Credentials are never sent anywhere except the service they belong to. This website sets no cookies either.</li>
     <li><b>Codex</b> is read from local files only. Refill makes no OpenAI request.</li>
