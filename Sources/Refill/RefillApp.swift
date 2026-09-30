@@ -28,14 +28,13 @@ struct RefillApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView().environmentObject(monitor)
+            SettingsView().environmentObject(monitor).tint(Theme.accent).preferredColorScheme(.dark)
         }
     }
 }
 
 struct MenuView: View {
     @EnvironmentObject var monitor: Monitor
-    @Environment(\.openSettings) private var openSettings
     @State private var tagline = ""
 
     var body: some View {
@@ -73,7 +72,7 @@ struct MenuView: View {
                 Pill(symbol: "chart.xyaxis.line", label: "History") { HistoryWindow.show() }
                 Pill(symbol: "bolt.fill", label: "Test") { monitor.sendTest() }
                 Spacer()
-                IconButton(symbol: "gearshape.fill") { NSApp.activate(ignoringOtherApps: true); openSettings() }
+                IconButton(symbol: "gearshape.fill") { AppBootstrap.openSettings() }
                 IconButton(symbol: "power") { NSApp.terminate(nil) }
             }
         }
@@ -108,8 +107,8 @@ struct AccountCard: View {
             }
             ForEach(account.windows) { TankRow(window: $0, accountId: account.id) }
             if let err = account.error {
-                Label(err, systemImage: "exclamationmark.triangle.fill").font(Theme.rounded(11))
-                    .foregroundStyle(Theme.coral).lineLimit(2)
+                Label(err, systemImage: "exclamationmark.circle").font(Theme.rounded(11))
+                    .foregroundStyle(Theme.amber).lineLimit(2)
             }
         }
         .padding(12)
@@ -154,7 +153,7 @@ struct TankRow: View {
 
     func subtitle(_ now: Date) -> String {
         guard let r = window.resetsAt else { return "\(Int(window.utilization.rounded()))% used" }
-        return r <= now ? "refilling…" : "refills in \(shortDuration(r.timeIntervalSince(now)))"
+        return r <= now ? "ready" : "refills in \(shortDuration(r.timeIntervalSince(now)))"
     }
 }
 

@@ -49,7 +49,7 @@ enum ClaudeError: LocalizedError {
     case noCredentials, http(Int, String), badResponse
     var errorDescription: String? {
         switch self {
-        case .noCredentials: return "Not logged in (run claude /login for this profile)"
+        case .noCredentials: return "Not signed in. Run claude and type /login."
         case .http(let c, let b): return "HTTP \(c): \(b.prefix(120))"
         case .badResponse: return "Unexpected response"
         }

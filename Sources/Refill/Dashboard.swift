@@ -28,14 +28,14 @@ enum Dashboard {
     #snd{font:500 12px var(--font);color:var(--sec);background:var(--card);border:0;border-radius:4px;padding:7px 12px;cursor:pointer;transition:background .15s}
     #snd:hover{background:var(--hover)}#snd.on{color:var(--green)}
     .card{background:var(--card);border-radius:8px;padding:16px;margin-bottom:12px}
-    .card.err{box-shadow:inset 0 0 0 1px var(--red)}
+    .card.err{}
     .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
     .ch h2{font-size:16px;font-weight:600;margin-right:4px;word-break:break-all}
     .chip{font-size:11px;font-weight:500;color:var(--sec);background:var(--card2);border-radius:4px;padding:2px 6px}
-    .errtxt{color:var(--red);font-size:12px;margin:6px 0}
+    .errtxt{color:var(--orange,#FF9F0A);font-size:12px;margin:6px 0}
     .row{padding:12px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
     .top{display:flex;align-items:baseline;gap:10px}
-    .wl{font-size:14px;font-weight:500;flex:1;min-width:0}
+    .wl{font-size:14px;font-weight:500;flex:1;min-width:0;white-space:nowrap}
     .cd{font-size:12px;color:var(--sec);font-variant-numeric:tabular-nums}
     .pct{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
     .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
@@ -146,9 +146,9 @@ enum Dashboard {
     }
     function tick(){
       Array.prototype.forEach.call(document.querySelectorAll('.cd'),function(e){
-        var r=e.dataset.r;if(!r){e.textContent='no reset scheduled';return}
+        var r=e.dataset.r;if(!r){e.textContent='not started';return}
         var s=Math.floor((Date.parse(r)-Date.now())/1000);
-        if(s<=0){e.textContent='refilling now';return}
+        if(s<=0){e.textContent='ready';return}
         var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
         e.textContent='refills in '+(d?d+'d '+h+'h':h?h+'h '+m+'m':m+'m '+String(s%60).padStart(2,'0')+'s');
       });

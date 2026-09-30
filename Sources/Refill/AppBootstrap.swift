@@ -8,6 +8,7 @@ enum AppBootstrap {
 
     static func start(_ monitor: Monitor) {
         AutomationBridge.monitor = monitor
+        self.monitor = monitor
         AppHooks.onEvent.append { e in
             if NotchController.shared.enabled { NotchController.shared.show(e) }
         }
@@ -39,9 +40,12 @@ enum AppBootstrap {
         DispatchQueue.main.async { Onboarding.showIfNeeded(monitor: monitor) }
     }
 
+    static weak var monitor: Monitor?
+
     static func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        guard let monitor else { return }
+        AppWindow.show(id: "settings", title: "Refill Settings", size: NSSize(width: 640, height: 580),
+                       SettingsView().environmentObject(monitor))
     }
 }
 
@@ -52,20 +56,37 @@ final class URLEventHandler: NSObject {
     }
 }
 
+/// Brink-style app windows: dark, green tint, one instance per id.
 @MainActor
-enum HistoryWindow {
-    private static var window: NSWindow?
+enum AppWindow {
+    private static var windows: [String: NSWindow] = [:]
 
-    static func show() {
+    static func show(id: String, title: String, size: NSSize, _ view: some View) {
         NSApp.activate(ignoringOtherApps: true)
-        if let w = window { w.makeKeyAndOrderFront(nil); return }
-        let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 560),
-                         styleMask: [.titled, .closable, .resizable, .miniaturizable], backing: .buffered, defer: false)
-        w.title = "Refill · History"
-        w.contentView = NSHostingView(rootView: HistoryView())
+        if let w = windows[id] { w.makeKeyAndOrderFront(nil); return }
+        let w = NSWindow(contentRect: NSRect(origin: .zero, size: size),
+                         styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                         backing: .buffered, defer: false)
+        w.title = title
+        w.titlebarAppearsTransparent = true
+        w.appearance = NSAppearance(named: .darkAqua)
+        w.backgroundColor = .black
+        w.contentView = NSHostingView(rootView: view
+            .tint(Theme.accent)
+            .preferredColorScheme(.dark)
+            .frame(minWidth: size.width, minHeight: size.height)
+            .background(Color.black))
         w.isReleasedWhenClosed = false
         w.center()
         w.makeKeyAndOrderFront(nil)
-        window = w
+        windows[id] = w
+    }
+}
+
+@MainActor
+enum HistoryWindow {
+    static func show() {
+        AppWindow.show(id: "history", title: "Refill History", size: NSSize(width: 680, height: 560),
+                       HistoryView().padding(.top, 20))
     }
 }
