@@ -6,10 +6,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 VERSION=$(cat VERSION 2>/dev/null || echo 0.1.0)
-xcodegen generate -q
-xcodebuild -project Refill.xcodeproj -scheme Refill -configuration Release \
-  -derivedDataPath build/xcode -allowProvisioningUpdates \
-  MARKETING_VERSION="$VERSION" build > build/release.log 2>&1 || { tail -20 build/release.log; exit 1; }
+mkdir -p build
+if [[ -z "${SKIP_BUILD:-}" ]]; then
+  xcodegen generate -q
+  xcodebuild -project Refill.xcodeproj -scheme Refill -configuration Release \
+    -derivedDataPath build/xcode -allowProvisioningUpdates \
+    MARKETING_VERSION="$VERSION" build > build/release.log 2>&1 || { tail -20 build/release.log; exit 1; }
+fi
 APP=build/xcode/Build/Products/Release/Refill.app
 
 if [[ -n "${DEVELOPER_ID:-}" ]]; then
@@ -22,6 +25,7 @@ DMG="build/Refill-$VERSION.dmg"; rm -f "$DMG"
 hdiutil create -volname "Refill $VERSION" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
 
 if [[ -n "${DEVELOPER_ID:-}" ]]; then codesign -s "$DEVELOPER_ID" --timestamp "$DMG"; fi
+cp "$DMG" build/Refill.dmg   # stable name for .../releases/latest/download/Refill.dmg
 if [[ -n "${NOTARY_PROFILE:-}" ]]; then
   xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$DMG"
