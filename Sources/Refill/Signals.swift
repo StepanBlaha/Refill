@@ -13,14 +13,14 @@ enum Signals {
 
     static func fire(_ e: RefillEvent, settings: Prefs) {
         if settings.notify { notify(e, withSound: false) }
-        if settings.sound {
+        if settings.sound && !settings.isQuietNow {
             let name = e.kind == .reset || e.kind == .test ? settings.soundName : (e.kind == .empty ? "Basso" : "Tink")
             NSSound(named: NSSound.Name(name))?.play()
         }
         broadcast(e)
         appendLog(e)
         if settings.hook { runHook(e) }
-        Integrations.dispatch(e)
+        Integrations.dispatch(e, quiet: settings.isQuietNow && settings.quietMutesPush)
     }
 
     static func notify(_ e: RefillEvent, withSound: Bool) {
