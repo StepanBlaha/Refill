@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useStagger } from "@/lib/useStagger";
-import { REPO } from "@/lib/site";
+import { ISSUES, REPO } from "@/lib/site";
 import c from "./Shared.module.css";
 import s from "./Faq.module.css";
 
@@ -39,6 +39,10 @@ export default function Faq() {
           <details className={s.item}>
             <summary>Why a tank?</summary>
             <p>A battery icon with a little personality. Drip is a small glass tank, so you can see what is left.</p>
+          </details>
+          <details className={s.item}>
+            <summary>Found a bug or want a feature?</summary>
+            <p>Open an issue on <a href={ISSUES}>GitHub Issues</a>. That is the only support channel.</p>
           </details>
         </div>
       </div>

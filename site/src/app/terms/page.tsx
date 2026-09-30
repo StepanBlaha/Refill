@@ -11,7 +11,7 @@ export const metadata = pageMeta({
 
 export default function Page() {
   return (
-    <Legal>
+    <Legal crumb={{ name: "Terms of Use", path: "terms/" }}>
       <Content />
     </Legal>
   );

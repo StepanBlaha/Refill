@@ -7,7 +7,7 @@ export default function TermsContent() {
       <h1>Terms of Use</h1>
       <p className={s.fine}>Last updated 2026-09-30</p>
 
-      <ol >
+      <ol>
         <li><b>The software.</b> Refill is provided by Stepan Blaha ("we") for use on your own Mac. By using it you agree to these terms. Refill is open-source software under the <a href="https://github.com/StepanBlaha/Refill/blob/main/LICENSE">MIT License</a>. The license governs the source code; these terms cover using the app.</li>
         <li><b>Your accounts.</b> Refill uses logins that you already have, such as Claude Code. You are responsible for following each provider's terms, including any limits on automated or third-party access to their services.</li>
         <li><b>Undocumented endpoints.</b> Refill relies on endpoints and file formats that providers do not document. They may change or stop working at any time, and a provider may restrict such use. Usage numbers and reset times may be late, wrong or unavailable. Do not rely on Refill where a missed or false signal would cause harm.</li>

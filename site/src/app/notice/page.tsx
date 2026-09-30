@@ -10,7 +10,7 @@ export const metadata = pageMeta({
 
 export default function Page() {
   return (
-    <Legal>
+    <Legal crumb={{ name: "Third-Party Notices", path: "notice/" }}>
       <Content />
     </Legal>
   );

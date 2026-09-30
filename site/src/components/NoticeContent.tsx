@@ -1,4 +1,3 @@
-import Link from "next/link";
 import s from "@/components/Legal.module.css";
 
 export default function NoticeContent() {

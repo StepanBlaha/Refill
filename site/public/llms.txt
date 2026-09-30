@@ -1,0 +1,31 @@
+# Refill
+
+> Refill is a free, open-source macOS menu-bar app that watches your AI usage limits (Claude, Codex, GitHub Copilot, Cursor, Gemini CLI) and signals the moment a limit resets: notch pop-up, notification, sound, phone push, chat, room lights, webhook or shell hook. Everything stays on your Mac. No account, no telemetry, no Refill server.
+
+Requires macOS 14 (Sonoma) or newer. MIT License. Made by Stepan Blaha. Independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.
+
+## Features
+
+- Sources: multi-account Claude Code (5-hour, weekly, Opus and Sonnet windows), Codex (local session logs), GitHub Copilot, Cursor, Gemini CLI.
+- Signals: notch pop-up, native notification, sound, warnings at 80% and 95%, dry-tank alert at 100%.
+- Integrations: ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Philips Hue, WLED, webhooks, shell hook, Shortcuts, widgets, local dashboard (opt-in).
+- Burn-rate chart per source: pace against the clock, projected time until dry.
+- Private: usage, history and settings live in ~/.config/refill. Reads undocumented provider endpoints with your own login, which may change.
+
+## Download and install
+
+- Download (latest release): https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg
+- Distributed only via GitHub Releases. Not notarized: on first launch, right-click the app and choose Open.
+
+## Pages
+
+- [Home](https://stepanblaha.github.io/Refill/): overview, features, FAQ, download
+- [Privacy](https://stepanblaha.github.io/Refill/privacy/): what Refill reads, stores and sends
+- [Terms of Use](https://stepanblaha.github.io/Refill/terms/): provided as-is, undocumented endpoints
+- [Third-Party Notices](https://stepanblaha.github.io/Refill/notice/): trademarks and non-affiliation
+
+## Links
+
+- Source code: https://github.com/StepanBlaha/Refill
+- License (MIT): https://github.com/StepanBlaha/Refill/blob/main/LICENSE
+- Contact and bug reports: https://github.com/StepanBlaha/Refill/issues
