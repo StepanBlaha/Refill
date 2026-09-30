@@ -87,6 +87,7 @@ struct MenuView: View {
 
 struct AccountCard: View {
     let account: AccountSnapshot
+    @State private var hover = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.m) {
@@ -96,6 +97,12 @@ struct AccountCard: View {
                 Text(account.email ?? account.name).font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.text).lineLimit(1).truncationMode(.middle)
                 Spacer(minLength: Space.s)
+                Menu { AccountMenuItems(account: account) } label: {
+                    Image(systemName: "ellipsis").font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.muted)
+                        .frame(width: 20, height: 18).contentShape(Rectangle())
+                }
+                .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+                .opacity(hover ? 1 : 0)
                 if let plan = account.plan {
                     Text(plan.capitalized).font(.system(size: 10, weight: .medium)).foregroundStyle(Theme.muted)
                         .padding(.horizontal, 6).padding(.vertical, 2)
@@ -109,6 +116,9 @@ struct AccountCard: View {
         }
         .padding(Space.m)
         .background(Theme.panel, in: RoundedRectangle(cornerRadius: Theme.panelRadius, style: .continuous))
+        .contentShape(Rectangle())
+        .onHover { hover = $0 }
+        .contextMenu { AccountMenuItems(account: account) }
     }
 }
 

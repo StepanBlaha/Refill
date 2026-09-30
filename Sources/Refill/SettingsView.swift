@@ -153,6 +153,12 @@ struct AccountsTab: View {
     @AppStorage(Prefs.K.codex) var codex = true
     @AppStorage(Prefs.K.extraDirs) var extraDirs = ""
     @AppStorage("refreshTokens") var refreshTokens = true
+    @State private var hiddenIds = AccountActions.hidden
+
+    static func label(_ id: String) -> String {
+        if id.hasPrefix("claude:") { return "Claude · " + (id.dropFirst(7) as Substring).split(separator: "/").last.map(String.init)! }
+        return id.split(separator: ":").first.map { $0.capitalized } ?? id
+    }
     @State private var newName = ""
     @State private var status = ""
 
@@ -162,10 +168,29 @@ struct AccountsTab: View {
                 if i > 0 { RowDivider() }
                 Row(title: a.email ?? a.name, subtitle: a.error ?? [a.name, a.plan?.capitalized].compactMap { $0 }.joined(separator: " · ")) {
                     Circle().fill(a.error == nil ? Theme.accent : Theme.amber).frame(width: 6, height: 6)
+                    Menu { AccountMenuItems(account: a) } label: {
+                        Image(systemName: "ellipsis").font(.system(size: 12, weight: .semibold)).foregroundStyle(Theme.muted)
+                            .frame(width: 24, height: 20).contentShape(Rectangle())
+                    }
+                    .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
                 }
+                .contextMenu { AccountMenuItems(account: a) }
             }
             RowDivider()
             Row(title: "Rescan") { Button("Refresh") { Task { await monitor.refresh() } }.buttonStyle(DarkButton()) }
+        }
+        .onChange(of: monitor.accounts.map(\.id)) { _, _ in hiddenIds = AccountActions.hidden }
+
+        if !hiddenIds.isEmpty {
+            Panel(title: "Hidden", footer: "Hidden accounts aren't checked and never alert.") {
+                ForEach(Array(hiddenIds.sorted().enumerated()), id: \.1) { i, id in
+                    if i > 0 { RowDivider() }
+                    Row(title: Self.label(id)) {
+                        Button("Show") { AccountActions.unhide(id, monitor: monitor); hiddenIds = AccountActions.hidden }
+                            .buttonStyle(DarkButton())
+                    }
+                }
+            }
         }
 
         Panel(title: "Add a Claude account", footer: "Opens Terminal with a separate Claude profile. Type /login there, then quit. Refill picks it up on the next refresh.") {
