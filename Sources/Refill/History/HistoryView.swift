@@ -46,7 +46,7 @@ struct HistoryView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Space.l) {
             header
             if series.count < 3 {
                 VStack(spacing: 10) {
@@ -59,11 +59,11 @@ struct HistoryView: View {
             } else {
                 mainChart.frame(height: 170)
                 stats
-                Text("Daily peak (7d)").font(Theme.mono(10)).foregroundStyle(.secondary)
+                Text("Daily peak, last 7 days").font(.system(size: 11, weight: .medium)).foregroundStyle(Theme.muted)
                 dailyChart.frame(height: 90)
             }
         }
-        .padding(16)
+        .padding(.horizontal, Space.xl).padding(.vertical, Space.l)
         .frame(minWidth: 580, minHeight: 480, alignment: .topLeading)
         .onAppear(perform: ensureSelection)
         .onChange(of: accountId) { _, _ in windowKey = windows.first?.key ?? "" }
@@ -75,17 +75,11 @@ struct HistoryView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 10) {
-            Picker("Account", selection: $accountId) {
-                ForEach(accounts, id: \.id) { Text($0.name).tag($0.id) }
-            }.labelsHidden().frame(maxWidth: 180)
-            Picker("Window", selection: $windowKey) {
-                ForEach(windows, id: \.key) { Text($0.label).tag($0.key) }
-            }.labelsHidden().frame(maxWidth: 140)
+        HStack(spacing: Space.s) {
+            DarkMenu(items: accounts.map { ($0.id, $0.name) }, selection: $accountId)
+            DarkMenu(items: windows.map { ($0.key, $0.label) }, selection: $windowKey)
             Spacer()
-            Picker("Range", selection: $range) {
-                ForEach(Range.allCases) { Text($0.rawValue).tag($0) }
-            }.pickerStyle(.segmented).labelsHidden().frame(width: 110)
+            Segmented(items: Range.allCases.map { ($0, $0.rawValue) }, selection: $range)
         }
     }
 
@@ -132,11 +126,11 @@ struct HistoryView: View {
 
     private func stat(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title).font(Theme.mono(9)).foregroundStyle(.secondary)
-            Text(value).font(Theme.rounded(12, .semibold)).lineLimit(2).minimumScaleFactor(0.8)
+            Text(title).font(.system(size: 11)).foregroundStyle(Theme.muted)
+            Text(value).font(.system(size: 15, weight: .semibold)).monospacedDigit().lineLimit(2).minimumScaleFactor(0.8)
         }
-        .padding(8).frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+        .padding(Space.m).frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.panel, in: RoundedRectangle(cornerRadius: Theme.panelRadius))
     }
 }
 

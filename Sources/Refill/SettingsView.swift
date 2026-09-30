@@ -1,15 +1,40 @@
 import SwiftUI
+import ServiceManagement
+
+enum SettingsTab: String, CaseIterable { case general = "General", history = "History", integrations = "Integrations", accounts = "Accounts" }
 
 struct SettingsView: View {
+    @State private var tab: SettingsTab = .general
+
     var body: some View {
-        TabView {
-            GeneralTab().tabItem { Label("General", systemImage: "drop.fill") }
-            HistoryView().tabItem { Label("History", systemImage: "chart.xyaxis.line") }
-            IntegrationsTab().tabItem { Label("Integrations", systemImage: "lightbulb.led.fill") }
-            AccountsTab().tabItem { Label("Accounts", systemImage: "person.2.fill") }
+        VStack(spacing: 0) {
+            Segmented(items: SettingsTab.allCases.map { ($0, $0.rawValue) }, selection: $tab)
+                .padding(.top, Space.s).padding(.bottom, Space.l)
+            Rectangle().fill(Theme.line).frame(height: 1)
+            Group {
+                switch tab {
+                case .general: Scrolling { GeneralTab() }
+                case .history: HistoryView()
+                case .integrations: IntegrationsTab()
+                case .accounts: Scrolling { AccountsTab() }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(.top, 28)
+        .background(Theme.ink)
         .frame(width: 640, height: 580)
+    }
+}
+
+/// Standard page: black, 24pt gutters, 20pt between panels.
+struct Scrolling<Content: View>: View {
+    @ViewBuilder var content: Content
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) { content }
+                .padding(.horizontal, Space.xl).padding(.vertical, Space.l)
+        }
+        .scrollIndicators(.never)
     }
 }
 
@@ -32,195 +57,94 @@ struct GeneralTab: View {
 
     let sounds = ((try? FileManager.default.contentsOfDirectory(atPath: "/System/Library/Sounds")) ?? [])
         .map { ($0 as NSString).deletingPathExtension }.sorted()
+    let hours = (0..<24).map { ($0, String(format: "%02d:00", $0)) }
 
     var body: some View {
-        Form {
-            Section {
-                HStack(spacing: 14) {
-                    Drip(mood: monitor.mood, size: 52)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Refill").font(Theme.rounded(22, .heavy))
-                        Text("I watch your AI tanks and yell when they refill.").foregroundStyle(.secondary)
-                    }
-                }.padding(.vertical, 4)
-            }
-            Section("Startup") {
-                Toggle("Open Refill at login", isOn: $login)
-                    .onChange(of: login) { _, on in LoginItem.set(on); login = LoginItem.isOn }
-                if LoginItem.status == .requiresApproval {
-                    Button("Approve in System Settings → Login Items") { SMAppServiceOpen.loginItems() }
-                }
-                if !Bundle.main.bundlePath.hasPrefix("/Applications") {
-                    Text("Tip: run from /Applications for login launch (scripts/build.sh --install).")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-            }
-            Section("Notch") {
-                Toggle("Drip pops out of the notch on events", isOn: $notch)
-                    .onChange(of: notch) { _, v in NotchController.shared.enabled = v }
-                Button("Preview notch") { NotchController.shared.preview() }
-                Button("Show welcome tour") { Onboarding.show(monitor: monitor) }
-            }
-            Section("On this Mac") {
-                Toggle("Notification", isOn: $notify)
-                HStack {
-                    Toggle("Sound", isOn: $sound)
-                    Spacer()
-                    Picker("", selection: $soundName) { ForEach(sounds, id: \.self) { Text($0) } }
-                        .labelsHidden().frame(width: 140)
-                        .onChange(of: soundName) { _, n in NSSound(named: NSSound.Name(n))?.play() }
-                }
-                Toggle("Run hook script ~/.config/refill/on-reset", isOn: $hook)
-                Button("Send test signal everywhere") { monitor.sendTest() }
-            }
-            Section("Quiet hours") {
-                Toggle("Quiet hours (no sounds; lights still work)", isOn: $quiet)
-                if quiet {
-                    HStack {
-                        Picker("From", selection: $quietFrom) { ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)) } }
-                        Picker("To", selection: $quietTo) { ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)) } }
-                    }
-                    Toggle("Also mute phone and chat pushes", isOn: $quietPush)
-                }
-            }
-            Section("Warnings") {
-                TextField("Warn when used % crosses", text: $thresholds)
-                Text("Comma-separated. Plus an “empty” event at 100%.").font(.caption).foregroundStyle(.secondary)
-                Stepper("Check usage every \(Int(poll)) min", value: $poll, in: 1...60)
-            }
-            Section("About") {
-                LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev")
-                HStack(spacing: 14) {
-                    ForEach([("Privacy", "privacy.html"), ("Terms", "terms.html"), ("Notice", "notice.html")], id: \.0) { item in
-                        Link(item.0, destination: URL(string: "https://stepanblaha.github.io/refill/" + item.1)!)
-                    }
-                    Link("Contact", destination: URL(string: "mailto:tools@czechitacademy.cz")!)
-                }
-                Text("Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google. Everything stays on your Mac.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section("Dashboard") {
-                HStack {
-                    TextField("Port", value: $port, format: .number.grouping(.never)).frame(width: 160)
-                    Toggle("Visible on Wi-Fi (phone)", isOn: $lan)
-                    Button("Apply") { monitor.restartServer() }
-                }
-                Text(lan ? "Open http://\(ProcessInfo.processInfo.hostName):\(String(port)) on your phone. Read-only, but anyone on this network can see usage."
-                         : "Local only: http://127.0.0.1:\(String(port))")
-                    .font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+        HStack(spacing: Space.m) {
+            Drip(mood: monitor.mood, size: 40, level: monitor.lowestRemaining)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Refill").font(.system(size: 19, weight: .semibold))
+                Text("Watches your AI limits and tells you when they refill.").font(.system(size: 12)).foregroundStyle(Theme.muted)
             }
         }
-        .formStyle(.grouped)
-    }
-}
 
-import ServiceManagement
-enum SMAppServiceOpen { static func loginItems() { SMAppService.openSystemSettingsLoginItems() } }
-
-struct IntegrationsTab: View {
-    @EnvironmentObject var monitor: Monitor
-    @State private var sinks = Integrations.load()
-    @State private var selection: UUID?
-
-    var body: some View {
-        HStack(spacing: 0) {
-            VStack(spacing: 0) {
-                List(selection: $selection) {
-                    ForEach(sinks) { s in
-                        Label(s.kind.title, systemImage: s.kind.symbol)
-                            .foregroundStyle(s.enabled ? .primary : .secondary).tag(s.id)
-                    }
-                }
-                Divider()
-                HStack {
-                    Menu {
-                        ForEach(SinkKind.allCases) { k in
-                            Button { add(k) } label: { Label(k.title, systemImage: k.symbol) }
-                        }
-                    } label: { Image(systemName: "plus") }
-                    .menuStyle(.borderlessButton).frame(width: 36)
-                    Button { remove() } label: { Image(systemName: "minus") }
-                        .buttonStyle(.borderless).disabled(selection == nil)
-                    Spacer()
-                }.padding(6)
-            }
-            .frame(width: 210)
-            Divider()
-            if let i = sinks.firstIndex(where: { $0.id == selection }) {
-                SinkEditor(sink: $sinks[i]).id(sinks[i].id)
-            } else {
-                VStack(spacing: 10) {
-                    Drip(mood: .focused, size: 44)
-                    Text("Hook me up to your lights, your phone, anything.").font(.headline)
-                    Text("Press + to add ntfy / Pushover / Telegram for phone pushes,\nHome Assistant, Hue or WLED for room lights,\nor a custom webhook for everything else.")
-                        .multilineTextAlignment(.center).foregroundStyle(.secondary).font(.callout)
-                }.frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .onChange(of: sinks) { _, s in Integrations.save(s) }
-    }
-
-    func add(_ k: SinkKind) {
-        var s = Sink(kind: k)
-        if k == .ntfy { s.values = ["server": "https://ntfy.sh", "topic": "refill-" + UUID().uuidString.prefix(8).lowercased()] }
-        if k == .homeAssistant { s.values = ["hook": "refill"] }
-        if k == .webhook { s.values = ["method": "POST"] }
-        sinks.append(s)
-        selection = s.id
-    }
-
-    func remove() {
-        sinks.removeAll { $0.id == selection }
-        selection = nil
-    }
-}
-
-struct SinkEditor: View {
-    @EnvironmentObject var monitor: Monitor
-    @Binding var sink: Sink
-    @State private var status = ""
-    @State private var testing = false
-
-    var body: some View {
-        Form {
-            Section {
-                Toggle(isOn: $sink.enabled) { Label(sink.kind.title, systemImage: sink.kind.symbol).font(.headline) }
-                if !sink.kind.help.isEmpty {
-                    Text(sink.kind.help).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
-                }
-            }
-            Section("Settings") {
-                ForEach(sink.kind.fields, id: \.key) { f in
-                    let b = Binding(get: { sink.values[f.key] ?? "" }, set: { sink.values[f.key] = $0 })
-                    if f.multiline {
-                        VStack(alignment: .leading) {
-                            Text(f.label).font(.caption)
-                            TextEditor(text: b).font(.system(.body, design: .monospaced)).frame(height: 54)
-                        }
-                    } else if f.secret {
-                        SecureField(f.label, text: b, prompt: Text(f.placeholder))
-                    } else {
-                        TextField(f.label, text: b, prompt: Text(f.placeholder))
-                    }
-                }
-            }
-            Section("Fire on") {
-                Toggle("Reset (tank refilled)", isOn: $sink.onReset)
-                Toggle("Warning (crossed threshold)", isOn: $sink.onWarning)
-                Toggle("Empty (hit the limit)", isOn: $sink.onEmpty)
-            }
-            Section {
-                HStack {
-                    Button(testing ? "Sending…" : "Send test") {
-                        testing = true
-                        Task { status = await monitor.testSink(sink); testing = false }
-                    }.disabled(testing)
-                    Text(status).font(.caption.monospaced())
-                        .foregroundStyle(status.hasPrefix("OK") ? .green : .orange).lineLimit(2)
+        Panel(title: "Startup") {
+            ToggleRow(title: "Open at login", isOn: $login)
+                .onChange(of: login) { _, on in LoginItem.set(on); login = LoginItem.isOn }
+            if LoginItem.status == .requiresApproval {
+                RowDivider()
+                Row(title: "Needs approval in Login Items") {
+                    Button("Open Settings") { SMAppService.openSystemSettingsLoginItems() }.buttonStyle(DarkButton())
                 }
             }
         }
-        .formStyle(.grouped)
+
+        Panel(title: "Alerts") {
+            ToggleRow(title: "Notification", isOn: $notify)
+            RowDivider()
+            Row(title: "Sound") {
+                DarkMenu(items: sounds.map { ($0, $0) }, selection: $soundName)
+                    .onChange(of: soundName) { _, n in NSSound(named: NSSound.Name(n))?.play() }
+                    .opacity(sound ? 1 : 0.4)
+                Toggle("", isOn: $sound).labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.accent)
+            }
+            RowDivider()
+            ToggleRow(title: "Notch", subtitle: "Drip slides out of the notch on events", isOn: $notch)
+                .onChange(of: notch) { _, v in NotchController.shared.enabled = v }
+            RowDivider()
+            ToggleRow(title: "Hook script", subtitle: "~/.config/refill/on-reset", isOn: $hook)
+            RowDivider()
+            Row(title: "Try it") {
+                Button("Preview notch") { NotchController.shared.preview() }.buttonStyle(DarkButton())
+                Button("Send test") { monitor.sendTest() }.buttonStyle(DarkButton(prominent: true))
+            }
+        }
+
+        Panel(title: "Quiet hours", footer: quiet ? "Sounds stay off. Lights and hooks still fire." : nil) {
+            ToggleRow(title: "Quiet hours", isOn: $quiet)
+            if quiet {
+                RowDivider()
+                Row(title: "From") { DarkMenu(items: hours, selection: $quietFrom); Text("to").foregroundStyle(Theme.muted).font(.system(size: 12)); DarkMenu(items: hours, selection: $quietTo) }
+                RowDivider()
+                ToggleRow(title: "Also mute phone and chat pushes", isOn: $quietPush)
+            }
+        }
+
+        Panel(title: "Usage", footer: "An empty alert is always sent at 100%.") {
+            Row(title: "Warn at", subtitle: "Used %, comma separated") {
+                TextField("80, 95", text: $thresholds).textFieldStyle(DarkField()).frame(width: 90)
+            }
+            RowDivider()
+            Row(title: "Check every") {
+                Stepper("\(Int(poll)) min", value: $poll, in: 1...60).font(.system(size: 12)).fixedSize()
+            }
+        }
+
+        Panel(title: "Dashboard", footer: lan ? "Anyone on this Wi-Fi can see your usage (read-only)." : nil) {
+            Row(title: "Address", subtitle: "http://\(lan ? ProcessInfo.processInfo.hostName : "127.0.0.1"):\(String(port))") {
+                Button("Open") { NSWorkspace.shared.open(URL(string: "http://127.0.0.1:\(port)")!) }.buttonStyle(DarkButton())
+            }
+            RowDivider()
+            ToggleRow(title: "Visible on Wi-Fi", subtitle: "Open it from your phone", isOn: $lan)
+                .onChange(of: lan) { _, _ in monitor.restartServer() }
+        }
+
+        Panel(title: "About") {
+            Row(title: "Version", subtitle: "Refill is independent, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.") {
+                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev")
+                    .font(.system(size: 12)).monospacedDigit().foregroundStyle(Theme.muted)
+            }
+            RowDivider()
+            Row(title: "Legal") {
+                ForEach([("Privacy", "privacy.html"), ("Terms", "terms.html"), ("Notice", "notice.html")], id: \.0) { i in
+                    Button(i.0) { NSWorkspace.shared.open(URL(string: "https://stepanblaha.github.io/refill/" + i.1)!) }.buttonStyle(DarkButton())
+                }
+            }
+            RowDivider()
+            Row(title: "Welcome tour") {
+                Button("Show") { Onboarding.show(monitor: monitor) }.buttonStyle(DarkButton())
+            }
+        }
     }
 }
 
@@ -228,33 +152,37 @@ struct AccountsTab: View {
     @EnvironmentObject var monitor: Monitor
     @AppStorage(Prefs.K.codex) var codex = true
     @AppStorage(Prefs.K.extraDirs) var extraDirs = ""
+    @State private var newName = ""
+    @State private var status = ""
 
     var body: some View {
-        Form {
-            Section("Detected") {
-                ForEach(monitor.accounts) { a in
-                    HStack {
-                        Text(a.email ?? a.name)
-                        Spacer()
-                        Text(a.error == nil ? a.name : "needs login").foregroundStyle(a.error == nil ? Color.secondary : Color.orange)
-                    }
+        Panel(title: "Detected") {
+            ForEach(Array(monitor.accounts.enumerated()), id: \.1.id) { i, a in
+                if i > 0 { RowDivider() }
+                Row(title: a.email ?? a.name, subtitle: a.error ?? [a.name, a.plan?.capitalized].compactMap { $0 }.joined(separator: " · ")) {
+                    Circle().fill(a.error == nil ? Theme.accent : Theme.amber).frame(width: 6, height: 6)
                 }
             }
-            Section("Claude accounts") {
-                Text("Each Claude login lives in its own config folder. ~/.claude and every ~/.claude-* folder are found automatically.")
-                    .font(.caption).foregroundStyle(.secondary)
-                Text("CLAUDE_CONFIG_DIR=~/.claude-work claude    → then /login")
-                    .font(.system(.caption, design: .monospaced)).textSelection(.enabled)
-                VStack(alignment: .leading) {
-                    Text("Extra folders (one per line)").font(.caption)
-                    TextEditor(text: $extraDirs).font(.system(.body, design: .monospaced)).frame(height: 60)
-                }
-                Button("Rescan now") { Task { await monitor.refresh() } }
-            }
-            Section("Other tools") {
-                Toggle("Codex CLI (reads ~/.codex/sessions, offline)", isOn: $codex)
-            }
+            RowDivider()
+            Row(title: "Rescan") { Button("Refresh") { Task { await monitor.refresh() } }.buttonStyle(DarkButton()) }
         }
-        .formStyle(.grouped)
+
+        Panel(title: "Add a Claude account", footer: "Opens Terminal with a separate Claude profile. Type /login there, then quit. Refill picks it up on the next refresh.") {
+            Row(title: "Name") {
+                TextField("work", text: $newName).textFieldStyle(DarkField()).frame(width: 140)
+                Button("Add") { status = AccountAdder.addClaude(name: newName); newName = "" }
+                    .buttonStyle(DarkButton(prominent: true)).disabled(newName.isEmpty)
+            }
+            if !status.isEmpty { RowDivider(); Row(title: status) { EmptyView() } }
+        }
+
+        Panel(title: "Extra config folders", footer: "~/.claude and every ~/.claude-* folder are found automatically. One path per line.") {
+            TextEditor(text: $extraDirs).font(.system(size: 12, design: .monospaced))
+                .scrollContentBackground(.hidden).padding(Space.s).frame(height: 64)
+        }
+
+        Panel(title: "Other tools") {
+            ToggleRow(title: "Codex CLI", subtitle: "Reads ~/.codex/sessions, offline", isOn: $codex)
+        }
     }
 }

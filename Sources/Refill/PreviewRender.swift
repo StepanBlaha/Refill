@@ -23,7 +23,25 @@ enum PreviewRender {
             ForEach([Voice.Mood.happy, .focused, .sweaty, .asleep, .party], id: \.self) { Drip(mood: $0, size: 64) }
         }.padding(24).background(Theme.ink)
         save(row, "\(dir)/moods.png")
+        snap(SettingsView().environmentObject(m), NSSize(width: 640, height: 900), "\(dir)/settings.png")
+        snap(HistoryView().environmentObject(m), NSSize(width: 680, height: 560), "\(dir)/history.png")
+        snap(ScrollView { VStack(alignment: .leading, spacing: 20) { AccountsTab() }.padding(24) }.environmentObject(m),
+             NSSize(width: 640, height: 700), "\(dir)/accounts.png")
         exit(0)
+    }
+
+    /// AppKit snapshot so real controls (toggles, menus) draw, unlike ImageRenderer.
+    static func snap(_ v: some View, _ size: NSSize, _ path: String) {
+        let host = NSHostingView(rootView: v.tint(Theme.accent).preferredColorScheme(.dark).background(Color.black))
+        host.appearance = NSAppearance(named: .darkAqua)
+        let win = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless], backing: .buffered, defer: false)
+        win.contentView = host
+        host.frame = NSRect(origin: .zero, size: size)
+        host.layoutSubtreeIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.6))
+        guard let rep = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { return }
+        host.cacheDisplay(in: host.bounds, to: rep)
+        try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
     }
 
     static func save(_ v: some View, _ path: String) {
