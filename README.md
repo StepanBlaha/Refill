@@ -1,5 +1,8 @@
 # Refill
 
+[**Download for macOS**](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg) · [Website](https://stepanblaha.github.io/Refill/) · MIT
+
+
 Menu bar app for macOS 14+. It watches your AI subscription limits and **signals the moment a limit resets**.
 
 ## Sources
@@ -39,6 +42,12 @@ Integrations:
 Launch at login: on by default when run from /Applications (Settings → General).
 
 Design review: `Refill --render <dir>` writes `menu.png` and `moods.png` and exits.
+
+## Releasing
+```bash
+scripts/release.sh 0.2.0   # bump, tag, push → GitHub Actions builds + publishes the .dmg
+```
+The site (`site/`, Next.js + GSAP + Locomotive) deploys to GitHub Pages on every push to `main`. The app checks GitHub Releases daily and shows "Update available".
 
 ## Build
 ```bash
