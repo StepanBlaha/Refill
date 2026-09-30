@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Drip from "./Drip";
+import Status from "./Status";
 import { DMG, REPO, RELEASES_API } from "@/lib/site";
 import { gsap, motionSafe } from "@/lib/gsap";
 import c from "./Shared.module.css";
@@ -10,8 +11,9 @@ import s from "./Download.module.css";
 export default function Download() {
   const root = useRef<HTMLElement>(null);
   const [version, setVersion] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
-  // Latest release tag; any failure (404, offline, rate limit) just hides the label.
+  // Latest release tag; any failure (404, offline, rate limit) shows a warning. The download link still works.
   useEffect(() => {
     const ctl = new AbortController();
     fetch(RELEASES_API, { signal: ctl.signal, headers: { Accept: "application/vnd.github+json" } })
@@ -19,8 +21,11 @@ export default function Download() {
       .then((j) => {
         const tag = j && typeof j.tag_name === "string" ? j.tag_name : null;
         if (tag) setVersion(tag);
+        else setFailed(true);
       })
-      .catch(() => {});
+      .catch((e) => {
+        if (e?.name !== "AbortError") setFailed(true);
+      });
     return () => ctl.abort();
   }, []);
 
@@ -52,7 +57,10 @@ export default function Download() {
         <p className={c.fine}>
           macOS 14+ &middot; free &amp; open source &middot; first launch: right-click &rarr; Open
         </p>
-        {version && <p className={s.ver}>Latest release: {version}</p>}
+        {version && <Status kind="success">Latest release: {version}</Status>}
+        {failed && !version && (
+          <Status kind="warning">Could not check the latest version. The download button still gets the newest release.</Status>
+        )}
       </div>
     </section>
   );
