@@ -8,7 +8,8 @@ struct SettingsView: View {
             IntegrationsTab().tabItem { Label("Integrations", systemImage: "lightbulb.led.fill") }
             AccountsTab().tabItem { Label("Accounts", systemImage: "person.2.fill") }
         }
-        .frame(width: 620, height: 560)
+        .padding(.top, 28)
+        .frame(width: 640, height: 580)
     }
 }
 

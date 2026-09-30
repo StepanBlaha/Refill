@@ -48,9 +48,14 @@ struct HistoryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             header
-            if series.isEmpty && store.samples.isEmpty {
-                Text("No history yet. Samples are recorded as usage is refreshed.")
-                    .font(Theme.mono(11)).foregroundStyle(.secondary).frame(maxWidth: .infinity, minHeight: 200)
+            if series.count < 3 {
+                VStack(spacing: 10) {
+                    Drip(mood: .focused, size: 40)
+                    Text("Collecting data").font(.system(size: 15, weight: .semibold))
+                    Text("Refill samples your usage every few minutes. Charts and burn rate show up after about an hour.")
+                        .font(.system(size: 12)).foregroundStyle(Theme.muted).multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: 320).frame(maxWidth: .infinity, minHeight: 320)
             } else {
                 mainChart.frame(height: 170)
                 stats

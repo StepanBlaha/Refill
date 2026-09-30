@@ -8,8 +8,9 @@ struct StepFrame<Content: View>: View {
     @ViewBuilder var content: Content
     var body: some View {
         VStack(spacing: 10) {
-            Drip(mood: mood, size: 76).padding(.top, 6)
-            Text(title).font(Theme.rounded(26, .heavy))
+            Spacer(minLength: 0)
+            Drip(mood: mood, size: 64)
+            Text(title).font(.system(size: 24, weight: .semibold))
             Text(line).font(Theme.rounded(14)).foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
             content.padding(.top, 8)
