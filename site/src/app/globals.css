@@ -126,3 +126,22 @@ svg {
     scroll-behavior: auto !important;
   }
 }
+
+html {
+  overflow-x: clip;
+}
+
+.skip {
+  position: absolute;
+  left: var(--s4);
+  top: -100px;
+  z-index: 100;
+  background: var(--text);
+  color: var(--bg);
+  padding: var(--s2) var(--s4);
+  border-radius: var(--r-m);
+  text-decoration: none;
+}
+.skip:focus {
+  top: var(--s2);
+}

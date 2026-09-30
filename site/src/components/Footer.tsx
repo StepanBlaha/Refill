@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Drip from "./Drip";
-import { DISCLAIMER, REPO } from "@/lib/site";
+import { DISCLAIMER, ISSUES, REPO } from "@/lib/site";
 import s from "./Footer.module.css";
 
 export default function Footer() {
+  const year = new Date().getFullYear();
   return (
     <footer className={s.foot}>
       <div className={s.row}>
@@ -16,9 +17,12 @@ export default function Footer() {
           <Link href="/terms/">Terms</Link>
           <Link href="/notice/">Notice</Link>
           <a href={REPO}>GitHub</a>
-          <a href={`${REPO}/issues`}>Issues</a>
+          <a href={ISSUES}>Contact (GitHub Issues)</a>
         </nav>
         <p className={s.fine}>{DISCLAIMER}</p>
+        <p className={s.fine}>
+          &copy; {year} Stepan Blaha &middot; <a href={`${REPO}/blob/main/LICENSE`}>MIT</a>
+        </p>
       </div>
     </footer>
   );

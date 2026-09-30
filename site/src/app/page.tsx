@@ -6,6 +6,7 @@ import Burn from "@/components/Burn";
 import PrivateSection from "@/components/PrivateSection";
 import Faq from "@/components/Faq";
 import Download from "@/components/Download";
+import JsonLd, { homeLd } from "@/components/JsonLd";
 import { HOME_DESC, HOME_TITLE, pageMeta } from "@/lib/site";
 
 export const metadata = pageMeta({ title: HOME_TITLE, description: HOME_DESC, path: "" });
@@ -13,6 +14,7 @@ export const metadata = pageMeta({ title: HOME_TITLE, description: HOME_DESC, pa
 export default function Home() {
   return (
     <main id="top">
+      <JsonLd data={homeLd} />
       <Hero />
       <Sources />
       <Signals />
