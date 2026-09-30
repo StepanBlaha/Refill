@@ -88,6 +88,17 @@ struct GeneralTab: View {
                 Text("Comma-separated. Plus an “empty” event at 100%.").font(.caption).foregroundStyle(.secondary)
                 Stepper("Check usage every \(Int(poll)) min", value: $poll, in: 1...60)
             }
+            Section("About") {
+                LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev")
+                HStack(spacing: 14) {
+                    ForEach([("Privacy", "privacy.html"), ("Terms", "terms.html"), ("Notice", "notice.html")], id: \.0) { item in
+                        Link(item.0, destination: URL(string: "https://stepanblaha.github.io/refill/" + item.1)!)
+                    }
+                    Link("Contact", destination: URL(string: "mailto:tools@czechitacademy.cz")!)
+                }
+                Text("Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google. Everything stays on your Mac.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section("Dashboard") {
                 HStack {
                     TextField("Port", value: $port, format: .number.grouping(.never)).frame(width: 160)
