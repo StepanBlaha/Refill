@@ -21,6 +21,10 @@ struct GeneralTab: View {
     @AppStorage(Prefs.K.port) var port = 7788
     @AppStorage(Prefs.K.lan) var lan = false
     @AppStorage(Prefs.K.thresholds) var thresholds = "80, 95"
+    @AppStorage(Prefs.K.quiet) var quiet = false
+    @AppStorage(Prefs.K.quietFrom) var quietFrom = 22
+    @AppStorage(Prefs.K.quietTo) var quietTo = 8
+    @AppStorage(Prefs.K.quietPush) var quietPush = false
     @State private var login = LoginItem.isOn
 
     let sounds = ((try? FileManager.default.contentsOfDirectory(atPath: "/System/Library/Sounds")) ?? [])
@@ -59,6 +63,16 @@ struct GeneralTab: View {
                 }
                 Toggle("Run hook script ~/.config/refill/on-reset", isOn: $hook)
                 Button("Send test signal everywhere") { monitor.sendTest() }
+            }
+            Section("Quiet hours") {
+                Toggle("Quiet hours (no sounds; lights still work)", isOn: $quiet)
+                if quiet {
+                    HStack {
+                        Picker("From", selection: $quietFrom) { ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)) } }
+                        Picker("To", selection: $quietTo) { ForEach(0..<24, id: \.self) { Text(String(format: "%02d:00", $0)) } }
+                    }
+                    Toggle("Also mute phone and chat pushes", isOn: $quietPush)
+                }
             }
             Section("Warnings") {
                 TextField("Warn when used % crosses", text: $thresholds)

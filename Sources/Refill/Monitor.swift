@@ -5,10 +5,19 @@ struct Prefs {
         static let notify = "notify", sound = "sound", soundName = "soundName", hook = "hook"
         static let poll = "pollMinutes", codex = "codex", port = "port", lan = "lan"
         static let extraDirs = "extraClaudeDirs", thresholds = "thresholds"
+        static let quiet = "quietHours", quietFrom = "quietFrom", quietTo = "quietTo", quietPush = "quietMutesPush"
     }
     var notify = true, sound = true, soundName = "Glass", hook = true, lan = false
     var pollMinutes = 5.0, codex = true, port = 7788, extraDirs: [String] = []
     var thresholds: [Double] = [80, 95]
+    var quiet = false, quietFrom = 22, quietTo = 8, quietMutesPush = false
+
+    /// Quiet hours: no sounds (lights and hooks still run).
+    var isQuietNow: Bool {
+        guard quiet else { return false }
+        let h = Calendar.current.component(.hour, from: Date())
+        return quietFrom <= quietTo ? (h >= quietFrom && h < quietTo) : (h >= quietFrom || h < quietTo)
+    }
 
     static var current: Prefs {
         let d = UserDefaults.standard
@@ -18,6 +27,10 @@ struct Prefs {
         p.soundName = d.string(forKey: K.soundName) ?? p.soundName
         p.hook = d.object(forKey: K.hook) as? Bool ?? p.hook
         p.lan = d.bool(forKey: K.lan)
+        p.quiet = d.bool(forKey: K.quiet)
+        p.quietFrom = d.object(forKey: K.quietFrom) as? Int ?? 22
+        p.quietTo = d.object(forKey: K.quietTo) as? Int ?? 8
+        p.quietMutesPush = d.bool(forKey: K.quietPush)
         p.thresholds = (d.string(forKey: K.thresholds) ?? "80, 95").split(separator: ",")
             .compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }.filter { $0 > 0 && $0 < 100 }
         p.pollMinutes = max(1, d.object(forKey: K.poll) as? Double ?? p.pollMinutes)
@@ -110,6 +123,7 @@ final class Monitor: ObservableObject {
             fresh.append(s)
         }
         if prefs.codex, CodexProvider.isInstalled { fresh.append(CodexProvider.fetch()) }
+        for p in AppHooks.providers { fresh += await p() }
 
         for i in fresh.indices {
             guard let old = accounts.first(where: { $0.id == fresh[i].id }) else { continue }
@@ -131,6 +145,7 @@ final class Monitor: ObservableObject {
             }
         }
         accounts = fresh
+        AppHooks.onRefresh.forEach { $0(fresh) }
         lastFetch = Date()
         lastRefresh = lastFetch
         persist()
@@ -171,6 +186,7 @@ final class Monitor: ObservableObject {
         events.append(e)
         if events.count > 100 { events.removeFirst(events.count - 100) }
         Signals.fire(e, settings: Prefs.current)
+        AppHooks.onEvent.forEach { $0(e) }
         persist()
     }
 

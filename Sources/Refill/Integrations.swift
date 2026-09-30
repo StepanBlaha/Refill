@@ -100,8 +100,11 @@ enum Integrations {
         try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: Paths.integrationsFile.path)
     }
 
-    static func dispatch(_ e: RefillEvent) {
-        for s in load() where s.wants(e.kind) { Task { _ = await send(s, e) } }
+    /// Phone/chat kinds; muted during quiet hours when the user opts in. Lights always fire.
+    static let pushKinds: Set<SinkKind> = [.ntfy, .pushover, .telegram, .discord, .slack]
+
+    static func dispatch(_ e: RefillEvent, quiet: Bool = false) {
+        for s in load() where s.wants(e.kind) && !(quiet && pushKinds.contains(s.kind)) { Task { _ = await send(s, e) } }
     }
 
     /// Returns a short human status ("OK 200" / error) for the Test button.
