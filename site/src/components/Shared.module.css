@@ -1,0 +1,79 @@
+.sec {
+  padding: var(--s9) var(--s4);
+  position: relative;
+}
+.alt {
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.narrow {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.split {
+  display: grid;
+  gap: var(--s7);
+  align-items: center;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: var(--s3);
+}
+.h2 {
+  font-size: clamp(32px, 5.4vw, 56px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.sub {
+  color: var(--text-2);
+  font-size: 18px;
+  line-height: 1.55;
+  margin-top: var(--s4);
+  max-width: 56ch;
+}
+.fine {
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: var(--r-m);
+  text-decoration: none;
+  transition: opacity 0.3s var(--ease), background 0.3s var(--ease);
+}
+.btn:hover {
+  opacity: 0.86;
+}
+.ghost {
+  background: var(--raised);
+  color: var(--text);
+}
+.ghost:hover {
+  opacity: 1;
+  background: #3a3a3c;
+}
+@media (min-width: 900px) {
+  .sec {
+    padding: 128px var(--s5);
+  }
+  .split {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s8);
+  }
+}
