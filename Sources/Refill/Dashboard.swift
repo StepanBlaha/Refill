@@ -34,8 +34,8 @@ enum Dashboard {
     .chip{font-size:11px;font-weight:500;color:var(--sec);background:var(--card2);border-radius:4px;padding:2px 6px}
     .errtxt{color:var(--orange,#FF9F0A);font-size:12px;margin:6px 0}
     .row{padding:12px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
-    .top{display:flex;align-items:baseline;gap:10px}
-    .wl{font-size:14px;font-weight:500;flex:1;min-width:0;white-space:nowrap}
+    .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .wl{font-size:14px;font-weight:500;flex:1;min-width:8em;overflow-wrap:anywhere}
     .cd{font-size:12px;color:var(--sec);font-variant-numeric:tabular-nums}
     .pct{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
     .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
@@ -43,10 +43,11 @@ enum Dashboard {
     .fill.orange{background:var(--orange)}.fill.red{background:var(--red)}
     .fill.pop{animation:pop .7s cubic-bezier(.2,.9,.25,1)}
     h3{font-size:11px;font-weight:500;color:var(--sec);margin:28px 0 8px}
-    .ev{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+    .ev{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+    .ev>div{min-width:0;flex:1}
     .dot{width:6px;height:6px;border-radius:50%;flex:none;background:var(--ter)}
     .dot.reset,.dot.test{background:var(--green)}.dot.warning{background:var(--orange)}.dot.empty{background:var(--red)}
-    .ev b{font-size:14px;font-weight:500}.ev span{display:block;font-size:12px;color:var(--sec);margin-top:1px;word-break:break-all}
+    .ev b{font-size:14px;font-weight:500;overflow-wrap:anywhere}.ev span{display:block;font-size:12px;color:var(--sec);margin-top:1px;overflow-wrap:anywhere}
     .ev time{margin-left:auto;font-size:12px;color:var(--ter);white-space:nowrap;padding-left:8px;font-variant-numeric:tabular-nums}
     footer{margin-top:24px;text-align:center;font-size:11px;font-weight:500;color:var(--ter)}
     .empty{color:var(--sec);font-size:13px;padding:20px 0;text-align:center}
@@ -54,9 +55,9 @@ enum Dashboard {
     #flash.reset{background:var(--green);animation:fade 1.6s ease-out}
     #flash.warning{background:var(--orange);animation:fade 1.6s ease-out}
     #flash.empty{background:var(--red);animation:fade 1.6s ease-out}
-    #toast{position:fixed;left:50%;bottom:24px;z-index:6;width:min(92vw,360px);background:var(--card);border-radius:8px;padding:12px 16px;box-shadow:0 0 0 1px var(--line);transform:translate(-50%,16px);opacity:0;visibility:hidden;transition:transform .45s cubic-bezier(.3,1.3,.5,1),opacity .25s,visibility .45s}
+    #toast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));z-index:6;width:min(92vw,420px);max-height:min(50vh,320px);overflow:auto;background:var(--card);border-radius:8px;padding:12px 16px;box-shadow:0 0 0 1px var(--line);transform:translate(-50%,16px);opacity:0;visibility:hidden;transition:transform .45s cubic-bezier(.3,1.3,.5,1),opacity .25s,visibility .45s;overflow-wrap:anywhere}
     #toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
-    #toast b{font-size:14px;font-weight:600;display:block}#toast span{font-size:12px;color:var(--sec);display:block;margin-top:2px}
+    #toast b{font-size:14px;font-weight:600;display:block;overflow-wrap:anywhere}#toast span{font-size:12px;color:var(--sec);display:block;margin-top:2px;overflow-wrap:anywhere}
     @keyframes hop{40%{transform:translateY(-8px)}100%{transform:none}}
     @keyframes pop{from{transform:scaleX(0)}to{transform:none}}
     @keyframes fade{0%,50%{opacity:1}100%{opacity:0}}

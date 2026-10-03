@@ -34,7 +34,7 @@ export default function Integrations() {
             <p>Drop a script at <code>~/.config/refill/on-reset</code>. Event JSON on stdin.</p>
           </div>
           <div className={s.tile}><h3>Shortcuts</h3><p>Fire a Shortcut, or listen for the distributed notification.</p></div>
-          <div className={s.tile}><h3>Widgets</h3><p>Status files plus a local dashboard for phones on your Wi-Fi. Opt-in.</p></div>
+          <div className={s.tile}><h3>Widgets</h3><p>macOS widgets for the tanks, plus a local dashboard. Turn on Wi-Fi sharing when you want it on your phone.</p></div>
         </div>
       </div>
     </section>

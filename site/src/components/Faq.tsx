@@ -21,6 +21,10 @@ export default function Faq() {
             <p>Partly. A known reset time is tracked locally, so a scheduled reset still fires. Fresh usage numbers need the provider&apos;s API.</p>
           </details>
           <details className={s.item}>
+            <summary>Will it ping me at night?</summary>
+            <p>Quiet hours mute the sound between the times you set. Lights and the shell hook still fire. Phone and chat pushes stay on unless you mute those too.</p>
+          </details>
+          <details className={s.item}>
             <summary>Will it get my account banned?</summary>
             <p>Refill reads usage endpoints that are undocumented and may change or be restricted, the same ones your own tools use, with your own login, at a polite pace. It doesn&apos;t send prompts or spend your quota.</p>
           </details>

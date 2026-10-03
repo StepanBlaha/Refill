@@ -25,6 +25,10 @@
   padding: 14px 28px;
   font-size: 17px;
 }
+.in details {
+  width: min(100%, 40rem);
+  text-align: left;
+}
 .ver {
   color: var(--text-2);
   font-size: 14px;

@@ -8,21 +8,22 @@
 .item summary {
   list-style: none;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--s4);
-  padding: var(--s5) 0;
+  display: block;
+  position: relative;
+  padding: var(--s5) 28px var(--s5) 0;
   font-size: 18px;
   font-weight: 500;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 .item summary::-webkit-details-marker {
   display: none;
 }
 .item summary::after {
   content: "";
-  flex: none;
+  position: absolute;
+  right: 2px;
+  top: 1.55em;
   width: 8px;
   height: 8px;
   border-right: 1.5px solid var(--text-2);
