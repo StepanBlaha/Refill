@@ -11,7 +11,7 @@
   align-items: center;
 }
 .h1 {
-  font-size: clamp(38px, 8vw, 84px);
+  font-size: clamp(22px, 7.2vw, 84px);
   line-height: 1.02;
   letter-spacing: -0.035em;
 }
@@ -151,6 +151,9 @@
   transform: scaleX(0.72);
 }
 @media (max-width: 640px) {
+  .menubar {
+    gap: var(--s3);
+  }
   .menubar .dim,
   .menubar b {
     display: none;

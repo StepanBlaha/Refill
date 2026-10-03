@@ -115,6 +115,25 @@ struct Segmented<T: Hashable>: View {
     }
 }
 
+extension String {
+    /// Inserts break points into long tokens (emails, window names) so a single
+    /// word can wrap inside a banner instead of drawing past its edge.
+    var softWrapped: String {
+        split(separator: " ", omittingEmptySubsequences: false).map { word -> String in
+            let w = String(word)
+            guard w.count > 24 else { return w }
+            var out = ""
+            var n = 0
+            for ch in w {
+                if n == 24 { out.append("\u{200B}"); n = 0 }
+                out.append(ch)
+                n += 1
+            }
+            return out
+        }.joined(separator: " ")
+    }
+}
+
 /// Dark menu picker (system menu button, borderless so it doesn't render a light bezel).
 struct DarkMenu<T: Hashable>: View {
     let items: [(T, String)]

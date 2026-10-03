@@ -63,8 +63,8 @@ export default function Signals() {
           <div className={s.notch}>
             <span className={s.peek}><Drip mood="party" size={44} /></span>
             <div className={s.toast}>
-              <b>Tank is full</b>
-              <span>work: 5h session is fresh. Ready when you are.</span>
+              <b>Tank&apos;s full</b>
+              <span>work-claude@very-long-company.example: the 5h session is fresh. Whatever you were doing, resume it.</span>
             </div>
           </div>
           <div className={s.notifs}>
