@@ -38,7 +38,8 @@
 }
 .notch {
   width: min(100%, 360px);
-  height: 84px;
+  height: auto;
+  min-height: 84px;
   background: #000;
   border: 1px solid var(--line);
   border-top: 0;
@@ -46,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: var(--s3);
-  padding: 0 var(--s4);
+  padding: 10px var(--s4);
   overflow: hidden;
   box-shadow: 0 0 0 1px #000;
 }
@@ -57,6 +58,7 @@
 }
 .toast {
   display: grid;
+  flex: 1;
   min-width: 0;
 }
 .toast b,
@@ -64,12 +66,14 @@
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 .toast span,
 .notif span {
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 .notifs {
   width: min(100%, 400px);
@@ -88,4 +92,5 @@
 .notif > div {
   display: grid;
   min-width: 0;
+  flex: 1;
 }

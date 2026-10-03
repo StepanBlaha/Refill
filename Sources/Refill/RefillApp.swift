@@ -45,18 +45,21 @@ struct MenuView: View {
                 Drip(mood: monitor.mood, size: 30, level: monitor.lowestRemaining)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Refill").font(.system(size: 15, weight: .semibold)).foregroundStyle(Theme.text)
-                    Text(tagline).font(.system(size: 11)).foregroundStyle(Theme.muted).lineLimit(1)
+                    Text(tagline).font(.system(size: 11)).foregroundStyle(Theme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer()
                 IconButton(symbol: "arrow.clockwise", spinning: monitor.refreshing) { Task { await monitor.refresh() } }
             }
 
             if let u = updates.available {
-                HStack(spacing: Space.s) {
+                HStack(alignment: .center, spacing: Space.s) {
                     Image(systemName: "arrow.down.circle.fill").foregroundStyle(Theme.accent)
-                    Text("Refill \(u.version) is available").font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.text)
-                    Spacer()
-                    Button("Download") { updates.download() }.buttonStyle(DarkButton(prominent: true))
+                    Text("Refill \(u.version) is available")
+                        .font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Button("Download") { updates.download() }.buttonStyle(DarkButton(prominent: true)).fixedSize()
                 }
                 .padding(Space.s + 2)
                 .background(Theme.panel, in: RoundedRectangle(cornerRadius: Theme.panelRadius))
@@ -68,25 +71,21 @@ struct MenuView: View {
             ForEach(monitor.accounts) { AccountCard(account: $0) }
 
             if let e = monitor.events.last {
-                HStack(spacing: 8) {
-                    Circle().fill(Theme.color(e.kind)).frame(width: 7, height: 7)
-                    Text(e.title).font(Theme.rounded(12, .semibold)).foregroundStyle(Theme.text)
-                    Text("· \(e.accountName)").font(Theme.rounded(12)).foregroundStyle(Theme.muted).lineLimit(1)
-                    Spacer()
+                HStack(alignment: .top, spacing: 8) {
+                    Circle().fill(Theme.color(e.kind)).frame(width: 7, height: 7).padding(.top, 4)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(e.title.softWrapped).font(Theme.rounded(12, .semibold)).foregroundStyle(Theme.text)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(e.accountName.softWrapped).font(Theme.rounded(12)).foregroundStyle(Theme.muted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     Text(e.detectedAt, style: .relative).font(Theme.mono(10)).foregroundStyle(Theme.muted)
+                        .fixedSize().padding(.top, 2)
                 }
             }
 
-            HStack(spacing: Space.xs) {
-                Pill(symbol: "gauge.with.dots.needle.67percent", label: "Dashboard") {
-                    NSWorkspace.shared.open(URL(string: "http://127.0.0.1:\(Prefs.current.port)")!)
-                }
-                Pill(symbol: "chart.xyaxis.line", label: "History") { HistoryWindow.show() }
-                Spacer()
-                IconButton(symbol: "bolt.fill") { monitor.sendTest() }.help("Send a test signal")
-                IconButton(symbol: "gearshape.fill") { AppBootstrap.openSettings() }
-                IconButton(symbol: "power") { NSApp.terminate(nil) }
-            }
+            menuActions
         }
         .padding(Space.m)
         .frame(width: 340)
@@ -94,6 +93,37 @@ struct MenuView: View {
         .preferredColorScheme(.dark)
         .onAppear { tagline = Voice.tagline(monitor.mood) }
         .onChange(of: monitor.mood) { _, m in tagline = Voice.tagline(m) }
+    }
+
+    /// Pills stay on one row when they fit. On a narrow menu or at larger text they stack
+    /// instead of drawing past the edge.
+    private var menuActions: some View {
+        let pills = ViewThatFits(in: .horizontal) {
+            HStack(spacing: Space.xs) { dashboardPill; historyPill }
+            VStack(alignment: .leading, spacing: Space.xs) { dashboardPill; historyPill }
+        }
+        let icons = HStack(spacing: Space.xs) {
+            IconButton(symbol: "bolt.fill") { monitor.sendTest() }.help("Send a test signal")
+            IconButton(symbol: "gearshape.fill") { AppBootstrap.openSettings() }
+            IconButton(symbol: "power") { NSApp.terminate(nil) }
+        }
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: Space.xs) { pills; Spacer(minLength: Space.xs); icons }
+            VStack(alignment: .leading, spacing: Space.xs) {
+                pills
+                HStack { Spacer(minLength: 0); icons }
+            }
+        }
+    }
+
+    private var dashboardPill: some View {
+        Pill(symbol: "gauge.with.dots.needle.67percent", label: "Dashboard") {
+            NSWorkspace.shared.open(URL(string: "http://127.0.0.1:\(Prefs.current.port)")!)
+        }
+    }
+
+    private var historyPill: some View {
+        Pill(symbol: "chart.xyaxis.line", label: "History") { HistoryWindow.show() }
     }
 }
 
@@ -106,8 +136,10 @@ struct AccountCard: View {
             HStack(spacing: Space.s) {
                 Image(systemName: account.provider == "codex" ? "chevron.left.forwardslash.chevron.right" : "sparkle")
                     .font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.muted).frame(width: 14)
-                Text(account.email ?? account.name).font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Theme.text).lineLimit(1).truncationMode(.middle)
+                Text((account.email ?? account.name).softWrapped).font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.text)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 Spacer(minLength: Space.s)
                 Menu { AccountMenuItems(account: account) } label: {
                     Image(systemName: "ellipsis").font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.muted)
@@ -122,7 +154,8 @@ struct AccountCard: View {
                 }
             }
             if let err = account.error {
-                Text(err).font(.system(size: 11)).foregroundStyle(Theme.amber).lineLimit(2)
+                Text(err.softWrapped).font(.system(size: 11)).foregroundStyle(Theme.amber)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             ForEach(account.windows) { TankRow(window: $0, accountId: account.id) }
         }
@@ -143,15 +176,18 @@ struct TankRow: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            HStack(spacing: Space.s) {
-                Text(window.label).font(.system(size: 12)).foregroundStyle(Theme.text).lineLimit(1)
-                Spacer(minLength: Space.s)
+            HStack(alignment: .firstTextBaseline, spacing: Space.s) {
+                Text(window.label.softWrapped).font(.system(size: 12)).foregroundStyle(Theme.text)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 TimelineView(.periodic(from: .now, by: 30)) { ctx in
                     Text(subtitle(ctx.date)).font(.system(size: 11)).monospacedDigit().foregroundStyle(Theme.muted)
+                        .fixedSize()
                 }
                 Text("\(Int(left.rounded()))%").font(.system(size: 12, weight: .semibold)).monospacedDigit()
                     .foregroundStyle(window.utilization >= 70 ? color : Theme.text)
                     .frame(minWidth: 34, alignment: .trailing)
+                    .fixedSize()
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {

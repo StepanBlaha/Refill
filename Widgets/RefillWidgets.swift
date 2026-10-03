@@ -127,11 +127,13 @@ struct MediumView: View {
                     ForEach(e.accounts.prefix(3)) { a in
                         if let w = a.fiveHour {
                             VStack(alignment: .leading, spacing: 3) {
-                                HStack {
-                                    Text(a.name).font(Theme.rounded(11, .semibold)).foregroundStyle(Theme.text).lineLimit(1)
-                                    Spacer()
+                                HStack(spacing: 4) {
+                                    Text(a.name).font(Theme.rounded(11, .semibold)).foregroundStyle(Theme.text)
+                                        .lineLimit(1).frame(minWidth: 0, alignment: .leading)
+                                    Spacer(minLength: 4)
                                     Text("\(Int(remaining(w).rounded()))% · \(refillsIn(w, from: e.date))")
                                         .font(Theme.mono(9)).foregroundStyle(Theme.muted)
+                                        .lineLimit(1).minimumScaleFactor(0.7).layoutPriority(1)
                                 }
                                 TankBar(window: w)
                             }
@@ -194,7 +196,7 @@ struct RefillWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "RefillWidget", provider: RefillProvider()) { RefillWidgetView(entry: $0) }
             .configurationDisplayName("Refill")
-            .description("Your Claude and Codex tanks, with Drip.")
+            .description("Your AI usage tanks, with Drip.")
             .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

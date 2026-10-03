@@ -55,7 +55,7 @@ export default function Download() {
           <a className={`${c.btn} ${c.ghost} ${s.lg}`} href={REPO}>View on GitHub</a>
         </div>
         <p className={c.fine}>
-          macOS 14+ &middot; free &amp; open source
+          macOS 14+ &middot; free &amp; open source &middot; opens at login from Applications
         </p>
         <details className={c.fine}>
           <summary>First launch: macOS says it can&apos;t verify the app</summary>

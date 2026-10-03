@@ -1,20 +1,28 @@
 .status {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
   gap: var(--s2);
+  width: min(100%, 36rem);
   max-width: 100%;
-  padding: 6px 12px;
+  margin: 0;
+  padding: 8px 12px;
   border-radius: var(--r-m);
   background: var(--panel);
   border: 1px solid var(--line);
   font-size: 13px;
   line-height: 1.4;
   color: var(--text);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.status > span:last-child {
+  min-width: 0;
 }
 .dot {
   flex: none;
   width: 8px;
   height: 8px;
+  margin-top: 0.4em;
   border-radius: 50%;
   background: currentColor;
 }
