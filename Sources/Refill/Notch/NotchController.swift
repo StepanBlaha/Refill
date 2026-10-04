@@ -7,17 +7,6 @@ private final class NotchPanel: NSPanel {
     override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect { frameRect }
 }
 
-extension DisplayGeometry {
-    init(_ screen: NSScreen, main: NSScreen?) {
-        self.init(frame: screen.frame,
-                  visibleFrame: screen.visibleFrame,
-                  safeAreaTop: max(0, screen.safeAreaInsets.top),
-                  auxiliaryTopLeft: DisplayGeometry.usableArea(screen.auxiliaryTopLeftArea),
-                  auxiliaryTopRight: DisplayGeometry.usableArea(screen.auxiliaryTopRightArea),
-                  isMain: screen == main)
-    }
-}
-
 @MainActor
 final class NotchController {
     static let shared = NotchController()
@@ -31,7 +20,6 @@ final class NotchController {
     private var panel: NotchPanel?
     private var queue: [RefillEvent] = []
     private var running = false
-    private var screenWatch: NSObjectProtocol?
 
     func show(_ e: RefillEvent) {
         guard enabled else { return }
@@ -56,9 +44,9 @@ final class NotchController {
 
     private func present(_ e: RefillEvent) async {
         let p = makePanel()
+        position(p)
         model.expanded = false
         model.event = e
-        syncFrame()
         p.ignoresMouseEvents = false
         p.orderFrontRegardless()
         try? await Task.sleep(nanoseconds: 60_000_000)
@@ -79,8 +67,7 @@ final class NotchController {
 
     private func makePanel() -> NotchPanel {
         if let panel { return panel }
-        let first = model.layout.panelFrame
-        let p = NotchPanel(contentRect: first,
+        let p = NotchPanel(contentRect: NSRect(x: 0, y: 0, width: NotchMetrics.width, height: NotchMetrics.panelHeight),
                            styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         p.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
         p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
@@ -92,35 +79,23 @@ final class NotchController {
         p.appearance = NSAppearance(named: .darkAqua)
         let host = NSHostingView(rootView: NotchView(model: model))
         host.sizingOptions = []
-        host.autoresizingMask = [.width, .height]
         p.contentView = host
         panel = p
-        watchScreens()
         return p
     }
 
-    private func watchScreens() {
-        guard screenWatch == nil else { return }
-        screenWatch = NotificationCenter.default.addObserver(
-            forName: NSApplication.didChangeScreenParametersNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            guard let self else { return }
-            Task { @MainActor in self.syncFrame() }
+    private func position(_ p: NSPanel) {
+        let screen = NSScreen.screens.first { $0.safeAreaInsets.top > 0 } ?? NSScreen.main ?? NSScreen.screens[0]
+        if screen.safeAreaInsets.top > 0,
+           let l = screen.auxiliaryTopLeftArea, let r = screen.auxiliaryTopRightArea {
+            model.notchWidth = max(100, screen.frame.width - l.width - r.width)
+            model.notchHeight = screen.safeAreaInsets.top
+        } else {
+            model.notchWidth = 140
+            model.notchHeight = 6
         }
-    }
-
-    /// Places the pill from the live safe-area insets. A display connect, resolution change,
-    /// or move onto another panel runs this again.
-    private func syncFrame() {
-        guard let p = panel else { return }
-        let main = NSScreen.main
-        let screens = NSScreen.screens.map { DisplayGeometry($0, main: main) }
-        guard let screen = NotchLayout.select(screens, cursor: NSEvent.mouseLocation) else { return }
-        let layout = NotchLayout.resolve(screen)
-        if model.layout != layout { model.layout = layout }
-        let next = layout.panelFrame
-        if p.frame.integral != next.integral { p.setFrame(next, display: true) }
+        let f = screen.frame
+        p.setFrame(NSRect(x: f.midX - NotchMetrics.width / 2, y: f.maxY - NotchMetrics.panelHeight,
+                          width: NotchMetrics.width, height: NotchMetrics.panelHeight), display: false)
     }
 }

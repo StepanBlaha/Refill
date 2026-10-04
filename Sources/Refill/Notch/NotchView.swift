@@ -6,98 +6,68 @@ final class NotchModel: ObservableObject {
     @Published var event: RefillEvent?
     @Published var expanded = false
     @Published var hovering = false
-    @Published var layout: NotchBannerLayout = NotchLayout.resolve(.studio)
+    var notchWidth: CGFloat = 170
+    var notchHeight: CGFloat = 10
+}
+
+enum NotchMetrics {
+    static let bodyWidth: CGFloat = 380
+    static let flare: CGFloat = 12
+    static let width: CGFloat = bodyWidth + flare * 2
+    static let height: CGFloat = 86
+    static let panelHeight: CGFloat = 100
 }
 
 struct NotchView: View {
     @ObservedObject var model: NotchModel
-    @Environment(\.dynamicTypeSize) private var dynamicType
-    @Environment(\.accessibilityReduceMotion) private var reduce
+    private var reduce: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
 
     private func mood(_ k: EventKind) -> Voice.Mood {
         switch k { case .reset, .test: return .party; case .warning: return .sweaty; case .empty: return .asleep }
     }
 
-    /// Larger type tightens into the band. The pill does not grow to fit it.
-    private func fontSize(band: CGFloat) -> CGFloat {
-        let scaled: CGFloat
-        switch dynamicType {
-        case .xSmall: scaled = 11
-        case .small: scaled = 11.5
-        case .medium, .large: scaled = 12
-        case .xLarge: scaled = 13
-        case .xxLarge: scaled = 14
-        case .xxxLarge: scaled = 15
-        default: scaled = 16
-        }
-        return min(scaled, max(11, band * 0.42))
-    }
-
     var body: some View {
-        let layout = model.layout
         let open = model.expanded
-        let shapeW = open ? layout.openSize.width : layout.closedSize.width
-        let shapeH = open ? layout.openSize.height : layout.closedSize.height
-        let shapeY = open ? layout.openOffset : 0
-        let panelW = layout.panelFrame.width
-        let panelH = layout.panelFrame.height
-
-        ZStack(alignment: .topLeading) {
-            placedShape(width: shapeW, height: shapeH, y: shapeY, panelW: panelW, panelH: panelH)
+        let shape = NotchShape(
+            width: reduce || open ? NotchMetrics.width : model.notchWidth + NotchMetrics.flare * 2,
+            height: reduce || open ? NotchMetrics.height : model.notchHeight,
+            flare: NotchMetrics.flare)
+        ZStack(alignment: .top) {
+            Color.black
             if let e = model.event {
-                banner(e, layout: layout)
-                    .opacity(open ? 1 : 0)
-                    .animation(.easeInOut(duration: reduce ? 0.2 : 0.16).delay(open && !reduce ? 0.1 : 0), value: open)
+                let c = Theme.color(e.kind)
+                ZStack {
+                    HStack(spacing: 12) {
+                        Drip(mood: mood(e.kind), size: 58)
+                            .offset(y: open ? 8 : 70)
+                            .animation(reduce ? nil : .spring(response: 0.55, dampingFraction: 0.5).delay(0.15), value: open)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(e.title).font(Theme.rounded(15, .heavy)).foregroundStyle(c).lineLimit(1)
+                            Text(e.message).font(.system(size: 12)).foregroundStyle(Theme.muted)
+                                .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.leading, NotchMetrics.flare + 18)
+                    .padding(.trailing, NotchMetrics.flare + 20)
+                    .padding(.top, 6)
+                    VStack {
+                        Spacer()
+                        LinearGradient(colors: [.clear, c, .clear], startPoint: .leading, endPoint: .trailing)
+                            .frame(height: 2)
+                            .padding(.horizontal, 40)
+                    }
+                }
+                .frame(width: NotchMetrics.width, height: NotchMetrics.height)
+                .opacity(open ? 1 : 0)
+                .animation(.easeInOut(duration: reduce ? 0.25 : 0.2).delay(open && !reduce ? 0.12 : 0), value: open)
             }
         }
-        .frame(width: panelW, height: panelH, alignment: .topLeading)
+        .frame(width: NotchMetrics.width, height: NotchMetrics.height, alignment: .top)
+        .clipShape(shape)
+        .frame(width: NotchMetrics.width, height: NotchMetrics.panelHeight, alignment: .top)
+        .opacity(reduce ? (open ? 1 : 0) : 1)
         .animation(reduce ? .easeInOut(duration: 0.25) : .spring(response: 0.5, dampingFraction: 0.72), value: open)
         .onHover { model.hovering = $0 }
-    }
-
-    /// Centered on the panel and dropped `y` points from the top, so the wings grow out of the housing.
-    private func placedShape(width: CGFloat, height: CGFloat, y: CGFloat, panelW: CGFloat, panelH: CGFloat) -> some View {
-        HStack(spacing: 0) {
-            Spacer(minLength: 0)
-            NotchShape(width: width, height: height, flare: NotchMetrics.flare)
-                .fill(Color.black)
-                .frame(width: width, height: height)
-            Spacer(minLength: 0)
-        }
-        .frame(width: panelW, height: height, alignment: .center)
-        .offset(y: y)
-        .frame(width: panelW, height: panelH, alignment: .top)
-    }
-
-    private func banner(_ e: RefillEvent, layout: NotchBannerLayout) -> some View {
-        let font = fontSize(band: layout.openSize.height)
-        return ZStack(alignment: .topLeading) {
-            Drip(mood: mood(e.kind), size: layout.iconFrame.width)
-                .frame(width: layout.iconFrame.width, height: layout.iconFrame.height)
-                .clipped()
-                .offset(x: layout.iconFrame.minX, y: layout.iconFrame.minY)
-            line(e, font: font)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .allowsTightening(true)
-                .frame(width: layout.textFrame.width, height: layout.textFrame.height, alignment: .leading)
-                .clipped()
-                .offset(x: layout.textFrame.minX, y: layout.textFrame.minY)
-            if layout.openSize.height >= 30, layout.textFrame.maxY + 4 <= layout.openOffset + layout.openSize.height {
-                LinearGradient(colors: [.clear, Theme.color(e.kind), .clear], startPoint: .leading, endPoint: .trailing)
-                    .frame(width: layout.textFrame.width, height: 2)
-                    .offset(x: layout.textFrame.minX, y: layout.textFrame.maxY + 1)
-            }
-        }
-        .frame(width: layout.panelFrame.width, height: layout.panelFrame.height, alignment: .topLeading)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(e.title). \(e.message)")
-    }
-
-    private func line(_ e: RefillEvent, font: CGFloat) -> Text {
-        let title = Text(e.title).font(Theme.rounded(font, .heavy)).foregroundStyle(Theme.color(e.kind))
-        let message = e.message.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !message.isEmpty else { return title }
-        return title + Text("  \(message)").font(.system(size: font)).foregroundStyle(Theme.muted)
     }
 }
