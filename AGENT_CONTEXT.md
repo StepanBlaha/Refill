@@ -18,7 +18,9 @@ The owner has no Apple Developer license. Gatekeeper blocks a downloaded app unt
 
 ## Homebrew tap
 
-Separate PR on https://github.com/StepanBlaha/homebrew-tap adding `Casks/refill.rb`, modelled on `Casks/brink.rb`.
+The cask was prepared and committed locally, then `git push` to https://github.com/StepanBlaha/homebrew-tap was rejected: `Permission to StepanBlaha/homebrew-tap.git denied to cursor[bot]`. This agent's token can push to Refill and cannot push to the tap, so the tap pull request was not opened. Paste `Casks/refill.rb` below (or run `REFILL_VERSION=0.1.1 scripts/homebrew-cask.sh` on the downloaded dmg) and open the PR from an account that can push to the tap.
+
+The file is modelled on `Casks/brink.rb`. Brink's cask has caveats and no `postflight`. This one adds a `postflight` that clears quarantine, because otherwise `brew install` still trips Gatekeeper.
 
 - version `0.1.1`
 - url is `Refill.dmg`, because 0.1.1 has no zip
@@ -27,6 +29,46 @@ Separate PR on https://github.com/StepanBlaha/homebrew-tap adding `Casks/refill.
 - caveats still mention Open Anyway
 
 On the next Refill release, point that url at `Refill.zip` and replace the sha256. Copy the stanza from the job log, or run `scripts/homebrew-cask.sh` on the zip. Do not cut a release from this branch.
+
+```ruby
+cask "refill" do
+  version "0.1.1"
+  sha256 "71ea976a6003d86dbaae31e67ee1f3a8e55e257391c358f2e15f7ff2d6b5f2fd"
+
+  url "https://github.com/StepanBlaha/Refill/releases/download/v#{version}/Refill.dmg"
+  name "Refill"
+  desc "Menu bar app that watches your AI subscription limits"
+  homepage "https://stepanblaha.github.io/Refill/"
+
+  livecheck do
+    url :url
+    strategy :github_latest
+  end
+
+  depends_on macos: :sonoma
+
+  app "Refill.app"
+
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Refill.app"],
+                   must_succeed: false
+  end
+
+  zap trash: [
+    "~/.config/refill",
+    "~/Library/Preferences/cz.stepanblaha.refill.plist",
+    "~/Library/Group Containers/FW5CYB98R7.cz.stepanblaha.refill",
+  ]
+
+  caveats <<~EOS
+    Refill is not notarized yet. The cask clears the quarantine flag.
+    If the first open is still blocked, go to
+    System Settings → Privacy & Security → Open Anyway. Or run:
+      xattr -dr com.apple.quarantine /Applications/Refill.app
+  EOS
+end
+```
 
 Commands a user runs:
 
@@ -43,7 +85,7 @@ This machine is Linux. There is no Swift toolchain and no Mac, so `swift test` w
 
 ## What Štěpán does next
 
-1. Merge the Refill PR and the homebrew-tap PR.
+1. Merge the Refill PR. Open the homebrew-tap PR with the cask in the section above (this agent could not push to that repo), then merge it.
 2. On a Mac that has not seen the app, run the brew command and the curl installer.
 3. The next time there is something to ship, `scripts/release.sh` uploads the zip and the checksums. Then move `Casks/refill.rb` from `Refill.dmg` to `Refill.zip`.
 4. Optional: edit the v0.1.1 GitHub release body and delete the sentence that says the notch banner grows to fit. The changelog on this branch already dropped it.
