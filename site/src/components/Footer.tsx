@@ -15,6 +15,8 @@ export default function Footer() {
         <nav aria-label="Footer" className={s.nav}>
           <Link href="/privacy/">Privacy</Link>
           <Link href="/terms/">Terms</Link>
+          <Link href="/acknowledgements/">Acknowledgements</Link>
+          <Link href="/press/">Press</Link>
           <Link href="/notice/">Notice</Link>
           <a href={REPO}>GitHub</a>
           <a href={ISSUES}>Contact (GitHub Issues)</a>
