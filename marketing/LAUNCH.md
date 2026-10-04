@@ -11,7 +11,7 @@
 - **Not notarized:** first launch needs **System Settings → Privacy & Security → Open Anyway**, or `xattr -dr com.apple.quarantine /Applications/Refill.app`. Say it up front.
 - **Always include:** "Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google."
 
-**Media:** GIFs are not recorded yet. See `marketing/media/README.md` for the stills `Refill --render` can write and the clips to capture (menu bar, notch refill, a long notch line, history, install). Until those exist, use `branding/og-1200x630.png` and `branding/icon-1024.png`.
+**Media:** `marketing/social/` has the carousel, stories, reel and square video. `marketing/screenshots/` and `marketing/media/` have stills and GIFs. Those pictures are HTML stand-ins until you replace the app captures on a Mac (`scripts/capture-marketing.sh`, and `marketing/media/README.md`). The notch GIF is the one to lead with. `branding/og-1200x630.png` and `branding/icon-1024.png` still work anywhere a shot is optional.
 
 **Voice:** short, honest, a little dry. No hype words, no asking for upvotes.
 

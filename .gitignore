@@ -1,5 +1,9 @@
 .build/
+.build/
 build/
+scripts/marketing/node_modules/
+marketing/social/.work/
+marketing/media/.frames/
 *.app
 .DS_Store
 .claude/
