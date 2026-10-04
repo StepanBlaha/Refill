@@ -1,11 +1,21 @@
 import SwiftUI
 import AppKit
-import Combine
 
 private final class NotchPanel: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
     override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect { frameRect }
+}
+
+extension DisplayGeometry {
+    init(_ screen: NSScreen, main: NSScreen?) {
+        self.init(frame: screen.frame,
+                  visibleFrame: screen.visibleFrame,
+                  safeAreaTop: max(0, screen.safeAreaInsets.top),
+                  auxiliaryTopLeft: DisplayGeometry.usableArea(screen.auxiliaryTopLeftArea),
+                  auxiliaryTopRight: DisplayGeometry.usableArea(screen.auxiliaryTopRightArea),
+                  isMain: screen == main)
+    }
 }
 
 @MainActor
@@ -21,7 +31,7 @@ final class NotchController {
     private var panel: NotchPanel?
     private var queue: [RefillEvent] = []
     private var running = false
-    private var heightWatch: AnyCancellable?
+    private var screenWatch: NSObjectProtocol?
 
     func show(_ e: RefillEvent) {
         guard enabled else { return }
@@ -48,7 +58,6 @@ final class NotchController {
         let p = makePanel()
         model.expanded = false
         model.event = e
-        model.contentHeight = NotchMetrics.minHeight
         syncFrame()
         p.ignoresMouseEvents = false
         p.orderFrontRegardless()
@@ -70,7 +79,8 @@ final class NotchController {
 
     private func makePanel() -> NotchPanel {
         if let panel { return panel }
-        let p = NotchPanel(contentRect: NSRect(x: 0, y: 0, width: NotchMetrics.width, height: NotchMetrics.minHeight + 8),
+        let first = model.layout.panelFrame
+        let p = NotchPanel(contentRect: first,
                            styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         p.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
         p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
@@ -85,32 +95,32 @@ final class NotchController {
         host.autoresizingMask = [.width, .height]
         p.contentView = host
         panel = p
-        if heightWatch == nil {
-            heightWatch = model.$contentHeight
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in self?.syncFrame() }
-        }
+        watchScreens()
         return p
     }
 
-    /// Sizes the panel to the measured banner so a long Drip line isn't clipped by the window.
+    private func watchScreens() {
+        guard screenWatch == nil else { return }
+        screenWatch = NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor in self.syncFrame() }
+        }
+    }
+
+    /// Places the pill from the live safe-area insets. A display connect, resolution change,
+    /// or move onto another panel runs this again.
     private func syncFrame() {
         guard let p = panel else { return }
-        let screen = NSScreen.screens.first { $0.safeAreaInsets.top > 0 } ?? NSScreen.main ?? NSScreen.screens.first
-        guard let screen else { return }
-        if screen.safeAreaInsets.top > 0,
-           let l = screen.auxiliaryTopLeftArea, let r = screen.auxiliaryTopRightArea {
-            model.notchWidth = max(100, screen.frame.width - l.width - r.width)
-            model.notchHeight = screen.safeAreaInsets.top
-        } else {
-            model.notchWidth = 140
-            model.notchHeight = 6
-        }
-        let w = min(NotchMetrics.width, max(280, screen.frame.width - 16))
-        if abs(model.bannerWidth - w) > 0.5 { model.bannerWidth = w }
-        let h = max(model.contentHeight, NotchMetrics.minHeight) + 8
-        let f = screen.frame
-        let next = NSRect(x: (f.midX - w / 2).rounded(), y: f.maxY - h, width: w, height: h)
+        let main = NSScreen.main
+        let screens = NSScreen.screens.map { DisplayGeometry($0, main: main) }
+        guard let screen = NotchLayout.select(screens, cursor: NSEvent.mouseLocation) else { return }
+        let layout = NotchLayout.resolve(screen)
+        if model.layout != layout { model.layout = layout }
+        let next = layout.panelFrame
         if p.frame.integral != next.integral { p.setFrame(next, display: true) }
     }
 }

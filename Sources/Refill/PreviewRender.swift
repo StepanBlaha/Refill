@@ -31,7 +31,49 @@ enum PreviewRender {
         snap(HistoryView().environmentObject(m), NSSize(width: 680, height: 560), "\(dir)/history.png")
         snap(ScrollView { VStack(alignment: .leading, spacing: 20) { AccountsTab() }.padding(24) }.environmentObject(m),
              NSSize(width: 640, height: 700), "\(dir)/accounts.png")
+        renderNotch(NotchLayout.resolve(.macBookPro14), housing: true, "\(dir)/notch-notched.png")
+        renderNotch(NotchLayout.resolve(.studio), housing: false, "\(dir)/notch-plain.png")
+        var obscured = DisplayGeometry.studio
+        obscured.safeAreaTop = 32
+        renderNotch(NotchLayout.resolve(obscured), housing: false, "\(dir)/notch-below.png")
         exit(0)
+    }
+
+    /// Open pill on a stand-in menu bar. The notched case strokes the camera housing so the gap is visible.
+    private static func renderNotch(_ layout: NotchBannerLayout, housing: Bool, _ path: String) {
+        let model = NotchModel()
+        model.layout = layout
+        model.expanded = true
+        model.event = RefillEvent(kind: .reset, provider: "claude", accountId: "preview", accountName: "Preview",
+                                   window: "five_hour", windowLabel: "5h", utilization: 92, resetsAt: nil,
+                                   detectedAt: Date(), reason: "test", title: "Refilled!",
+                                   message: "Your 5-hour Claude window just reset. Go build something.")
+        let pad: CGFloat = 16
+        let mark = housing ? layout.notchRect.map { layout.panelLocal($0) } : nil
+        let clearance: CGFloat = {
+            if case .below(let c) = layout.placement { return c }
+            return 0
+        }()
+        let view = ZStack(alignment: .topLeading) {
+            Color(white: 0.93)
+            NotchView(model: model).offset(x: pad, y: pad)
+            if let mark {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.black.opacity(0.45), lineWidth: 1)
+                    Circle().fill(Color.black.opacity(0.55)).frame(width: 8, height: 8)
+                }
+                .frame(width: mark.width, height: mark.height)
+                .offset(x: pad + mark.minX, y: pad + mark.minY)
+            } else if clearance > 0 {
+                Rectangle()
+                    .stroke(Color.black.opacity(0.35), style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
+                    .frame(width: layout.panelFrame.width, height: clearance)
+                    .offset(x: pad, y: pad)
+            }
+        }
+        .frame(width: layout.panelFrame.width + pad * 2, height: layout.panelFrame.height + pad * 2)
+        save(view, path)
     }
 
     /// AppKit snapshot so real controls (toggles, menus) draw, unlike ImageRenderer.
