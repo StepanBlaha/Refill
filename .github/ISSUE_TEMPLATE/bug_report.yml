@@ -1,0 +1,58 @@
+name: Bug report
+description: Something in Refill doesn't work as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting. Please don't include provider tokens, webhook URLs or the contents of ~/.config/refill. For security problems, see SECURITY.md instead."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open the menu bar\n2. Wait for a poll\n3. ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Menu bar
+        - Notch
+        - Claude
+        - Codex
+        - Copilot, Cursor or Gemini
+        - Integrations or shell hook
+        - Dashboard or widgets
+        - History
+        - Settings or onboarding
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Refill version
+      description: The menu shows it, e.g. 0.1.1 (1)
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac
+      placeholder: "macOS 15, MacBook Pro, notch on the top edge"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else (optional)
+      description: A screenshot of the menu or the notch helps. Remove account emails and tokens first.
+      render: text

@@ -37,11 +37,15 @@ jobs:
         env:
           DEVELOPER_ID: ${{ secrets.DEVELOPER_ID }}
         run: SKIP_BUILD=1 scripts/package.sh
+      - name: Release notes
+        run: scripts/release-notes.sh "$VERSION" > build/notes.md
+      - name: Homebrew cask
+        run: scripts/homebrew-cask.sh build/Refill.dmg
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           name: Refill ${{ env.VERSION }}
-          generate_release_notes: true
-          files: |
-            build/Refill.dmg
-            build/Refill-${{ env.VERSION }}.dmg
+          body_path: build/notes.md
+          # One asset. README links releases/latest/download/Refill.dmg.
+          # The versioned name was a byte-for-byte copy of this file.
+          files: build/Refill.dmg

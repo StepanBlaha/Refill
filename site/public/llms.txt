@@ -23,6 +23,8 @@ Requires macOS 14 (Sonoma) or newer. MIT License. Made by Stepan Blaha. Independ
 - [Privacy](https://stepanblaha.github.io/Refill/privacy/): what Refill reads, stores and sends
 - [Terms of Use](https://stepanblaha.github.io/Refill/terms/): provided as-is, undocumented endpoints
 - [Third-Party Notices](https://stepanblaha.github.io/Refill/notice/): trademarks and non-affiliation
+- [Acknowledgements](https://stepanblaha.github.io/Refill/acknowledgements/): the same notices, for credits and press
+- [Press kit](https://stepanblaha.github.io/Refill/press/): name, Drip, boilerplate, icon, colors, facts
 
 ## Links
 
