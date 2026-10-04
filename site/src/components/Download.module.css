@@ -14,10 +14,46 @@
 .in p {
   margin-top: 0;
 }
+.ways {
+  list-style: none;
+  padding: 0;
+  margin: var(--s4) 0 0;
+  width: min(100%, 40rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  text-align: left;
+}
+.ways li {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s4);
+}
+.ways h3 {
+  margin: 0 0 var(--s2);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.ways p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.cmd {
+  display: block;
+  text-align: left;
+  white-space: pre-wrap;
+  user-select: all;
+  line-height: 1.45;
+}
 .row {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--s3);
   margin-top: var(--s4);
 }

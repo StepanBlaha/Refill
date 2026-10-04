@@ -53,7 +53,7 @@ menubar,notch,usage,limits,quota,reset,claude,codex,widget,tracker,tank,session
 
 ## What's New: 0.1.1
 ```
-The public site, a 1200×630 social card, and a notch banner that keeps a long Drip line inside the pill. Same menu bar tanks, same reset signal, same local-only history.
+The public site and a 1200×630 social card. Same menu bar tanks, same reset signal, same local-only history.
 ```
 
 ## Categories

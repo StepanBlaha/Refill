@@ -3,11 +3,16 @@
 # https://github.com/StepanBlaha/homebrew-tap/blob/main/Casks/brink.rb
 #
 # The tap is a separate repo. Paste the output into Casks/refill.rb there.
+# Brink's cask has caveats only. This one also clears the quarantine flag in
+# postflight, so an unsigned app is not stuck on Gatekeeper.
 #
-#   scripts/homebrew-cask.sh build/Refill.dmg
+#   scripts/homebrew-cask.sh build/Refill.zip
+#   scripts/homebrew-cask.sh build/Refill.dmg   # 0.1.1 shipped a disk image only
 #   scripts/homebrew-cask.sh --template          # version from VERSION, sha left blank
 #
 # Version: REFILL_VERSION, or the first argument if it looks like 1.2.3, or VERSION.
+# The url uses the stable asset name (Refill.zip or Refill.dmg), which is what
+# the release workflow uploads.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -22,18 +27,20 @@ sha_of() {
 }
 
 V="${REFILL_VERSION:-}"
-DMG=""
+FILE=""
 TEMPLATE=0
+ASSET="Refill.zip"
 
 for arg in "$@"; do
   case "$arg" in
     --template) TEMPLATE=1 ;;
-    *.dmg) DMG="$arg" ;;
+    *.dmg) FILE="$arg"; ASSET="Refill.dmg" ;;
+    *.zip) FILE="$arg"; ASSET="Refill.zip" ;;
     *)
       if [[ "$arg" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         V="$arg"
       else
-        echo "usage: scripts/homebrew-cask.sh [--template] [version] [Refill.dmg]" >&2
+        echo "usage: scripts/homebrew-cask.sh [--template] [version] [Refill.zip|Refill.dmg]" >&2
         exit 1
       fi
       ;;
@@ -44,21 +51,25 @@ done
 
 if [[ "$TEMPLATE" -eq 1 ]]; then
   SHA="REPLACE_WITH_SHA256"
-elif [[ -n "$DMG" ]]; then
-  [[ -f "$DMG" ]] || { echo "No such file: $DMG" >&2; exit 1; }
-  SHA=$(sha_of "$DMG")
+elif [[ -n "$FILE" ]]; then
+  [[ -f "$FILE" ]] || { echo "No such file: $FILE" >&2; exit 1; }
+  SHA=$(sha_of "$FILE")
 else
-  for candidate in "build/Refill.dmg" "build/Refill-${V}.dmg"; do
+  for candidate in "build/Refill.zip" "build/Refill-${V}.zip" "build/Refill.dmg" "build/Refill-${V}.dmg"; do
     if [[ -f "$candidate" ]]; then
-      DMG="$candidate"
+      FILE="$candidate"
+      case "$candidate" in
+        *.zip) ASSET="Refill.zip" ;;
+        *.dmg) ASSET="Refill.dmg" ;;
+      esac
       break
     fi
   done
-  if [[ -z "$DMG" ]]; then
-    echo "No dmg found. Build one with scripts/package.sh, or pass a path. Use --template to print a blank sha256." >&2
+  if [[ -z "$FILE" ]]; then
+    echo "No zip or dmg found. Build one with scripts/package.sh, or pass a path. Use --template to print a blank sha256." >&2
     exit 1
   fi
-  SHA=$(sha_of "$DMG")
+  SHA=$(sha_of "$FILE")
 fi
 
 cat <<EOF
@@ -66,7 +77,7 @@ cask "refill" do
   version "${V}"
   sha256 "${SHA}"
 
-  url "https://github.com/StepanBlaha/Refill/releases/download/v#{version}/Refill.dmg"
+  url "https://github.com/StepanBlaha/Refill/releases/download/v#{version}/${ASSET}"
   name "Refill"
   desc "Menu bar app that watches your AI subscription limits"
   homepage "https://stepanblaha.github.io/Refill/"
@@ -80,6 +91,12 @@ cask "refill" do
 
   app "Refill.app"
 
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Refill.app"],
+                   must_succeed: false
+  end
+
   zap trash: [
     "~/.config/refill",
     "~/Library/Preferences/cz.stepanblaha.refill.plist",
@@ -87,7 +104,8 @@ cask "refill" do
   ]
 
   caveats <<~EOS
-    Refill is not notarized yet. The first time, open Refill, then go to
+    Refill is not notarized yet. The cask clears the quarantine flag.
+    If the first open is still blocked, go to
     System Settings → Privacy & Security → Open Anyway. Or run:
       xattr -dr com.apple.quarantine /Applications/Refill.app
   EOS

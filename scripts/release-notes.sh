@@ -49,12 +49,15 @@ if ! has_body "$notes"; then
 fi
 
 cat <<EOF
-**Refill is free and open source (MIT).** macOS 14 Sonoma or later.
+**Refill is free and open source (MIT).** macOS 14 Sonoma or later. It isn't notarized yet.
 
 ### Install or update
-1. Download **Refill.dmg** below and open it.
-2. Drag **Refill** to Applications, replacing the old version. Settings in \`~/.config/refill\` are kept.
-3. First launch: open Refill, then go to **System Settings → Privacy & Security → Open Anyway**. The app isn't notarized yet. Or run \`xattr -dr com.apple.quarantine /Applications/Refill.app\`.
+
+- **Homebrew:** \`brew install --cask stepanblaha/tap/refill\`
+- **One line:** \`curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash\`
+- **By hand:** download **Refill.zip** below (or **Refill.dmg**), and move **Refill** to Applications, replacing the old version. Settings in \`~/.config/refill\` are kept. Then open Refill and go to **System Settings → Privacy & Security → Open Anyway**, or run \`xattr -dr com.apple.quarantine /Applications/Refill.app\`.
+
+Homebrew and the one-line installer clear the quarantine flag. The zip is an ad-hoc signed app (\`codesign --sign -\`). Checksums are **Refill.zip.sha256** and **Refill.dmg.sha256**.
 
 Refill is an independent app and is not affiliated with, endorsed by, or sponsored by Anthropic, OpenAI, GitHub, Cursor or Google.
 

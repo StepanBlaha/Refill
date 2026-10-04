@@ -14,8 +14,10 @@ Requires macOS 14 (Sonoma) or newer. MIT License. Made by Stepan Blaha. Independ
 
 ## Download and install
 
-- Download (latest release): https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg
-- Distributed only via GitHub Releases. Not notarized: on first launch, right-click the app and choose Open.
+- Homebrew: `brew install --cask stepanblaha/tap/refill`
+- One line: `curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash`
+- By hand: https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.zip or https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg
+- Not notarized. Homebrew and the one-line installer clear the quarantine flag. By hand, open Refill, then System Settings → Privacy & Security → Open Anyway, or run `xattr -dr com.apple.quarantine /Applications/Refill.app`.
 
 ## Pages
 

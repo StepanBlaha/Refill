@@ -1,5 +1,55 @@
 # Agent context
 
+## Unsigned installs
+
+Handoff for installing Refill without notarization. No release was cut and no tag was pushed.
+
+The owner has no Apple Developer license. Gatekeeper blocks a downloaded app until quarantine is cleared. Brink is installable with `brew install --cask stepanblaha/tap/brink` from https://github.com/StepanBlaha/homebrew-tap (`Casks/brink.rb`). Brink's cask has caveats and no `postflight`.
+
+## What landed
+
+- `scripts/package.sh` writes `build/Refill.dmg` and `build/Refill.zip`, then a `.sha256` for each (`shasum -a 256`: hash, two spaces, filename). The zip is `ditto -c -k --keepParent` of `Refill.app`, so the app is the top item and the signature survives. If `DEVELOPER_ID` is unset and `codesign --verify` fails, the app is ad-hoc signed with `codesign --force --deep --sign -`. `--deep` covers the widget extension. Checksums are written after an optional staple, so a notarized dmg's hash matches the uploaded file.
+- `.github/workflows/release.yml` uploads `Refill.dmg`, `Refill.zip`, and both `.sha256` files. It does not upload a second copy under a versioned name. The job log prints a Homebrew cask for the zip.
+- `scripts/install.sh` is the one-line installer (`curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash`). It reads the latest GitHub release, prefers `Refill.zip`, checks sha256 (the `.sha256` asset, and the release asset's `digest` when that file is present too; they must agree), refuses a bundle id other than `cz.stepanblaha.refill`, replaces `/Applications/Refill.app`, runs `xattr -dr com.apple.quarantine`, and opens the app. `sudo` is used only when `/Applications` is not writable. Download URLs are built from the tag, not taken from the JSON. 0.1.1 has no zip, so the script installs that release's disk image and checks the digest GitHub already publishes (`sha256:71ea976a6003d86dbaae31e67ee1f3a8e55e257391c358f2e15f7ff2d6b5f2fd`).
+- `scripts/release.sh` stamps the changelog date with `grep -Fxq`. The old pattern treated `[0.1.1]` as a character class, which is why 0.1.1 stayed "Unreleased". The heading is now `## [0.1.1] - 2026-10-04`.
+- README, the landing-page Download section, `CHANGELOG.md` (Unreleased), `scripts/release-notes.sh`, and `site/public/llms.txt` list three options: `brew install --cask stepanblaha/tap/refill`, the curl installer, and a manual zip or disk image plus **System Settings → Privacy & Security → Open Anyway**.
+- The 0.1.1 changelog line that said the notch banner grows to fit was removed. That behavior was reverted in PR #3 (`b171b88`, "Restore the original notch pill") before the tag. The published GitHub release body for v0.1.1 still has the sentence. This branch does not edit that release.
+- `scripts/homebrew-cask.sh` prints a cask for a zip or a dmg, with a `postflight` that clears quarantine.
+
+## Homebrew tap
+
+Separate PR on https://github.com/StepanBlaha/homebrew-tap adding `Casks/refill.rb`, modelled on `Casks/brink.rb`.
+
+- version `0.1.1`
+- url is `Refill.dmg`, because 0.1.1 has no zip
+- sha256 `71ea976a6003d86dbaae31e67ee1f3a8e55e257391c358f2e15f7ff2d6b5f2fd`, from downloading `https://github.com/StepanBlaha/Refill/releases/download/v0.1.1/Refill.dmg` and running `shasum -a 256`. It matches the asset `digest` on the GitHub API.
+- `postflight` runs `/usr/bin/xattr -dr com.apple.quarantine` on `#{appdir}/Refill.app` (`must_succeed: false`, so a missing attribute does not fail the install)
+- caveats still mention Open Anyway
+
+On the next Refill release, point that url at `Refill.zip` and replace the sha256. Copy the stanza from the job log, or run `scripts/homebrew-cask.sh` on the zip. Do not cut a release from this branch.
+
+Commands a user runs:
+
+```bash
+brew install --cask stepanblaha/tap/refill
+curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash
+```
+
+By hand: download `Refill.zip` or `Refill.dmg`, move Refill to Applications, then **System Settings → Privacy & Security → Open Anyway**, or `xattr -dr com.apple.quarantine /Applications/Refill.app`.
+
+## What this environment could not do
+
+This machine is Linux. There is no Swift toolchain and no Mac, so `swift test` was not run, `scripts/package.sh` was not run, and Gatekeeper was not exercised. `bash -n` passed for the shell scripts. `zsh -n` passed for `scripts/package.sh` and `scripts/release.sh`. The release parser in `scripts/install.sh` was checked against the live v0.1.1 API body and against a two-asset fixture, compact and pretty-printed. The downloaded 0.1.1 dmg's sha256 matches the cask. `npm run build` in `site/` succeeded. In a browser, the Download section shows the three options on a desktop width and at 390px, the header Download link scrolls to `#download`, the latest-release line reads v0.1.1, and the console had no errors.
+
+## What Štěpán does next
+
+1. Merge the Refill PR and the homebrew-tap PR.
+2. On a Mac that has not seen the app, run the brew command and the curl installer.
+3. The next time there is something to ship, `scripts/release.sh` uploads the zip and the checksums. Then move `Casks/refill.rb` from `Refill.dmg` to `Refill.zip`.
+4. Optional: edit the v0.1.1 GitHub release body and delete the sentence that says the notch banner grows to fit. The changelog on this branch already dropped it.
+
+The sections below are earlier handoffs. Where they disagree with this one, this one is current. In particular: do not cut 0.1.1 again, do not treat the notch layout writeup as the code in the tree, and do not wait to add the cask.
+
 ## Marketing assets
 
 Handoff for the Brink-style marketing set. No release was cut and no tag was pushed. No Swift sources were edited.
@@ -20,6 +70,8 @@ The history chart in the stand-ins is a drawing. The ~8%/h, 71% peak and "1" res
 This machine is Linux. There is no Swift toolchain and no Mac display, so `swift test` was not run and `Refill --render` was not run. The pictures are HTML, not screen recordings. Replace the five `--render` stills, the GIFs and the numbered shots on a Mac with `scripts/capture-marketing.sh`. The social folder is composed type and stays unless you rebuild it with `node scripts/marketing/render.mjs`.
 
 ## Notch banner
+
+**Not the current code.** PR #3 (`b171b88`) restored the original fixed pill. `NotchLayout.swift` is not in the tree. The writeup below describes a layout that was merged and then removed before 0.1.1. Do not rebuild it from these notes.
 
 Handoff for the notch-banner fix. No release was cut and no tag was pushed.
 
@@ -76,27 +128,13 @@ Handoff for the release-readiness pass that lines Refill up with the public Brin
 - **GitHub About box.** `PATCH /repos/StepanBlaha/Refill` and `PUT .../topics` returned `403 Resource not accessible by integration`. Values to paste are below.
 - **Demo GIFs.** `Refill --render` is a Mac binary and writes still PNGs (menu, moods, settings, history, accounts). It does not draw the notch. What to record is in `marketing/media/README.md`.
 - **`swift test`.** This machine has no Swift toolchain, and `Package.swift` is macOS 14. No Swift sources were edited.
-- **The Homebrew tap.** https://github.com/StepanBlaha/homebrew-tap is separate. Don't add the cask until 0.1.1's dmg exists, or the sha256 will be wrong.
+- **The Homebrew tap.** https://github.com/StepanBlaha/homebrew-tap is separate. The cask is added in the unsigned-installs section above. This bullet used to say to wait for 0.1.1's dmg.
 
 ## What Štěpán does next
 
-1. Merge this PR.
-2. Cut **0.1.1** from a clean `main` (this stamps the changelog date, bumps `VERSION` and `project.yml`, tags `v0.1.1`, and lets Actions build one dmg and publish the notes):
+0.1.1 is already tagged. The install work and the cask are in the unsigned-installs section at the top of this file. Do not run `scripts/release.sh 0.1.1` again.
 
-   ```bash
-   scripts/release.sh 0.1.1
-   ```
-
-3. Add the cask to https://github.com/StepanBlaha/homebrew-tap as `Casks/refill.rb`. Copy it from the release job log, or:
-
-   ```bash
-   gh release download v0.1.1 --pattern Refill.dmg --dir /tmp
-   REFILL_VERSION=0.1.1 scripts/homebrew-cask.sh /tmp/Refill.dmg
-   ```
-
-   Install line after that push: `brew install --cask stepanblaha/tap/refill`.
-
-4. Set the repo About box (gear on the repo home):
+Still open from the release kit, if it was never set: the repo About box (gear on the repo home).
 
    - **Description:** `Menu bar app for macOS that watches your AI subscription limits and signals the moment one resets. Native Swift, free.`
    - **Website:** `https://stepanblaha.github.io/Refill/`
@@ -112,37 +150,4 @@ Handoff for the release-readiness pass that lines Refill up with the public Brin
    EOF
    ```
 
-## Cask to paste after 0.1.1 (sha256 filled by the script)
-
-```ruby
-cask "refill" do
-  version "0.1.1"
-  sha256 "REPLACE_WITH_SHA256"
-
-  url "https://github.com/StepanBlaha/Refill/releases/download/v#{version}/Refill.dmg"
-  name "Refill"
-  desc "Menu bar app that watches your AI subscription limits"
-  homepage "https://stepanblaha.github.io/Refill/"
-
-  livecheck do
-    url :url
-    strategy :github_latest
-  end
-
-  depends_on macos: :sonoma
-
-  app "Refill.app"
-
-  zap trash: [
-    "~/.config/refill",
-    "~/Library/Preferences/cz.stepanblaha.refill.plist",
-    "~/Library/Group Containers/FW5CYB98R7.cz.stepanblaha.refill",
-  ]
-
-  caveats <<~EOS
-    Refill is not notarized yet. The first time, open Refill, then go to
-    System Settings → Privacy & Security → Open Anyway. Or run:
-      xattr -dr com.apple.quarantine /Applications/Refill.app
-  EOS
-end
-```
+The cask to paste is gone. `Casks/refill.rb` is in the homebrew-tap PR described at the top. On the next release, regenerate it with `scripts/homebrew-cask.sh build/Refill.zip`.

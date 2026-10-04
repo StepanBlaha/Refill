@@ -91,7 +91,7 @@ It's a native macOS menu bar app (Swift, AppKit plus SwiftUI). It reads usage wi
 
 A reset is either scheduled, when a known resets_at passes (this works offline), or observed, when the reset timestamp jumps forward and usage drops. Events are deduped per account, window and reset time. HTTP 429 backs off.
 
-The noisy part is optional: a notch banner, a notification, a sound, a shell hook, and webhooks (ntfy, Slack, Hue, and so on). The notch is a borderless panel under the hardware notch; it measures the message and grows so a long line isn't clipped.
+The noisy part is optional: a notch banner, a notification, a sound, a shell hook, and webhooks (ntfy, Slack, Hue, and so on). The notch is a fixed pill under the hardware notch. A long line truncates.
 
 Free, MIT licensed, macOS 14+. It isn't notarized yet (System Settings → Privacy & Security → Open Anyway the first time). The provider usage endpoints are undocumented and can change. Feedback on that, and on the reset detection, is welcome.
 
@@ -171,7 +171,7 @@ A Codex or ChatGPT coding community is worth a shorter version of the same post 
 | Where | Angle | When |
 |---|---|---|
 | **r/macapps** already covered | The install story and the notch | Day 2 |
-| **r/swift, r/SwiftUI** | Reset detection, the notch panel that grows with the text, no third-party packages. Link the repo | Day 3+ |
+| **r/swift, r/SwiftUI** | Reset detection, the fixed notch pill, no third-party packages. Link the repo | Day 3+ |
 | **r/opensource** | MIT menu bar app, what it does and does not send off the Mac | Day 3+ |
 | **X / Bluesky / Threads / Mastodon** | One image or the notch GIF, and the site link. Hashtags #buildinpublic #macOS #indiedev | Launch day |
 | **LinkedIn** | Personal story. See `marketing/PERSONAL-POSTS.md` | Launch week |
