@@ -6,8 +6,10 @@ Where Refill gets talked about, in one place: who it's for, which channels, a la
 
 - `marketing/LAUNCH.md`: Product Hunt, Show HN, r/macapps, r/ClaudeAI
 - `marketing/LISTINGS.md`: directory entries and the Homebrew cask
+- `marketing/APPSTORE.md`: Mac App Store copy, for when a signed build exists
 - `marketing/PERSONAL-POSTS.md`: Štěpán's own accounts
-- `marketing/media/README.md`: stills `Refill --render` can write, and the GIFs still to record
+- `marketing/social/README.md`: carousel, stories, reel, square video
+- `marketing/media/README.md`: stills, GIFs, and which files are HTML stand-ins
 - `branding/BRAND.md`: name, Drip, colors, voice
 
 ---
@@ -64,7 +66,7 @@ Where Refill gets talked about, in one place: who it's for, which channels, a la
 | **Awesome lists and directories** | Slow traffic. `LISTINGS.md` | Medium |
 | **Homebrew tap** | `brew install --cask stepanblaha/tap/refill` once the cask is added | Medium, after the release |
 
-Short video is worth it once `marketing/media/notch-reset.gif` exists. Don't block the launch on a perfect GIF. The social card is enough for day one.
+Short video: `marketing/media/notch-reset.gif` and `marketing/social/reel.mp4` are in the repo as HTML stand-ins. Use them so a post is not blocked, and replace the GIF with a Mac recording (`scripts/capture-marketing.sh`) when you have one. The social card is still enough for day one.
 
 ---
 

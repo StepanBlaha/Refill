@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Refill marketing stage</title>
+<style>
+  :root {
+    --bg: #000;
+    --panel: #1c1c1e;
+    --raised: #2c2c2e;
+    --line: rgba(255, 255, 255, 0.1);
+    --text: #fff;
+    --muted: #808080;
+    --tertiary: rgba(255, 255, 255, 0.32);
+    --accent: #30d158;
+    --warn: #ff9f0a;
+    --danger: #ff453a;
+    --hover: rgba(255, 255, 255, 0.16);
+    --font: "SF Pro Display", "SF Pro Text", Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #000;
+    color: var(--text);
+    font-family: var(--font);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+  html.fit, html.fit body { height: auto; overflow: visible; }
+  #stage { width: 100%; height: 100%; position: relative; }
+  html.fit #stage { height: auto; }
+  h1, h2, p { margin: 0; }
+  button { font-family: inherit; }
+
+  /* —— social shells —— */
+  .pad { height: 100%; display: flex; flex-direction: column; padding: 84px 80px 72px; }
+  .kicker {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .display {
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+  }
+  .muted { color: var(--muted); }
+  .green { color: var(--accent); }
+  .footrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 22px;
+    font-size: 22px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .plate {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .story {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 300px 76px 250px;
+  }
+  .story h1 { font-size: 78px; }
+  .story .lead {
+    margin-top: 22px;
+    font-size: 32px;
+    line-height: 1.3;
+    color: var(--muted);
+    max-width: 18em;
+  }
+  .story .plate { align-items: center; }
+  .brandfoot {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 18px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+  .chip {
+    background: rgba(0, 0, 0, 0.72);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 16px 26px;
+    font-size: 28px;
+    font-weight: 500;
+  }
+  .url {
+    margin-top: 36px;
+    font-size: 52px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .disclaimer {
+    margin-top: auto;
+    font-size: 20px;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 36em;
+  }
+  .sticker {
+    margin-top: 36px;
+    height: 168px;
+    border-radius: 40px;
+    border: 3px dashed rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 28px;
+    font-weight: 500;
+  }
+  .icon-img { display: block; width: 100%; height: 100%; }
+  .cover-icon { width: 168px; height: 168px; }
+  .cta-icon { width: 150px; height: 150px; }
+
+  /* —— desktop —— */
+  .desktop { width: 100%; height: 100%; position: relative; overflow: hidden; }
+  .wall {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(900px 520px at 78% 18%, rgba(48, 209, 88, 0.09), transparent 62%),
+      radial-gradient(700px 480px at 12% 88%, rgba(255, 159, 10, 0.05), transparent 60%),
+      linear-gradient(180deg, #343c44 0%, #23282e 42%, #14171b 100%);
+  }
+  .wall::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.45'/></svg>");
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .menubar {
+    position: absolute; top: 0; left: 0; right: 0; height: 28px;
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 14px;
+    background: rgba(18, 18, 20, 0.55);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 5;
+  }
+  .menubar .dim { color: rgba(255,255,255,0.78); font-weight: 500; }
+  .menubar .sp { flex: 1; }
+  .mb-tank {
+    width: 11px; height: 14px; position: relative; display: inline-block;
+  }
+  .caption {
+    position: absolute; left: 56px; bottom: 46px; z-index: 4;
+    font-size: 44px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.05;
+    text-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+    max-width: 16em;
+  }
+  .pop {
+    position: absolute; top: 32px; right: 86px; z-index: 6;
+    filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45));
+  }
+  .notch-pos { position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 6; }
+  .win-pos { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); z-index: 4;
+    filter: drop-shadow(0 22px 50px rgba(0, 0, 0, 0.4)); }
+
+  /* —— menu (MenuView, 340pt) —— */
+  .menu {
+    width: 340px;
+    background: #000;
+    color: #fff;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .menu.bare { border: 0; border-radius: 0; }
+  .mhead { display: flex; align-items: center; gap: 12px; }
+  .mhead .titles { min-width: 0; flex: 1; }
+  .mhead b { display: block; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .mhead span { display: block; font-size: 11px; color: var(--muted); line-height: 1.3; }
+  .card {
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ahead { display: flex; align-items: center; gap: 8px; }
+  .ahead .who {
+    font-size: 13px; font-weight: 600; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .plan {
+    margin-left: auto;
+    font-size: 10px; font-weight: 500; color: var(--muted);
+    background: var(--raised);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .tank { display: flex; flex-direction: column; gap: 6px; }
+  .trow { display: flex; align-items: baseline; gap: 8px; font-size: 12px; }
+  .trow .lab { flex: 1; min-width: 0; }
+  .trow .eta { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .trow .pct { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
+  .bar { height: 3px; border-radius: 99px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 99px; width: 0; }
+  .actions { display: flex; align-items: center; gap: 4px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: #fff;
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 5px 8px;
+    white-space: nowrap;
+  }
+  .ib {
+    width: 26px; height: 26px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+
+  /* —— notch —— */
+  .notch { position: relative; }
+  .notch svg.silhouette { display: block; }
+  .notch .inn {
+    position: absolute; left: 0; top: 0; right: 0;
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 6px 32px 0 30px;
+    overflow: hidden;
+  }
+  .notch .inn .txt { min-width: 0; padding-top: 10px; }
+  .notch .inn b {
+    display: block; font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .notch .inn p {
+    margin-top: 3px; font-size: 12px; color: var(--muted); line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .notch .glow {
+    position: absolute; left: 40px; right: 40px; bottom: 0; height: 2px;
+  }
+
+  /* —— settings / history / accounts —— */
+  .window {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .titlebar {
+    height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 14px;
+    background: #141416;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px; font-weight: 600;
+  }
+  .lights { display: flex; gap: 6px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .lights i:nth-child(1) { background: #ff5f57; }
+  .lights i:nth-child(2) { background: #febc2e; }
+  .lights i:nth-child(3) { background: #28c840; }
+  .titlebar span { flex: 1; text-align: center; margin-right: 42px; }
+  .segwrap { display: flex; justify-content: center; padding: 10px 0 14px; }
+  .seg {
+    display: inline-flex; gap: 2px; padding: 2px;
+    background: var(--panel); border-radius: 6px;
+  }
+  .seg b, .seg em {
+    font-style: normal; font-size: 12px; font-weight: 500;
+    padding: 4px 10px; border-radius: 4px; color: var(--muted);
+  }
+  .seg b { background: var(--raised); color: #fff; }
+  .hair { height: 1px; background: var(--line); }
+  .sheet { padding: 16px 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .shead { display: flex; align-items: center; gap: 12px; }
+  .shead b { display: block; font-size: 19px; font-weight: 600; }
+  .shead span { display: block; font-size: 12px; color: var(--muted); }
+  .panel-label {
+    font-size: 11px; font-weight: 500; color: var(--muted);
+    padding-left: 12px; margin-bottom: 6px;
+  }
+  .prow {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 40px; padding: 8px 12px;
+    background: var(--panel);
+  }
+  .prow:first-child { border-radius: 8px 8px 0 0; }
+  .prow:last-child { border-radius: 0 0 8px 8px; }
+  .prow.only { border-radius: 8px; }
+  .prow .grow { flex: 1; min-width: 0; }
+  .prow .grow b { display: block; font-size: 13px; font-weight: 400; }
+  .prow .grow span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .divline { height: 1px; background: var(--line); margin-left: 12px; }
+  .switch {
+    width: 32px; height: 18px; border-radius: 9px; background: #3a3a3c;
+    position: relative; flex: none;
+  }
+  .switch.on { background: var(--accent); }
+  .switch::after {
+    content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; top: 2px; left: 2px;
+  }
+  .switch.on::after { left: 16px; }
+  .dbtn {
+    font-size: 12px; font-weight: 500; color: #fff;
+    background: var(--raised); border-radius: 5px; padding: 5px 10px;
+    display: inline-block;
+  }
+  .dbtn.pri { background: var(--accent); color: #000; }
+  .field {
+    background: var(--raised); border-radius: 4px; padding: 5px 8px;
+    font-size: 13px; font-variant-numeric: tabular-nums; min-width: 72px; text-align: left;
+  }
+  .menu-pick {
+    background: var(--raised); border-radius: 4px; padding: 4px 8px;
+    font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+  .footer-note { font-size: 11px; color: var(--muted); padding: 0 12px; line-height: 1.35; }
+
+  .hist { width: 640px; background: #000; padding: 16px 24px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .hist-head { display: flex; align-items: center; gap: 8px; }
+  .stats { display: flex; gap: 8px; }
+  .stat {
+    flex: 1; background: var(--panel); border-radius: 8px; padding: 12px;
+    min-width: 0;
+  }
+  .stat span { display: block; font-size: 11px; color: var(--muted); }
+  .stat b { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.25; }
+  .chart-label { font-size: 11px; font-weight: 500; color: var(--muted); }
+
+  .moods {
+    display: flex; gap: 24px; padding: 24px; background: #000; align-items: center;
+  }
+  .moods figure { margin: 0; text-align: center; }
+  .moods figcaption { margin-top: 8px; font-size: 11px; color: var(--muted); }
+
+  .signals { width: 520px; display: flex; flex-direction: column; gap: 14px; }
+  .sig {
+    display: flex; gap: 12px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+  }
+  .sig b { display: block; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .sig span { display: block; color: var(--muted); font-size: 14px; line-height: 1.35; margin-top: 2px; }
+
+  .install {
+    width: 640px; background: #1e1e20; border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .install .body {
+    height: 340px; position: relative;
+    background: linear-gradient(180deg, #2a2a2e, #1a1a1c);
+    display: flex; align-items: center; justify-content: center; gap: 72px;
+  }
+  .appicon { width: 112px; text-align: center; font-size: 13px; }
+  .appicon img, .appicon .folder { width: 96px; height: 96px; display: block; margin: 0 auto 8px; }
+  .folder {
+    background: linear-gradient(180deg, #5ac8fa, #0a84ff);
+    border-radius: 14px;
+    position: relative;
+  }
+  .folder::before {
+    content: ""; position: absolute; left: 8px; top: -10px; width: 36px; height: 16px;
+    background: #5ac8fa; border-radius: 6px 6px 0 0;
+  }
+  .cursor {
+    position: absolute; width: 18px; height: 22px; z-index: 3;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.4));
+  }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="ready" hidden></div>
+<script>
+const ICON = new URL("../../branding/icon-1024.png", location.href).href;
+const DISCLAIMER = "Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.";
+
+const params = new URLSearchParams(location.search);
+const shot = params.get("shot") || "carousel-01";
+const t = Math.max(0, Math.min(1, Number(params.get("t") || "0")));
+
+function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+function lerp(a, b, u) { return a + (b - a) * u; }
+function smooth(u) { return u * u * (3 - 2 * u); }
+
+function levelColor(used) {
+  if (used >= 90) return "#FF453A";
+  if (used >= 70) return "#FF9F0A";
+  return "#30D158";
+}
+
+/** Drip from Sources/Refill/Mascot.swift. `level` is remaining percent. */
+function dripSVG(mood, level, size) {
+  const S = 100;
+  const w = 74, h = 86, gap = 2, capH = 8, capW = 28.12, r = 19.24;
+  const glassX = (S - w) / 2, top = (S - (capH + gap + h)) / 2, glassY = top + capH + gap;
+  let fill;
+  if (level == null) {
+    fill = { party: 1, happy: 0.8, focused: 0.45, sweaty: 0.16, asleep: 0.04 }[mood] ?? 0.8;
+  } else fill = clamp(level / 100, 0.04, 1);
+  if (mood === "party" && level == null) fill = 1;
+  const liquid = mood === "sweaty" ? "#FF453A" : mood === "asleep" ? "rgba(255,255,255,0.32)" : mood === "focused" ? "#FF9F0A" : "#30D158";
+  const submerged = fill > 0.52;
+  const ink = submerged ? "#000" : "#fff";
+  const eyeY = h * 0.4, dx = w * 0.18, er = w * 0.065;
+  const eyes = [w / 2 - dx, w / 2 + dx];
+  const mouthY = eyeY + w * 0.2;
+  const lw = Math.max(4.3, w * 0.06);
+  const stroke = `fill="none" stroke="${ink}" stroke-width="${lw.toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"`;
+  let face = "";
+  if (mood === "happy" || mood === "sweaty") {
+    face = eyes.map((x) => `<circle cx="${x.toFixed(2)}" cy="${eyeY.toFixed(2)}" r="${er.toFixed(2)}" fill="${ink}"/>`).join("");
+    if (mood === "happy") {
+      face += `<path ${stroke} d="M ${(w/2 - w*0.1).toFixed(2)} ${(mouthY - w*0.02).toFixed(2)} Q ${(w/2).toFixed(2)} ${(mouthY + w*0.08).toFixed(2)} ${(w/2 + w*0.1).toFixed(2)} ${(mouthY - w*0.02).toFixed(2)}"/>`;
+    } else {
+      face += `<path ${stroke} d="M ${(w/2 - w*0.08).toFixed(2)} ${(mouthY + w*0.02).toFixed(2)} Q ${(w/2).toFixed(2)} ${(mouthY - w*0.06).toFixed(2)} ${(w/2 + w*0.08).toFixed(2)} ${(mouthY + w*0.02).toFixed(2)}"/>`;
+    }
+  } else if (mood === "focused") {
+    let d = "";
+    for (const x of eyes) d += `M ${(x - er).toFixed(2)} ${eyeY.toFixed(2)} H ${(x + er).toFixed(2)} `;
+    d += `M ${(w/2 - w*0.06).toFixed(2)} ${mouthY.toFixed(2)} H ${(w/2 + w*0.06).toFixed(2)}`;
+    face = `<path ${stroke} d="${d}"/>`;
+  } else if (mood === "asleep") {
+    face = eyes.map((x) => `<path ${stroke} d="M ${(x - er*1.2).toFixed(2)} ${eyeY.toFixed(2)} Q ${x.toFixed(2)} ${(eyeY + er*1.4).toFixed(2)} ${(x + er*1.2).toFixed(2)} ${eyeY.toFixed(2)}"/>`).join("");
+    face += "ZZZ";
+  } else {
+    let d = "";
+    for (const x of eyes) {
+      d += `M ${(x - er*1.2).toFixed(2)} ${(eyeY + er*0.6).toFixed(2)} L ${x.toFixed(2)} ${(eyeY - er*0.6).toFixed(2)} L ${(x + er*1.2).toFixed(2)} ${(eyeY + er*0.6).toFixed(2)} `;
+    }
+    face = `<path ${stroke} d="${d}"/>`;
+    face += `<path d="M ${(w/2 - w*0.12).toFixed(2)} ${(mouthY - w*0.03).toFixed(2)} Q ${(w/2).toFixed(2)} ${(mouthY + w*0.14).toFixed(2)} ${(w/2 + w*0.12).toFixed(2)} ${(mouthY - w*0.03).toFixed(2)} Z" fill="${ink}"/>`;
+  }
+  const liqH = h * fill;
+  const clip = `drip${mood}${Math.round(fill * 100)}${size}`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true">
+    <defs><clipPath id="${clip}"><rect x="${glassX}" y="${glassY}" width="${w}" height="${h}" rx="${r}"/></clipPath></defs>
+    <rect x="${(S - capW) / 2}" y="${top}" width="${capW}" height="${capH}" rx="3" fill="rgba(255,255,255,0.32)"/>
+    <g clip-path="url(#${clip})">
+      <rect x="${glassX}" y="${glassY}" width="${w}" height="${h}" fill="#1C1C1E"/>
+      <rect x="${glassX}" y="${glassY + h - liqH}" width="${w}" height="${liqH + 2}" fill="${liquid}"/>
+      <g transform="translate(${glassX} ${glassY})">${face === "ZZZ" ? "" : face}</g>
+    </g>
+    <rect x="${glassX}" y="${glassY}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2.4"/>
+    ${mood === "asleep" ? `<text x="${glassX + w + 2}" y="${glassY + 4}" font-family="Inter, sans-serif" font-weight="600" font-size="18" fill="#808080">z</text>` : ""}
+  </svg>`;
+}
+
+function icon(name, s = 12) {
+  const c = `width="${s}" height="${s}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"`;
+  const paths = {
+    refresh: `<path d="M13 8a5 5 0 1 1-1.2-3.2"/><path d="M13 2.5V5h-2.5"/>`,
+    spark: `<path d="M8 1.5 9.2 6.2 14 8 9.2 9.8 8 14.5 6.8 9.8 2 8l4.8-1.8z"/>`,
+    code: `<path d="M5.5 4 2.5 8l3 4M10.5 4l3 4-3 4"/>`,
+    gauge: `<path d="M3 12.5a5.5 5.5 0 1 1 10 0"/><path d="M8 8.5 10.5 6"/>`,
+    chart: `<path d="M2.5 12.5 6 8l2.2 2.2L13.5 4"/><path d="M10 4h3.5V7.5"/>`,
+    bolt: `<path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z"/>`,
+    gear: `<circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.6M8 12.6v1.6M1.8 8h1.6M12.6 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/>`,
+    power: `<path d="M8 2.2v5"/><path d="M5 3.6a5 5 0 1 0 6 0"/>`,
+    chev: `<path d="M5 6.5 8 9.5l3-3"/>`,
+    apple: `<path d="M10.6 2.2c.5-.7.8-1.5.7-2.2-0.7 0-1.5.4-2 .9-.4.5-.8 1.3-.7 2.1.8.1 1.5-.3 2-.8zM12.2 5.6c-1.3-.1-2.4.7-3 .7s-1.6-.7-2.7-.7c-1.4 0-2.7.8-3.4 2.1-1.5 2.5-.4 6.3 1 8.4.7 1 1.6 2.2 2.7 2.1 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7 1.9-1.1 2.6-2.1c.8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.5 0-2.2 1.8-3.2 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7z" fill="currentColor" stroke="none"/>`,
+    wifi: `<path d="M2 6.5c3.4-3 8.6-3 12 0"/><path d="M4.2 9c2.2-1.8 5.4-1.8 7.6 0"/><path d="M6.5 11.4c1-.8 2-.8 3 0"/><circle cx="8" cy="13.2" r="0.7" fill="currentColor" stroke="none"/>`,
+    folder: "",
+  };
+  return `<svg ${c}>${paths[name] || ""}</svg>`;
+}
+
+function tankRow(win) {
+  const color = levelColor(win.used);
+  const pctColor = win.used >= 70 ? color : "#fff";
+  return `<div class="tank">
+    <div class="trow">
+      <span class="lab">${win.label}</span>
+      <span class="eta">${win.eta}</span>
+      <span class="pct" style="color:${pctColor}">${Math.round(win.left)}%</span>
+    </div>
+    <div class="bar"><i style="width:${clamp(win.left, 0, 100)}%;background:${color}"></i></div>
+  </div>`;
+}
+
+function accountCard(a) {
+  const who = a.email || a.name;
+  return `<div class="card">
+    <div class="ahead">
+      <span style="color:var(--muted);display:flex">${icon(a.icon, 12)}</span>
+      <span class="who">${who}</span>
+      <span class="plan">${a.plan}</span>
+    </div>
+    ${a.windows.map(tankRow).join("")}
+  </div>`;
+}
+
+/** Sample accounts from PreviewRender.sampleAccounts. `hot` overrides the second 5h window (remaining %). */
+function accounts(hot) {
+  const session = hot == null ? { label: "5h session", left: 7, used: 93, eta: "in 36m" } : {
+    label: "5h session",
+    left: hot,
+    used: clamp(100 - hot, 0, 100),
+    eta: hot <= 1 ? "ready" : hot < 15 ? "in 36m" : hot < 40 ? "in 1h 12m" : "in 3h 06m",
+  };
+  return [
+    { email: "stepan@example.cz", plan: "Max", icon: "spark", windows: [
+      { label: "5h session", left: 88, used: 12, eta: "in 1h 24m" },
+      { label: "Week", left: 28, used: 72, eta: "in 1d 16h" },
+    ]},
+    { email: "work@example.cz", plan: "Pro", icon: "spark", windows: [session, { label: "Week", left: 59, used: 41, eta: "in 3d 18h" }] },
+    { name: "Codex", plan: "Plus", icon: "code", windows: [
+      { label: "5h session", left: 79, used: 21, eta: "in 3h 54m" },
+    ]},
+  ];
+}
+
+function lowest(list) {
+  const fives = list.flatMap((a) => a.windows.filter((w) => w.label.startsWith("5h")));
+  return Math.min(...fives.map((w) => w.left));
+}
+function moodFor(left, party) {
+  if (party) return "party";
+  if (left < 1) return "asleep";
+  if (left < 20) return "sweaty";
+  if (left < 50) return "focused";
+  return "happy";
+}
+const TAG = {
+  happy: "Plenty of juice. Ship it.",
+  focused: "Burning steady.",
+  sweaty: "Running on fumes…",
+  asleep: "Dry. I'll wake you when it's back.",
+  party: "Refilled. Back to it.",
+};
+
+function menuHTML(opts = {}) {
+  const list = accounts(opts.hot);
+  const left = lowest(list);
+  const mood = moodFor(left, !!opts.party);
+  const bare = opts.bare ? " bare" : "";
+  return `<div class="menu${bare}">
+    <div class="mhead">
+      ${dripSVG(mood, opts.party ? 100 : left, 30)}
+      <div class="titles"><b>Refill</b><span>${TAG[mood]}</span></div>
+      <span class="ib">${icon("refresh", 13)}</span>
+    </div>
+    ${list.map(accountCard).join("")}
+    <div class="actions">
+      <span class="pill">${icon("gauge", 12)} Dashboard</span>
+      <span class="pill">${icon("chart", 12)} History</span>
+      <span style="flex:1"></span>
+      <span class="ib">${icon("bolt", 12)}</span>
+      <span class="ib">${icon("gear", 12)}</span>
+      <span class="ib">${icon("power", 12)}</span>
+    </div>
+  </div>`;
+}
+
+/** NotchShape: concave top flares, round bottom. Width includes both flares. */
+function notchPath(w, h, f, r) {
+  // Quarter-circles cut inward at the top (the hardware-notch ears). Bottom corners are round.
+  return `M 0 0 H ${w} A ${f} ${f} 0 0 1 ${w - f} ${f} V ${h - r} A ${r} ${r} 0 0 1 ${w - f - r} ${h} H ${f + r} A ${r} ${r} 0 0 1 ${f} ${h - r} V ${f} A ${f} ${f} 0 0 1 0 0 Z`;
+}
+
+function menuTank(level) {
+  const left = clamp(level, 0, 100) / 100;
+  const fillH = left <= 0 ? 0 : Math.max(1.6, 12.2 * left);
+  const id = `mt${Math.round(level)}`;
+  return `<svg width="12" height="15" viewBox="0 0 12 16" aria-hidden="true">
+    <rect x="4" y="0.3" width="4" height="1.7" rx="0.7" fill="#fff"/>
+    <rect x="1.2" y="2.2" width="9.6" height="12.6" rx="2.6" fill="none" stroke="#fff" stroke-width="1.3"/>
+    <clipPath id="${id}"><rect x="1.2" y="2.2" width="9.6" height="12.6" rx="2.6"/></clipPath>
+    <rect x="1.2" y="${(2.2 + 12.6 - fillH).toFixed(2)}" width="9.6" height="${fillH.toFixed(2)}" fill="#fff" clip-path="url(#${id})"/>
+  </svg>`;
+}
+
+function notchHTML(opts = {}) {
+  const open = opts.open == null ? 1 : opts.open;
+  const w = lerp(opts.fromW || 196, 404, open);
+  const h = lerp(opts.fromH || 28, 86, open);
+  const f = 12, radius = lerp(10, 24, open);
+  const d = notchPath(w, h, f, radius);
+  const kind = opts.kind || "reset";
+  const titleColor = kind === "warning" ? "#FF9F0A" : kind === "empty" ? "#FF453A" : "#30D158";
+  const mood = kind === "warning" ? "sweaty" : kind === "empty" ? "asleep" : "party";
+  const title = kind === "warning" ? "Running warm" : kind === "empty" ? "Tank's dry" : "Tank's full";
+  const message = kind === "warning"
+    ? "work@example.cz has burned 93% of the 5h session. Refill in 36m."
+    : kind === "empty"
+      ? "work@example.cz hit the 5h session limit. Back in 36m."
+      : "stepan@example.cz: 5h session is fresh. Go break something.";
+  const dripY = lerp(46, 8, open);
+  const contentOpacity = clamp((open - 0.35) / 0.4, 0, 1);
+  const boxH = Math.max(h, 86);
+  return `<div class="notch" style="width:${w}px;height:${boxH}px">
+    <svg class="silhouette" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="#000"/></svg>
+    <div class="inn" style="height:${h}px;opacity:${contentOpacity};clip-path:path('${d}')">
+      <div style="transform:translateY(${dripY}px)">${dripSVG(mood, mood === "party" ? 100 : mood === "asleep" ? 2 : 16, 58)}</div>
+      <div class="txt"><b style="color:${titleColor}">${title}</b><p>${message}</p></div>
+    </div>
+    <div class="glow" style="bottom:${boxH - h}px;opacity:${contentOpacity};background:linear-gradient(90deg,transparent,${titleColor},transparent)"></div>
+  </div>`;
+}
+
+function menubar(pct) {
+  const p = pct == null ? 7 : Math.round(pct);
+  return `<div class="menubar">
+    <span style="display:flex;color:#fff">${icon("apple", 14)}</span>
+    <b>Finder</b>
+    <span class="dim">File</span><span class="dim">Edit</span><span class="dim">View</span>
+    <span class="sp"></span>
+    <span class="mb-tank">${menuTank(p)}</span>
+    <span style="font-variant-numeric:tabular-nums">${p}%</span>
+    <span style="display:flex;opacity:.9">${icon("wifi", 15)}</span>
+    <span>Tue 9:41</span>
+  </div>`;
+}
+
+function desktop(inner, caption) {
+  return `<div class="desktop"><div class="wall"></div>${menubar()}${inner}${caption ? `<div class="caption">${caption}</div>` : ""}</div>`;
+}
+
+function switchHTML(on) { return `<span class="switch${on ? " on" : ""}"></span>`; }
+
+function settingsHTML() {
+  const row = (title, sub, trail, opts = {}) => `<div class="prow${opts.only ? " only" : ""}">
+    <div class="grow"><b>${title}</b>${sub ? `<span>${sub}</span>` : ""}</div>${trail}</div>`;
+  return `<div class="window" style="width:640px">
+    <div class="titlebar"><span class="lights"><i></i><i></i><i></i></span><span>Settings</span></div>
+    <div class="segwrap"><div class="seg"><b>General</b><em>History</em><em>Integrations</em><em>Accounts</em></div></div>
+    <div class="hair"></div>
+    <div class="sheet">
+      <div class="shead">${dripSVG("sweaty", 7, 40)}<div><b>Refill</b><span>Watches your AI limits and tells you when they refill.</span></div></div>
+      <div><div class="panel-label">Startup</div>${row("Open at login", "", switchHTML(true), { only: true })}</div>
+      <div>
+        <div class="panel-label">Alerts</div>
+        ${row("Notification", "", switchHTML(true))}
+        <div class="divline"></div>
+        ${row("Sound", "", `<span class="menu-pick">Glass ${icon("chev", 10)}</span>${switchHTML(true)}`)}
+        <div class="divline"></div>
+        ${row("Notch", "Drip slides out of the notch on events", switchHTML(true))}
+        <div class="divline"></div>
+        ${row("Hook script", "~/.config/refill/on-reset", switchHTML(true))}
+        <div class="divline"></div>
+        ${row("Try it", "", `<span class="dbtn">Preview notch</span> <span class="dbtn pri">Send test</span>`)}
+      </div>
+      <div>
+        <div class="panel-label">Quiet hours</div>
+        ${row("Quiet hours", "", switchHTML(false), { only: true })}
+      </div>
+    </div>
+  </div>`;
+}
+
+function historyChart(progress) {
+  const pts = [[0, 22], [8, 35], [16, 48], [24, 61], [32, 74], [40, 86], [46, 12], [54, 28], [62, 41], [70, 55], [78, 63], [86, 71], [100, 78]];
+  const w = 592, h = 150, pad = 8;
+  const x = (p) => pad + (p / 100) * (w - pad * 2);
+  const y = (v) => pad + (1 - v / 100) * (h - pad * 2);
+  const line = pts.map((p, i) => `${i ? "L" : "M"} ${x(p[0]).toFixed(1)} ${y(p[1]).toFixed(1)}`).join(" ");
+  const area = `${line} L ${x(100)} ${y(0)} L ${x(0)} ${y(0)} Z`;
+  const len = 900;
+  const dash = len * clamp(1 - progress, 0, 1);
+  const resetX = x(46);
+  return `<svg width="100%" viewBox="0 0 ${w} ${h}" style="display:block">
+    <line x1="${pad}" y1="${y(90)}" x2="${w - pad}" y2="${y(90)}" stroke="rgba(255,69,58,0.5)" stroke-dasharray="2 4"/>
+    <path d="${area}" fill="rgba(48,209,88,0.16)"/>
+    <path d="${line}" fill="none" stroke="#FF9F0A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="${len}" stroke-dashoffset="${dash}"/>
+    <line x1="${resetX}" y1="${pad}" x2="${resetX}" y2="${h - pad}" stroke="rgba(48,209,88,0.85)" stroke-dasharray="3 3"/>
+  </svg>`;
+}
+
+function historyHTML(progress = 1) {
+  return `<div class="hist">
+    <div class="hist-head">
+      <span class="menu-pick">stepan@example.cz ${icon("chev", 10)}</span>
+      <span class="menu-pick">5h session ${icon("chev", 10)}</span>
+      <span style="flex:1"></span>
+      <span class="seg"><b>24h</b><em>7d</em></span>
+    </div>
+    ${historyChart(progress)}
+    <div class="stats">
+      <div class="stat"><span>Burn</span><b>~8%/h</b></div>
+      <div class="stat"><span>Forecast</span><b>Won't run out before refill</b></div>
+      <div class="stat"><span>Resets today</span><b>1</b></div>
+      <div class="stat"><span>Avg peak / window</span><b>71%</b></div>
+    </div>
+    <div class="chart-label">Daily peak, last 7 days</div>
+    <svg width="100%" viewBox="0 0 592 78">
+      ${[["M", 40], ["T", 55], ["W", 48], ["T", 80], ["F", 62], ["S", 30], ["S", 44]].map((d, i) => {
+        const bh = 8 + d[1] * 0.55 * progress;
+        const x = 28 + i * 80;
+        const color = d[1] >= 90 ? "#FF453A" : d[1] >= 70 ? "#FF9F0A" : "#30D158";
+        return `<rect x="${x}" y="${62 - bh}" width="28" height="${bh}" rx="3" fill="${color}"/><text x="${x + 14}" y="76" text-anchor="middle" fill="#808080" font-size="11" font-family="Inter,sans-serif">${d[0]}</text>`;
+      }).join("")}
+    </svg>
+  </div>`;
+}
+
+function accountsHTML() {
+  const row = (title, sub, trail) => `<div class="prow"><div class="grow"><b>${title}</b><span>${sub}</span></div>${trail}</div>`;
+  return `<div class="window" style="width:640px">
+    <div class="titlebar"><span class="lights"><i></i><i></i><i></i></span><span>Settings</span></div>
+    <div class="segwrap"><div class="seg"><em>General</em><em>History</em><em>Integrations</em><b>Accounts</b></div></div>
+    <div class="hair"></div>
+    <div class="sheet">
+      <div>
+        <div class="panel-label">Detected</div>
+        ${row("stepan@example.cz", "Claude · Max", `<span class="dot"></span>`)}
+        <div class="divline"></div>
+        ${row("work@example.cz", "Claude · Pro", `<span class="dot"></span>`)}
+        <div class="divline"></div>
+        ${row("Codex", "Codex · Plus", `<span class="dot"></span>`)}
+        <div class="divline"></div>
+        ${row("Rescan", "", `<span class="dbtn">Refresh</span>`)}
+      </div>
+      <div>
+        <div class="panel-label">Add a Claude account</div>
+        ${row("Name", "", `<span class="field" style="color:#808080">work</span> <span class="dbtn pri">Add</span>`, )}
+      </div>
+      <p class="footer-note">Opens Terminal with a separate Claude profile. Type /login there, then quit. Refill picks it up on the next refresh.</p>
+      <div>
+        <div class="panel-label">Other tools</div>
+        <div class="prow only"><div class="grow"><b>Codex CLI</b><span>Reads ~/.codex/sessions, offline</span></div>${switchHTML(true)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function moodsHTML() {
+  const items = [["happy", 80, "Happy"], ["focused", 45, "Focused"], ["sweaty", 16, "Sweaty"], ["asleep", 4, "Asleep"], ["party", 100, "Party"]];
+  return `<div class="moods">${items.map(([m, l, n]) => `<figure>${dripSVG(m, l, 64)}<figcaption>${n}</figcaption></figure>`).join("")}</div>`;
+}
+
+function signalsHTML() {
+  return `<div class="signals">
+    <div class="sig">${dripSVG("party", 100, 52)}<div><b>Notch</b><span>Drip slides out when a window refills.</span></div></div>
+    <div class="sig">${dripSVG("sweaty", 18, 52)}<div><b>Notification</b><span>A short line, in Drip's voice. Sound if you want it.</span></div></div>
+    <div class="sig">${dripSVG("happy", 72, 52)}<div><b>A hook you set</b><span>Phone, chat, lights, or a webhook. Nothing is on until you turn it on.</span></div></div>
+  </div>`;
+}
+
+function scaleBox(html, w, h, s) {
+  return `<div style="width:${Math.round(w * s)}px;height:${Math.round(h * s)}px;display:flex;align-items:center;justify-content:center"><div style="width:${w}px;height:${h}px;transform:scale(${s});transform-origin:center center">${html}</div></div>`;
+}
+
+function installHTML(u) {
+  const x = lerp(150, 390, smooth(u));
+  return `<div class="install">
+    <div class="titlebar"><span class="lights"><i></i><i></i><i></i></span><span>Refill</span></div>
+    <div class="body">
+      <div class="appicon" style="position:absolute;left:${x}px;top:78px">
+        <img src="${ICON}" alt="" width="96" height="96" />
+        Refill.app
+      </div>
+      <div class="appicon" style="position:absolute;right:86px;top:78px">
+        <div class="folder"></div>
+        Applications
+      </div>
+      <svg class="cursor" style="left:${x + 70}px;top:${150 + Math.sin(u * Math.PI) * -8}px" viewBox="0 0 16 20">
+        <path d="M1 1 L1 15 L5 11.5 L8.2 18 L11 16.6 L7.6 10.2 L13.5 10 Z" fill="#fff" stroke="#000" stroke-width="1"/>
+      </svg>
+    </div>
+  </div>`;
+}
+
+function notchCard(kind = "reset") {
+  const pct = kind === "warning" ? 12 : kind === "empty" ? 2 : 96;
+  return `<div style="width:880px;height:230px;position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.12)">
+    <div class="wall"></div>
+    ${menubar(pct)}
+    <div class="notch-pos">${notchHTML({ open: 1, kind })}</div>
+  </div>`;
+}
+
+const MENU_H = 432;
+
+function feature(kicker, title, plate, n) {
+  return `<div class="pad" style="padding-top:76px">
+    <div class="kicker">${kicker}</div>
+    <h1 class="display" style="font-size:72px;margin-top:18px;max-width:14em">${title}</h1>
+    <div class="plate">${plate}</div>
+    <div class="footrow"><span>${n} / 4</span><span>Refill</span></div>
+  </div>`;
+}
+
+function storyShell(title, body, plate) {
+  return `<div class="story">
+    <h1 class="display">${title}</h1>
+    ${body ? `<p class="lead">${body}</p>` : ""}
+    <div class="plate">${plate || ""}</div>
+    <div class="brandfoot">Refill</div>
+  </div>`;
+}
+
+function cover(compact) {
+  const h = compact ? 72 : 128;
+  const tag = compact ? 40 : 56;
+  return `<div class="pad" style="${compact ? "padding:64px" : ""}">
+    <img class="icon-img cover-icon" src="${ICON}" alt="" style="${compact ? "width:120px;height:120px" : ""}" />
+    <h1 class="display" style="font-size:${h}px;margin-top:28px">Refill</h1>
+    <p class="display" style="font-size:${tag}px;font-weight:500;margin-top:12px">Your AI tanks, <span class="green">watched.</span></p>
+    <p class="muted" style="font-size:${compact ? 22 : 28}px;line-height:1.35;margin-top:22px;max-width:16em">A free macOS menu bar app. It signals the moment a limit resets.</p>
+    <div class="plate" style="align-items:flex-end;justify-content:flex-start">${dripSVG("happy", 72, compact ? 200 : 280)}</div>
+  </div>`;
+}
+
+function cta(compact) {
+  return `<div class="pad">
+    <img class="icon-img cta-icon" src="${ICON}" alt="" style="${compact ? "width:112px;height:112px" : ""}" />
+    <h1 class="display" style="font-size:${compact ? 64 : 92}px;margin-top:28px">Free and open source.</h1>
+    <div class="chips">
+      <span class="chip">Free</span><span class="chip">MIT licensed</span><span class="chip">macOS 14+</span>
+    </div>
+    <div class="url" style="${compact ? "font-size:36px" : ""}">stepanblaha.github.io/Refill</div>
+    <p class="disclaimer">${DISCLAIMER}</p>
+  </div>`;
+}
+
+function storyCTA() {
+  return `<div class="story" style="padding-top:280px">
+    <img class="icon-img" src="${ICON}" alt="" style="width:200px;height:200px" />
+    <h1 class="display" style="font-size:76px;margin-top:28px">Free and open source.</h1>
+    <div class="url" style="font-size:44px">stepanblaha.github.io/Refill</div>
+    <div class="sticker">Link sticker goes here</div>
+    <p class="lead" style="margin-top:28px">MIT licensed · macOS 14+</p>
+    <p class="disclaimer" style="margin-top:22px">${DISCLAIMER}</p>
+  </div>`;
+}
+
+const hotForMenuGif = () => {
+  // Drain the hot 5h window, sit empty, then refill.
+  if (t < 0.62) return lerp(78, 4, smooth(t / 0.62));
+  if (t < 0.75) return 3;
+  return lerp(3, 96, smooth((t - 0.75) / 0.25));
+};
+
+let html = "";
+switch (shot) {
+  case "carousel-01": html = cover(false); break;
+  case "carousel-02":
+    html = `<div class="pad">
+      <div class="kicker">The problem</div>
+      <h1 class="display" style="font-size:84px;margin-top:28px">You hit the limit<br>mid-task.</h1>
+      <p class="muted" style="font-size:36px;line-height:1.25;margin-top:28px;max-width:16em">Then you guess when it comes back.</p>
+      <div class="plate" style="align-items:flex-end;justify-content:flex-start">${dripSVG("sweaty", 12, 260)}</div>
+    </div>`;
+    break;
+  case "carousel-03":
+    html = feature("01  Menu", "Every limit, in the menu bar.", scaleBox(menuHTML(), 340, MENU_H, 1.55), 1);
+    break;
+  case "carousel-04":
+    html = feature("02  Notch", "Drip slides out when it refills.", notchCard("reset"), 2);
+    break;
+  case "carousel-05":
+    html = feature("03  History", "See if this pace hits empty.", scaleBox(`<div class="window" style="width:640px;border-radius:12px">${historyHTML(1)}</div>`, 640, 430, 1.22), 3);
+    break;
+  case "carousel-06":
+    html = feature("04  Signals", "Notch, notification, or a hook you set.", signalsHTML(), 4);
+    break;
+  case "carousel-07": html = cta(false); break;
+  case "story-01":
+    html = `<div class="story">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <h1 class="display" style="font-size:84px">I kept hitting the limit mid-task.</h1>
+        <p class="lead">Then I guessed when it would come back.</p>
+      </div>
+        <div style="margin:8px 0 18px">${dripSVG("sweaty", 14, 160)}</div>
+        <div class="brandfoot">Refill</div>
+      </div>`;
+    break;
+  case "story-02":
+    html = storyShell("So I put the tanks in the menu bar.", "", scaleBox(menuHTML(), 340, MENU_H, 1.38));
+    break;
+  case "story-03":
+    html = `<div class="story">
+      <h1 class="display">What's left, on one black panel.</h1>
+      <p class="lead">Claude, Codex, and the others you already use.</p>
+      <div class="plate">${scaleBox(menuHTML({ hot: 62 }), 340, MENU_H, 1.15)}</div>
+      <p class="disclaimer" style="margin-top:8px;font-size:18px">${DISCLAIMER}</p>
+      <div class="brandfoot">Refill</div>
+    </div>`;
+    break;
+  case "story-04":
+    html = storyShell("The moment it refills, Drip says so.", "", notchCard("reset"));
+    break;
+  case "story-05":
+    html = storyShell("A warning before empty. A chart for the pace.", "", notchCard("warning"));
+    break;
+  case "story-06": html = storyCTA(); break;
+  case "x-card":
+    html = `<div style="height:100%;display:grid;grid-template-columns:1fr 640px;gap:36px;padding:64px 56px;align-items:center">
+      <div>
+        <h1 class="display" style="font-size:78px">Your AI tanks,<br><span class="green">watched.</span></h1>
+        <p class="muted" style="font-size:26px;line-height:1.35;margin-top:18px;max-width:16em">Refill sits in the menu bar and signals the moment a limit resets.</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:36px">
+          <img src="${ICON}" alt="" width="64" height="64" />
+          <span style="font-size:26px;font-weight:500">stepanblaha.github.io/Refill</span>
+        </div>
+        <p class="disclaimer" style="margin-top:28px;font-size:16px">${DISCLAIMER}</p>
+      </div>
+      <div>${scaleBox(menuHTML(), 340, MENU_H, 1.28)}</div>
+    </div>`;
+    break;
+  case "hero-still":
+  case "hero-a":
+    html = desktop(`<div class="pop">${menuHTML({ bare: false, hot: shot === "hero-a" ? 40 : 7 })}</div>`, "");
+    break;
+  case "hero-b":
+    html = desktop(`<div class="notch-pos">${notchHTML({ open: 1, kind: "reset" })}</div>`, "");
+    break;
+  case "reel-cover":
+    html = `<div class="story" style="padding-top:320px">
+      <h1 class="display" style="font-size:88px">Your AI tanks, watched.</h1>
+      <div class="plate">${notchCard("reset")}</div>
+      <div class="brandfoot">Refill · free · macOS</div>
+    </div>`;
+    break;
+  case "sq-01": html = cover(true); break;
+  case "sq-02":
+    html = `<div class="pad" style="padding:48px"><div class="kicker">Menu bar</div><h1 class="display" style="font-size:54px;margin-top:12px">Every limit, in one panel.</h1><div class="plate">${scaleBox(menuHTML(), 340, 500, 1.15)}</div></div>`;
+    break;
+  case "sq-03":
+    html = `<div class="pad" style="padding:48px"><div class="kicker">Notch</div><h1 class="display" style="font-size:54px;margin-top:12px">Drip says when it refills.</h1><div class="plate">${notchCard("reset")}</div></div>`;
+    break;
+  case "sq-04": html = cta(true); break;
+  case "desk-menu":
+    html = desktop(`<div class="pop">${menuHTML()}</div>`, "Your AI tanks, watched.");
+    break;
+  case "desk-notch":
+    html = desktop(`<div class="notch-pos">${notchHTML({ open: 1, kind: "reset" })}</div>`, "The moment it refills.");
+    break;
+  case "desk-history":
+    html = desktop(`<div class="win-pos"><div class="window" style="width:680px">${historyHTML(1)}</div></div>`, "Will this pace hit empty?");
+    break;
+  case "desk-settings":
+    html = desktop(`<div class="win-pos" style="top:48px">${settingsHTML()}</div>`, "Signals, the way you want them.");
+    break;
+  case "desk-accounts":
+    html = desktop(`<div class="win-pos" style="top:48px">${accountsHTML()}</div>`, "The logins already on your Mac.");
+    break;
+  case "desk-moods":
+    html = desktop(`<div class="win-pos" style="top:280px"><div class="window" style="width:auto">${moodsHTML()}</div></div>`, "Drip keeps watch.");
+    break;
+  case "ui-menu":
+    document.documentElement.classList.add("fit");
+    html = menuHTML({ bare: true });
+    break;
+  case "ui-moods":
+    document.documentElement.classList.add("fit");
+    html = moodsHTML();
+    break;
+  case "ui-settings":
+    html = `<div style="width:640px;height:900px;background:#000;overflow:hidden">${settingsHTML()}</div>`;
+    break;
+  case "ui-history":
+    html = `<div style="width:680px;height:560px;background:#000;overflow:hidden">${historyHTML(1)}</div>`;
+    break;
+  case "ui-accounts":
+    html = `<div style="width:640px;height:700px;background:#000;overflow:hidden">${accountsHTML()}</div>`;
+    break;
+  case "gif-menu":
+    html = desktop(`<div class="pop">${menuHTML({ hot: hotForMenuGif(), party: t >= 0.82 })}</div>`, "");
+    break;
+  case "gif-notch": {
+    const open = smooth(clamp((t - 0.08) / 0.55, 0, 1));
+    html = `<div class="desktop"><div class="wall"></div>${menubar(t > 0.7 ? lerp(7, 96, clamp((t - 0.7) / 0.3, 0, 1)) : 7)}<div class="notch-pos">${notchHTML({ open, kind: "reset" })}</div></div>`;
+    break;
+  }
+  case "gif-warn": {
+    const kind = t < 0.48 ? "warning" : "empty";
+    html = `<div class="desktop"><div class="wall"></div>${menubar(kind === "warning" ? 12 : 2)}<div class="notch-pos">${notchHTML({ open: 1, kind })}</div></div>`;
+    break;
+  }
+  case "gif-history":
+    html = `<div style="width:760px;height:520px;background:#000;padding:24px">${historyHTML(clamp(t / 0.85, 0, 1))}</div>`;
+    break;
+  case "gif-install":
+    html = `<div class="desktop"><div class="wall"></div>${menubar(72)}<div class="win-pos" style="top:120px">${installHTML(t)}</div></div>`;
+    break;
+  default:
+    html = `<p style="padding:24px">Unknown shot ${shot}</p>`;
+}
+
+document.getElementById("stage").innerHTML = html;
+document.fonts.ready.then(() => { document.getElementById("ready").dataset.ok = "1"; });
+</script>
+</body>
+</html>

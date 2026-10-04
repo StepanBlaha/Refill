@@ -11,10 +11,17 @@
   overflow: hidden;
   background: var(--panel);
 }
-.card img {
+.card img,
+.card video {
   display: block;
   width: 100%;
   height: auto;
+  background: #000;
+}
+.card figcaption {
+  padding: var(--s3) var(--s4);
+  color: var(--text-2);
+  font-size: 13px;
 }
 .swatches {
   display: grid;

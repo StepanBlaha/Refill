@@ -71,11 +71,30 @@ export default function PressContent() {
           <a href={`${RAW}/og-1200x630.png`}>Social card, 1200×630 PNG</a>
         </li>
         <li>
+          <a href={`${BASE}/media/hero.mp4`}>Hero video, 1600×1000 MP4</a>
+        </li>
+        <li>
+          <a href={`${BASE}/media/hero-poster.jpg`}>Hero poster, 1600×1000 JPEG</a>
+        </li>
+        <li>
           <a href={DMG}>Refill.dmg</a>, the latest release
         </li>
       </ul>
       <figure className={p.card}>
         <img src={`${BASE}/og.png`} width={1200} height={630} alt="Refill social card: Drip and usage for Claude and Codex" />
+      </figure>
+      <figure className={p.card}>
+        <video
+          src={`${BASE}/media/hero.mp4`}
+          poster={`${BASE}/media/hero-poster.jpg`}
+          width={1600}
+          height={1000}
+          controls
+          muted
+          playsInline
+          preload="metadata"
+        />
+        <figcaption>Menu bar panel, then the notch. Sample accounts, the same ones Refill --render uses.</figcaption>
       </figure>
 
       <h2>Colors</h2>

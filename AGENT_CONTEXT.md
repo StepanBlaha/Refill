@@ -1,5 +1,24 @@
 # Agent context
 
+## Marketing assets
+
+Handoff for the Brink-style marketing set. No release was cut and no tag was pushed. No Swift sources were edited.
+
+## What landed
+
+- `marketing/APPSTORE.md`. Store copy in the same shape as Brink's: name, subtitle, promotional text, description, keywords, what's new for 0.1.1, categories, age rating, privacy ("Data Not Collected"), URLs, review notes, and a 2880×1800 shot list. Counts are in the file. It does not claim the app is on the store. The public build is still the GitHub dmg, and it is not notarized.
+- `marketing/social/`. Seven carousel slides (1080×1350), six stories (1080×1920, 250 px kept clear at the top and bottom), `x-card.png` (1600×900), `hero-still.png` (1600×1000), `reel-cover.png`, `reel.mp4` (1080×1920, about 13 s, no audio), `refill-square-1080.mp4` (1080×1080, about 10 s, no audio). `README.md` lists each file. Copy does not invent a user count or a testimonial. The non-affiliation line is on the CTA slides, the X card, and story 3 (that frame names Claude and Codex).
+- `marketing/screenshots/`. Numbered desktop shots `01`–`06` (2880×1800, captions), plus the five names `Refill --render` writes: `menu.png`, `moods.png`, `settings.png`, `history.png`, `accounts.png`.
+- `marketing/media/`. `menu-bar.gif`, `notch-reset.gif`, `notch-warning.gif`, `history.gif`, `install.gif`. Each is under 8 seconds.
+- `site/public/media/hero.mp4` and `hero-poster.jpg`. The press page links them and plays the video with controls. The home page is unchanged. `npm run build` in `site/` is the check.
+- `scripts/marketing/stage.html` draws Drip, the menu and the notch from `Mascot.swift`, `RefillApp.swift` (`MenuView`) and `Notch/NotchView.swift` + `NotchShape.swift`. `scripts/marketing/render.mjs` screenshots it with Playwright (system Chrome). `scripts/marketing/video.sh` builds the GIFs and MP4s with ffmpeg. `scripts/capture-marketing.sh` is the Mac path: it runs `Refill --render` and `--render-og`, and prints the notch, GIF and numbered-shot recordings the binary cannot make.
+
+The history chart in the stand-ins is a drawing. The ~8%/h, 71% peak and "1" reset are not a measurement. Sample emails are the `@example.cz` addresses already in `PreviewRender`.
+
+## What this environment could not do
+
+This machine is Linux. There is no Swift toolchain and no Mac display, so `swift test` was not run and `Refill --render` was not run. The pictures are HTML, not screen recordings. Replace the five `--render` stills, the GIFs and the numbered shots on a Mac with `scripts/capture-marketing.sh`. The social folder is composed type and stays unless you rebuild it with `node scripts/marketing/render.mjs`.
+
 ## Notch banner
 
 Handoff for the notch-banner fix. No release was cut and no tag was pushed.

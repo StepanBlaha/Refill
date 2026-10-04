@@ -15,9 +15,10 @@ Links used below:
 - Repo: https://github.com/StepanBlaha/Refill
 - Icon: https://raw.githubusercontent.com/StepanBlaha/Refill/main/branding/icon-1024.png
 - Social card: https://raw.githubusercontent.com/StepanBlaha/Refill/main/branding/og-1200x630.png
-- Screenshot, once recorded: https://raw.githubusercontent.com/StepanBlaha/Refill/main/marketing/screenshots/menu.png
+- Screenshot: https://raw.githubusercontent.com/StepanBlaha/Refill/main/marketing/screenshots/01-menu-bar.png
+- Menu panel: https://raw.githubusercontent.com/StepanBlaha/Refill/main/marketing/screenshots/menu.png
 
-Until `menu.png` exists, use the social card as the only screenshot. Don't link a 404.
+`01-menu-bar.png` is a composed desktop shot. `menu.png` is the panel `Refill --render` writes. Both are HTML stand-ins until you replace them on a Mac. Don't link a file you have deleted.
 
 ---
 
@@ -35,6 +36,7 @@ Until `menu.png` exists, use the social card as the only screenshot. Don't link 
   "repo_url": "https://github.com/StepanBlaha/Refill",
   "icon_url": "https://raw.githubusercontent.com/StepanBlaha/Refill/main/branding/icon-1024.png",
   "screenshots": [
+    "https://raw.githubusercontent.com/StepanBlaha/Refill/main/marketing/screenshots/01-menu-bar.png",
     "https://raw.githubusercontent.com/StepanBlaha/Refill/main/branding/og-1200x630.png"
   ],
   "official_site": "https://stepanblaha.github.io/Refill/",
