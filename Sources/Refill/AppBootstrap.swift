@@ -4,7 +4,8 @@ import AppKit
 /// Wires feature modules into Monitor's hooks, URL scheme, and UI routes.
 @MainActor
 enum AppBootstrap {
-    private static let urlHandler = URLEventHandler()
+    /// The launch callback is `@Sendable` but always runs on the main queue, same as this type.
+    private nonisolated(unsafe) static let urlHandler = URLEventHandler()
 
     static func start(_ monitor: Monitor) {
         AutomationBridge.monitor = monitor
@@ -51,7 +52,7 @@ enum AppBootstrap {
     }
 }
 
-final class URLEventHandler: NSObject {
+final class URLEventHandler: NSObject, @unchecked Sendable {
     @objc func handle(_ event: NSAppleEventDescriptor, reply: NSAppleEventDescriptor) {
         guard let s = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue, let url = URL(string: s) else { return }
         Task { @MainActor in URLRouter.handle(url) }

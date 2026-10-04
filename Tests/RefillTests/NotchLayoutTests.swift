@@ -201,7 +201,7 @@ final class NotchLayoutTests: XCTestCase {
         XCTAssertEqual(topEdge.frame, laptop.frame)
     }
 
-    private func shifted(_ base: DisplayGeometry, dx: CGFloat, _ dy: CGFloat) -> DisplayGeometry {
+    private func shifted(_ base: DisplayGeometry, dx: CGFloat, dy: CGFloat) -> DisplayGeometry {
         var screen = base
         screen.frame.origin.x += dx
         screen.frame.origin.y += dy
