@@ -1,0 +1,54 @@
+.mark {
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
+  margin: var(--s5) 0;
+}
+.card {
+  margin-top: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  background: var(--panel);
+}
+.card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s4);
+  list-style: none;
+  padding: 0;
+}
+.swatches li {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  overflow: hidden;
+  background: var(--panel);
+}
+.chip {
+  height: 56px;
+}
+.meta {
+  padding: var(--s3);
+  font-size: 13px;
+  color: var(--text-2);
+}
+.meta b {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.downloads {
+  list-style: none;
+  padding: 0;
+}
+.downloads li {
+  margin-top: var(--s3);
+}

@@ -25,7 +25,10 @@ DMG="build/Refill-$VERSION.dmg"; rm -f "$DMG"
 hdiutil create -volname "Refill $VERSION" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
 
 if [[ -n "${DEVELOPER_ID:-}" ]]; then codesign -s "$DEVELOPER_ID" --timestamp "$DMG"; fi
-cp "$DMG" build/Refill.dmg   # stable name for .../releases/latest/download/Refill.dmg
+# Same bytes under the stable asset name. The release workflow uploads only this
+# file, so latest/download/Refill.dmg keeps working and the versioned tag URL
+# (.../download/vX.Y.Z/Refill.dmg) is the Homebrew cask. The versioned dmg stays local.
+cp "$DMG" build/Refill.dmg
 if [[ -n "${NOTARY_PROFILE:-}" ]]; then
   xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$DMG"

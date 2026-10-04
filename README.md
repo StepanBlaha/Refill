@@ -96,9 +96,18 @@ The app checks GitHub Releases once a day and shows "Update available" in the me
 
 `scripts/package.sh` can optionally Developer ID-sign and notarize (`DEVELOPER_ID`, `NOTARY_PROFILE`). Without that, the dmg is unsigned and the first-launch note above applies.
 
+## Project
+
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+- [Brand](branding/BRAND.md)
+- [Launch notes](marketing/LAUNCH.md)
+
 ## Legal
 
 - [LICENSE](LICENSE) (MIT)
 - [Privacy Policy](legal/PRIVACY.md), [Terms of Use](legal/TERMS.md), [Third-party notices](legal/NOTICE.md)
+- [Trademarks](TRADEMARKS.md)
 
 The MIT license covers the source. It does not grant rights to the Refill name, the Drip mascot or the app icon. Forks should use their own name and icon.
