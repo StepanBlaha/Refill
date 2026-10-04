@@ -116,7 +116,7 @@ Refill is a free, open-source macOS menu bar app that watches Claude, Codex, Cop
 
 ## 5. Homebrew
 
-The cask lives in https://github.com/StepanBlaha/homebrew-tap as `Casks/refill.rb`. Install line:
+`Casks/refill.rb` belongs in https://github.com/StepanBlaha/homebrew-tap. The stanza for 0.1.1 is in `AGENT_CONTEXT.md`. Install line, once that file is on `main` of the tap:
 
 ```bash
 brew install --cask stepanblaha/tap/refill
