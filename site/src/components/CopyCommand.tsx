@@ -5,6 +5,21 @@ import Status from "./Status";
 import s from "./CopyCommand.module.css";
 
 /** A command in a code block with a copy button. Feedback uses the shared Status component. */
+/** execCommand fallback for browsers without (or blocking) the async Clipboard API. */
+function legacyCopy(text: string): boolean {
+  const t = document.createElement("textarea");
+  t.value = text;
+  t.setAttribute("readonly", "");
+  t.style.position = "fixed";
+  t.style.opacity = "0";
+  document.body.appendChild(t);
+  t.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch { ok = false; }
+  t.remove();
+  return ok;
+}
+
 export default function CopyCommand({ command, label }: { command: string; label: string }) {
   const [state, setState] = useState<"idle" | "ok" | "fail">("idle");
   const timer = useRef<number | undefined>(undefined);
@@ -13,13 +28,19 @@ export default function CopyCommand({ command, label }: { command: string; label
 
   const copy = async () => {
     window.clearTimeout(timer.current);
+    let ok = false;
     try {
       if (!navigator.clipboard) throw new Error("no clipboard");
-      await navigator.clipboard.writeText(command);
-      setState("ok");
+      // Some browsers leave writeText pending on a permission prompt; don't wait forever.
+      await Promise.race([
+        navigator.clipboard.writeText(command),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 1500)),
+      ]);
+      ok = true;
     } catch {
-      setState("fail");
+      ok = legacyCopy(command);
     }
+    setState(ok ? "ok" : "fail");
     timer.current = window.setTimeout(() => setState("idle"), 3500);
   };
 
