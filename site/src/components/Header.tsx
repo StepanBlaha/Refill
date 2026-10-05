@@ -104,6 +104,9 @@ export default function Header() {
               {label}
             </a>
           ))}
+          <Link href="/guides/" onClick={() => setOpen(false)} style={{ "--i": NAV.length } as React.CSSProperties} tabIndex={mobile && !open ? -1 : undefined}>
+            Guides
+          </Link>
         </nav>
         <div className={s.right}>
           <a className={s.btn} href={href("#download")} onClick={onClick("#download")}>
