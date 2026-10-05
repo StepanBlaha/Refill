@@ -39,9 +39,13 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       loco.current = instance;
       const onScroll = () => ScrollTrigger.update();
       instance.lenisInstance?.on("scroll", onScroll);
+      // The mobile menu pauses smooth scroll while it is open.
+      const onMenu = (e: Event) => ((e as CustomEvent<boolean>).detail ? instance.stop() : instance.start());
+      window.addEventListener("refill:menu", onMenu);
       ScrollTrigger.refresh();
       cleanup = () => {
         instance.lenisInstance?.off("scroll", onScroll);
+        window.removeEventListener("refill:menu", onMenu);
         instance.destroy();
         loco.current = null;
         gsap.ticker.lagSmoothing(500, 33);

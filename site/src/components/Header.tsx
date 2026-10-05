@@ -22,6 +22,14 @@ export default function Header() {
   const scrollTo = useScrollTo();
   const home = usePathname() === "/";
   const [open, setOpen] = useState(false);
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const on = () => setMobile(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   const bar = useRef<HTMLElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
 
@@ -68,16 +76,31 @@ export default function Header() {
   // Off the home page, section links must carry the base path (plain <a> is not rewritten).
   const href = (h: string) => (home ? h : `${BASE}/${h}`);
 
+  // Freeze page scroll while the mobile menu is open, without overflow:hidden
+  // (that would break the sticky header): pause Lenis and swallow wheel/touch scrolls.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("refill:menu", { detail: open }));
+    if (!open) return;
+    const block = (e: Event) => e.preventDefault();
+    window.addEventListener("wheel", block, { passive: false });
+    window.addEventListener("touchmove", block, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", block);
+      window.removeEventListener("touchmove", block);
+    };
+  }, [open]);
+
   return (
-    <header className={s.bar} ref={bar}>
+    <>
+    <header className={`${s.bar} ${open ? s.barOpen : ""}`} ref={bar}>
       <div className={s.inner}>
         <Link className={s.brand} href="/" aria-label="Refill home" onClick={home ? onClick("#top") : () => setOpen(false)}>
           <Drip mood="happy" pct={100} size={26} />
           <span>Refill</span>
         </Link>
         <nav aria-label="Primary" id="primary-nav" className={`${s.nav} ${open ? s.open : ""}`}>
-          {NAV.map(([h, label]) => (
-            <a key={h} href={href(h)} onClick={onClick(h)}>
+          {NAV.map(([h, label], i) => (
+            <a key={h} href={href(h)} onClick={onClick(h)} style={{ "--i": i } as React.CSSProperties} tabIndex={mobile && !open ? -1 : undefined}>
               {label}
             </a>
           ))}
@@ -100,5 +123,8 @@ export default function Header() {
         </div>
       </div>
     </header>
+    {/* Outside the header: its backdrop-filter would otherwise trap a fixed layer. */}
+    <div className={`${s.scrim} ${open ? s.scrimOn : ""}`} aria-hidden="true" onClick={() => close()} />
+    </>
   );
 }

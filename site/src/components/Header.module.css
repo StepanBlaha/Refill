@@ -2,9 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(0, 0, 0, 0.8);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  backdrop-filter: saturate(180%) blur(20px);
+  background: #000;
   border-bottom: 1px solid var(--line);
 }
 .inner {
@@ -52,9 +50,9 @@
   align-items: center;
   gap: var(--s2);
 }
-/* Mobile: nav is a dropdown panel under the bar. */
+/* Mobile: nav is a dropdown panel under the bar; animated, never display:none so it can transition. */
 .nav {
-  display: none;
+  display: flex;
   position: absolute;
   top: 100%;
   left: 0;
@@ -63,9 +61,19 @@
   padding: var(--s2) var(--s4) var(--s4);
   background: #000;
   border-bottom: 1px solid var(--line);
+  border-radius: 0 0 12px 12px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-12px);
+  clip-path: inset(0 0 100% 0);
+  transition: opacity 0.28s var(--ease), transform 0.4s var(--ease), clip-path 0.4s var(--ease), visibility 0s linear 0.4s;
 }
 .nav.open {
-  display: flex;
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0 0);
+  transition: opacity 0.28s var(--ease), transform 0.45s var(--ease), clip-path 0.45s var(--ease), visibility 0s;
 }
 .nav a {
   color: var(--text);
@@ -74,6 +82,41 @@
   padding: 14px 0;
   min-height: 48px;
   border-bottom: 1px solid var(--line);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease), color 0.2s var(--ease);
+}
+.nav.open a {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.35s var(--ease) calc(0.06s + var(--i, 0) * 0.04s),
+    transform 0.4s var(--ease) calc(0.06s + var(--i, 0) * 0.04s), color 0.2s var(--ease);
+}
+.nav a:active {
+  color: var(--accent);
+}
+/* Page behind the open menu: dimmed + blurred, click to close. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s var(--ease), visibility 0s linear 0.35s;
+}
+.scrimOn {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s var(--ease), visibility 0s;
+}
+@media (min-width: 768px) {
+  .scrim { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav, .nav.open, .nav a, .nav.open a, .scrim, .scrimOn { transition-duration: 0.01s !important; transition-delay: 0s !important; transform: none !important; }
 }
 .nav a:last-child {
   border-bottom: 0;
@@ -164,6 +207,17 @@
     padding: 0;
     background: none;
     border: 0;
+    border-radius: 0;
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+    transition: none;
+  }
+  .nav a,
+  .nav.open a {
+    opacity: 1;
+    transform: none;
   }
   .nav a {
     position: relative;
