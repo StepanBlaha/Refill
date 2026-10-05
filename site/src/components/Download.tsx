@@ -3,10 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import Drip from "./Drip";
 import Status from "./Status";
+import Arrow from "./Arrow";
+import CopyCommand from "./CopyCommand";
 import { BREW, DMG, INSTALL_SH, RELEASES_API, REPO, ZIP } from "@/lib/site";
-import { gsap, motionSafe } from "@/lib/gsap";
+import { DUR, EASE, STAGGER, gsap, motionSafe } from "@/lib/motion";
 import c from "./Shared.module.css";
 import s from "./Download.module.css";
+
+const XATTR = "xattr -dr com.apple.quarantine /Applications/Refill.app";
 
 export default function Download() {
   const root = useRef<HTMLElement>(null);
@@ -32,14 +36,16 @@ export default function Download() {
   useEffect(
     () =>
       motionSafe(root.current, () => {
-        gsap.from(`.${s.in} > *`, {
+        gsap.from(`.${s.rv}`, {
           opacity: 0,
           y: 28,
-          duration: 0.9,
-          ease: "power3.out",
-          stagger: 0.09,
-          scrollTrigger: { trigger: root.current, start: "top 75%", once: true },
+          duration: DUR.l,
+          ease: EASE.out,
+          stagger: STAGGER,
+          clearProps: "transform,opacity",
+          scrollTrigger: { trigger: root.current, start: "top 72%", once: true },
         });
+        gsap.to(`.${s.drip}`, { y: -8, duration: 1.6, ease: "sine.inOut", repeat: -1, yoyo: true });
       }),
     [],
   );
@@ -47,40 +53,46 @@ export default function Download() {
   return (
     <section className={`${c.sec} ${s.cta}`} id="download" ref={root}>
       <div className={`${c.wrap} ${s.in}`}>
-        <Drip mood="party" size={96} />
-        <h2 className={c.h2}>Get Refill.</h2>
-        <p className={c.sub}>Lives in your menu bar. Costs nothing. Judges nobody.</p>
-        <p className={c.fine}>It isn&apos;t notarized. These three ways still install it.</p>
-        <ul className={s.ways}>
-          <li>
-            <h3>Homebrew</h3>
-            <code className={s.cmd}>{BREW}</code>
-          </li>
-          <li>
-            <h3>One line</h3>
-            <code className={s.cmd}>{INSTALL_SH}</code>
-          </li>
-          <li>
-            <h3>Download</h3>
-            <p>
-              <a href={ZIP}>Refill.zip</a> or <a href={DMG}>Refill.dmg</a>. If this release has no zip yet, use the
-              disk image. Move Refill to Applications. Open it, then go to System Settings &rarr; Privacy &amp;
-              Security and click <b>Open Anyway</b>. Or run{" "}
-              <code>xattr -dr com.apple.quarantine /Applications/Refill.app</code>.
-            </p>
-            <div className={s.row}>
-              <a className={`${c.btn} ${s.lg}`} href={DMG}>Download for macOS</a>
-              <a className={`${c.btn} ${c.ghost} ${s.lg}`} href={REPO}>View on GitHub</a>
-            </div>
-          </li>
-        </ul>
-        <p className={c.fine}>
-          Homebrew and the one-line installer clear the quarantine flag. macOS 14+ &middot; free &amp; open source
+        <div className={s.rv}><div className={s.drip}><Drip mood="party" size={128} /></div></div>
+        <h2 className={`${c.h2} ${s.big} ${s.rv}`}>Get Refill.</h2>
+        <p className={`${c.sub} ${s.rv}`}>Lives in your menu bar. Costs nothing. Judges nobody.</p>
+        <div className={`${s.row} ${s.rv}`}>
+          <a className={`${c.btn} ${s.lg}`} href={DMG}>Download for macOS <Arrow /></a>
+          <a className={`${c.btn} ${c.ghost} ${s.lg}`} href={REPO}>View on GitHub <Arrow /></a>
+        </div>
+        <p className={`${c.fine} ${s.rv}`}>
+          macOS 14+ &middot; free &amp; open source &middot; <a href={ZIP}>Refill.zip</a> also available
         </p>
         {version && <Status kind="success">Latest release: {version}</Status>}
         {failed && !version && (
           <Status kind="warning">Could not check the latest version. The download button still gets the newest release.</Status>
         )}
+
+        <div className={`${s.ways} ${s.rv}`}>
+          <div className={s.way}>
+            <h3>Homebrew</h3>
+            <CopyCommand command={BREW} label="Homebrew" />
+          </div>
+          <div className={s.way}>
+            <h3>One line</h3>
+            <CopyCommand command={INSTALL_SH} label="one-line install" />
+          </div>
+        </div>
+        <p className={`${c.fine} ${s.rv}`}>
+          It isn&apos;t notarized. Homebrew and the one-line installer clear the quarantine flag for you.
+        </p>
+
+        <details className={`${s.help} ${s.rv}`}>
+          <summary>First launch from the disk image</summary>
+          <div className={s.helpBody}>
+            <p>
+              Move Refill to Applications and open it. macOS will block it once. Go to System Settings &rarr; Privacy
+              &amp; Security and click <b>Open Anyway</b>. If this release has no zip yet, use the disk image.
+            </p>
+            <p>Or clear the quarantine flag from Terminal:</p>
+            <CopyCommand command={XATTR} label="quarantine" />
+          </div>
+        </details>
       </div>
     </section>
   );

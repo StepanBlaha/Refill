@@ -1,0 +1,53 @@
+.wrap {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+.box {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s2);
+  min-width: 0;
+}
+.cmd {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  background: none;
+  padding: 8px var(--s2);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: all;
+  text-align: left;
+  align-self: center;
+}
+.btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  background: var(--raised);
+  border: 0;
+  border-radius: var(--r-s);
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.btn:hover {
+  background: #3a3a3c;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.wrap > p {
+  width: 100%;
+}

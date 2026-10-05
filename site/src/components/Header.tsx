@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Drip from "./Drip";
+import Arrow from "./Arrow";
 import { useScrollTo } from "./SmoothScroll";
 import { BASE } from "@/lib/site";
 import s from "./Header.module.css";
@@ -83,7 +84,7 @@ export default function Header() {
         </nav>
         <div className={s.right}>
           <a className={s.btn} href={href("#download")} onClick={onClick("#download")}>
-            Download
+            Download <Arrow />
           </a>
           <button
             ref={toggle}

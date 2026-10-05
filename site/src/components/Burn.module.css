@@ -1,17 +1,49 @@
-.burn {
-  margin: 0;
+.panel {
+  margin: clamp(40px, 6vw, 72px) 0 0;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--r-l);
-  padding: var(--s5);
+  padding: clamp(20px, 4vw, 48px);
+  transition: border-color 0.4s var(--ease);
 }
-.burn svg {
+.panel:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s4);
+  margin-bottom: var(--s6);
+}
+.stats span {
+  display: block;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.stats b {
+  display: block;
+  font-size: clamp(28px, 5vw, 64px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.stats em {
+  font-style: normal;
+}
+.warnStat b {
+  color: var(--warn);
+}
+.panel svg {
   display: block;
   width: 100%;
   height: auto;
 }
-.burn figcaption {
+.panel figcaption {
   color: var(--text-2);
-  font-size: 13px;
+  font-size: 15px;
   margin-top: var(--s4);
 }

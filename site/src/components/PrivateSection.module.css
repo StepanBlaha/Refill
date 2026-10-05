@@ -1,35 +1,65 @@
-.priv {
-  display: grid;
-  gap: var(--s3);
-  margin-top: var(--s7);
+.rv {
+  backface-visibility: hidden;
 }
-.item {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--r-l);
-  padding: var(--s5);
-}
-.item b {
-  font-size: 18px;
+.statement {
+  font-size: clamp(48px, 10vw, 136px);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
 }
-.item p {
+.statement span {
+  color: var(--accent);
+}
+.facts {
+  display: grid;
+  gap: var(--s6);
+  margin-top: clamp(48px, 7vw, 96px);
+}
+.fact {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s5);
+  transition: border-color 0.4s var(--ease);
+}
+.fact:hover {
+  border-color: var(--accent);
+}
+.fact svg {
+  display: block;
+  color: var(--accent);
+  margin-bottom: var(--s4);
+  transition: transform 0.4s var(--ease);
+}
+.fact:hover svg {
+  transform: translateY(-3px);
+}
+.fact h3 {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.fact p {
   color: var(--text-2);
-  font-size: 15px;
+  font-size: 17px;
   margin-top: var(--s2);
 }
 .more {
-  margin-top: var(--s6);
-  font-size: 15px;
+  margin-top: var(--s7);
+  font-size: 17px;
 }
-@media (min-width: 700px) {
-  .priv {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 44px;
 }
-@media (min-width: 1000px) {
-  .priv {
-    grid-template-columns: repeat(4, 1fr);
+.link:hover svg {
+  transform: translateX(2px);
+}
+.link svg {
+  transition: transform 0.3s var(--ease);
+}
+@media (min-width: 900px) {
+  .facts {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s7);
   }
 }

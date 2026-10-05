@@ -8,7 +8,7 @@
   border-bottom: 1px solid var(--line);
 }
 .inner {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   min-height: 56px;
   height: auto;
@@ -37,6 +37,15 @@
   font-size: 17px;
   letter-spacing: -0.02em;
   text-decoration: none;
+  min-height: 44px;
+}
+.brand:hover svg {
+  animation: hop 0.5s var(--ease);
+}
+@keyframes hop {
+  40% {
+    transform: translateY(-5px) rotate(-4deg);
+  }
 }
 .right {
   display: flex;
@@ -61,8 +70,9 @@
 .nav a {
   color: var(--text);
   text-decoration: none;
-  font-size: 17px;
+  font-size: 18px;
   padding: 14px 0;
+  min-height: 48px;
   border-bottom: 1px solid var(--line);
 }
 .nav a:last-child {
@@ -71,23 +81,33 @@
 .btn {
   background: var(--text);
   color: var(--bg);
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 15px;
   font-weight: 500;
-  padding: 6px 14px;
+  padding: 0 16px;
   border-radius: var(--r-m);
   text-decoration: none;
   white-space: nowrap;
-  transition: opacity 0.3s var(--ease);
+  transition: background 0.3s var(--ease), transform 0.3s var(--ease);
 }
 .btn:hover {
-  opacity: 0.85;
+  background: #d8d8da;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn:hover svg {
+  transform: translateX(2px);
 }
 .burger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: none;
   border: 0;
@@ -146,14 +166,34 @@
     border: 0;
   }
   .nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--text-2);
-    font-size: 14px;
+    font-size: 15px;
     padding: 0;
     border: 0;
     transition: color 0.3s var(--ease);
   }
+  .nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    height: 1.5px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease);
+  }
   .nav a:hover {
     color: var(--text);
+  }
+  .nav a:hover::after,
+  .nav a:focus-visible::after {
+    transform: scaleX(1);
   }
   .burger {
     display: none;

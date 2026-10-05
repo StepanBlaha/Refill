@@ -1,25 +1,53 @@
 .grid {
   display: grid;
-  gap: var(--s3);
-  margin-top: var(--s7);
+  gap: var(--s4);
+  margin-top: clamp(40px, 6vw, 72px);
 }
-.tile {
+.group {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--r-l);
   padding: var(--s5);
-  transition: background 0.4s var(--ease);
+  transition: border-color 0.4s var(--ease);
 }
-.tile:hover {
+.group:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+}
+.group h3 {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--s4);
+}
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.chip {
+  position: relative;
   background: var(--raised);
+  border-radius: var(--r-m);
+  padding: 12px var(--s4);
+  min-height: 48px;
+  transition: background 0.3s var(--ease), transform 0.3s var(--ease);
 }
-.tile h3 {
+.chip b {
+  display: block;
   font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
-.tile p {
+.sends {
+  display: block;
   color: var(--text-2);
   font-size: 15px;
-  margin-top: var(--s2);
+  line-height: 1.45;
+  margin-top: 2px;
 }
 .dots {
   display: flex;
@@ -40,13 +68,113 @@
 .dots i:nth-child(3) {
   background: var(--danger);
 }
-@media (min-width: 640px) {
+
+/* Marquee: clipped wrapper, so it never causes horizontal page scroll. */
+.marquee {
+  overflow: clip;
+  margin-top: clamp(56px, 8vw, 96px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.track {
+  display: flex;
+  width: max-content;
+  animation: scroll 48s linear infinite;
+}
+.marquee:hover .track {
+  animation-play-state: paused;
+}
+.words {
+  display: flex;
+  flex: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.words li {
+  padding: var(--s5) var(--s6);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: var(--text-3);
+  transition: color 0.3s var(--ease);
+}
+.words li:hover {
+  color: var(--text);
+}
+@keyframes scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+    width: auto;
+    justify-content: center;
+  }
+  .words {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .dupe {
+    display: none;
+  }
+}
+
+/* Hover-capable pointers: detail appears on hover or focus. Otherwise it is plain text. */
+@media (hover: hover) and (pointer: fine) and (min-width: 700px) {
+  .chip {
+    cursor: default;
+  }
+  .sends {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    padding: 10px var(--s4);
+    margin: 0;
+    background: #3a3a3c;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: var(--r-m);
+    color: var(--text);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0.3s;
+    pointer-events: none;
+  }
+  .chip:hover,
+  .chip:focus-visible {
+    background: #3a3a3c;
+    transform: translateY(-2px);
+    z-index: 4;
+  }
+  .chip:hover .sends,
+  .chip:focus-visible .sends {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+@media (min-width: 700px) {
   .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .wide {
+    grid-column: 1 / -1;
+  }
+  .wide .chips {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (min-width: 1000px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+  .wide .chips {
+    grid-template-columns: repeat(4, 1fr);
   }
 }

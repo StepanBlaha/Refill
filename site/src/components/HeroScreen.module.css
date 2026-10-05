@@ -1,0 +1,246 @@
+.stage {
+  max-width: 1120px;
+  margin: clamp(48px, 7vw, 88px) auto 0;
+  text-align: left;
+}
+.screen {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+  will-change: transform;
+}
+.menubar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  height: 36px;
+  padding: 0 var(--s4);
+  background: #000;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.menubar b {
+  font-weight: 600;
+}
+.dim {
+  color: var(--text-2);
+}
+.spacer {
+  flex: 1;
+}
+.tank {
+  width: 24px;
+  height: 13px;
+  border: 1.5px solid var(--text-3);
+  border-radius: 4px;
+  padding: 1px;
+  display: inline-block;
+}
+.tank i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+  transform-origin: left;
+}
+.pct {
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+}
+
+/* Notch: a fixed pill; the expanded shape scales in, content only fades. */
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 380px;
+  max-width: calc(100% - 24px);
+  height: 84px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+.shape {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 22px 22px;
+  will-change: transform;
+}
+.toast {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 0 var(--s5) 0 var(--s4);
+}
+.toast div {
+  display: grid;
+  min-width: 0;
+}
+.toast b {
+  font-size: 15px;
+  font-weight: 600;
+}
+.toast span {
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.desk {
+  display: grid;
+  gap: var(--s5);
+  padding: var(--s7) var(--s4) var(--s5);
+  justify-items: center;
+}
+.term {
+  display: none;
+  width: 100%;
+  min-height: 220px;
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  padding: var(--s3) var(--s4) var(--s4);
+}
+.tdots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--s4);
+}
+.tdots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+}
+.mono {
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.warnText {
+  color: var(--warn);
+}
+.okText {
+  color: var(--accent);
+}
+.caret {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  background: var(--text-2);
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.popover {
+  width: min(100%, 420px);
+  padding: var(--s5);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  display: grid;
+  gap: var(--s4);
+}
+.phead {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+.phead b {
+  display: block;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.say {
+  color: var(--text-2);
+  font-size: 16px;
+}
+.acct {
+  background: var(--panel);
+  border-radius: var(--r-m);
+  padding: var(--s4);
+}
+.arow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  font-size: 16px;
+  margin-bottom: var(--s3);
+}
+.arow em {
+  font-style: normal;
+  color: var(--text-3);
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+}
+.arow time {
+  color: var(--text-2);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.arow b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: 3.4ch;
+  text-align: right;
+}
+.track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.track i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0.72);
+}
+@media (max-width: 640px) {
+  .menubar {
+    gap: var(--s3);
+  }
+  .menubar .dim,
+  .menubar b {
+    display: none;
+  }
+  .notch {
+    width: 300px;
+  }
+  .toast {
+    padding-right: var(--s3);
+  }
+}
+@media (min-width: 800px) {
+  .desk {
+    grid-template-columns: 1fr 420px;
+    align-items: start;
+    gap: var(--s6);
+    padding: 72px var(--s6) var(--s6);
+  }
+  .term {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+}

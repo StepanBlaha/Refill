@@ -3,7 +3,7 @@
   padding: var(--s7) var(--s4);
 }
 .row {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   gap: var(--s5);
@@ -15,23 +15,53 @@
   font-weight: 600;
   letter-spacing: -0.02em;
   text-decoration: none;
+  min-height: 44px;
+}
+.brand:hover svg {
+  animation: hop 0.5s var(--ease);
+}
+@keyframes hop {
+  40% {
+    transform: translateY(-5px) rotate(-4deg);
+  }
 }
 .nav {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s2) var(--s5);
+  gap: 0 var(--s5);
 }
 .nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--text-2);
   text-decoration: none;
-  font-size: 15px;
+  font-size: 16px;
+  transition: color 0.3s var(--ease);
+}
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 1.5px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease);
 }
 .nav a:hover {
   color: var(--text);
 }
+.nav a:hover::after,
+.nav a:focus-visible::after {
+  transform: scaleX(1);
+}
 .fine {
   color: var(--text-3);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   max-width: 60ch;
 }

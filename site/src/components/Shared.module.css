@@ -1,5 +1,5 @@
 .sec {
-  padding: var(--s9) var(--s4);
+  padding: clamp(96px, 14vw, 180px) var(--s4);
   position: relative;
 }
 .alt {
@@ -8,72 +8,84 @@
   border-bottom: 1px solid var(--line);
 }
 .wrap {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 .narrow {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto;
 }
-.split {
-  display: grid;
-  gap: var(--s7);
+.center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
 .eyebrow {
   color: var(--accent);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  margin-bottom: var(--s3);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--s4);
 }
 .h2 {
-  font-size: clamp(32px, 5.4vw, 56px);
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 600;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 1.02;
+  text-wrap: balance;
 }
 .sub {
   color: var(--text-2);
-  font-size: 18px;
+  font-size: clamp(17px, 1.6vw, 20px);
   line-height: 1.55;
-  margin-top: var(--s4);
+  margin-top: var(--s5);
   max-width: 56ch;
 }
 .fine {
   color: var(--text-3);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
 }
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--s2);
+  min-height: 48px;
   background: var(--text);
   color: var(--bg);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 500;
   padding: 12px 24px;
+  border: 0;
   border-radius: var(--r-m);
   text-decoration: none;
-  transition: opacity 0.3s var(--ease), background 0.3s var(--ease);
+  transition: background 0.3s var(--ease), transform 0.3s var(--ease);
 }
 .btn:hover {
-  opacity: 0.86;
+  background: #d8d8da;
+}
+.btn:active {
+  transform: scale(0.98);
 }
 .ghost {
   background: var(--raised);
   color: var(--text);
 }
 .ghost:hover {
-  opacity: 1;
   background: #3a3a3c;
 }
-@media (min-width: 900px) {
-  .sec {
-    padding: 128px var(--s5);
-  }
-  .split {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--s8);
+.arrow {
+  flex: none;
+  transition: transform 0.3s var(--ease);
+}
+.btn:hover .arrow {
+  transform: translateX(2px);
+}
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
   }
 }
