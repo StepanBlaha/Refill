@@ -9,10 +9,24 @@ Release notes are generated from the version section below. `scripts/release.sh`
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-05
+
 ### New
 
+- Setup guides for every integration and feature: ntfy, Pushover, Telegram, Discord, Slack, Home Assistant (with a ready-to-paste automation), Philips Hue, WLED, custom webhooks, the hook script, Shortcuts, the dashboard, widgets, quiet hours, extra Claude accounts, Copilot, Cursor and Gemini. Online at <https://stepanblaha.github.io/Refill/guides/> and in `docs/GUIDES.md`.
+- Every integration in Settings has a **Setup guide** button that opens its section of the guide. Settings → Accounts links to the account guide.
 - Three ways to install without notarization. Homebrew: `brew install --cask stepanblaha/tap/refill`. One line: `curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash`. By hand: `Refill.zip` or `Refill.dmg`, then **System Settings → Privacy & Security → Open Anyway**, or `xattr -dr com.apple.quarantine /Applications/Refill.app`.
 - Each release uploads `Refill.zip` (a ditto archive of the app, ad-hoc signed with `codesign --sign -` when nothing has signed it yet) next to `Refill.dmg`, and a `.sha256` for each. The installer checks that checksum before it replaces `/Applications/Refill.app`.
+
+### Improved
+
+- The landing page is redesigned: a live hero, a bento grid of sources, a pinned scroll story for signals, grouped integrations, a drawn burn-rate chart, an accordion FAQ and copy buttons for every install command. Page backgrounds are black throughout.
+- The mobile menu slides open, blurs the page behind it and closes when you tap outside.
+
+### Fixed
+
+- The dashboard **Port** field is back in Settings → General → Dashboard.
+- Copy buttons on the site always confirm, or explain the failure, instead of staying silent when the browser blocks the clipboard.
 
 ## [0.1.1] - 2026-10-04
 
