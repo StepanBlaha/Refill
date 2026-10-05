@@ -13,6 +13,7 @@ export default function Footer() {
           <span>Refill</span>
         </Link>
         <nav aria-label="Footer" className={s.nav}>
+          <Link href="/guides/">Guides</Link>
           <Link href="/privacy/">Privacy</Link>
           <Link href="/terms/">Terms</Link>
           <Link href="/acknowledgements/">Acknowledgements</Link>

@@ -22,6 +22,7 @@ Requires macOS 14 (Sonoma) or newer. MIT License. Made by Stepan Blaha. Independ
 ## Pages
 
 - [Home](https://stepanblaha.github.io/Refill/): overview, features, FAQ, download
+- [Setup guides](https://stepanblaha.github.io/Refill/guides/): step-by-step setup for accounts, ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Hue, WLED, webhooks, hook, Shortcuts, dashboard, widgets
 - [Privacy](https://stepanblaha.github.io/Refill/privacy/): what Refill reads, stores and sends
 - [Terms of Use](https://stepanblaha.github.io/Refill/terms/): provided as-is, undocumented endpoints
 - [Third-Party Notices](https://stepanblaha.github.io/Refill/notice/): trademarks and non-affiliation

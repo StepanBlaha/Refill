@@ -65,6 +65,8 @@ scripts/add-claude-account.sh work   # CLAUDE_CONFIG_DIR=~/.claude-work claude â
 
 ## Signals
 
+Step-by-step setup for every account and integration: [Setup guides](https://stepanblaha.github.io/Refill/guides/) or [docs/GUIDES.md](docs/GUIDES.md).
+
 Each event (`reset`, `warning`, `empty`, `test`) carries a title and a message in Drip's voice, plus a color (green, orange, red).
 
 | Sink | Details |

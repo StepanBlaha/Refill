@@ -1,0 +1,201 @@
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--s8) var(--s4) var(--s9);
+}
+.head h1 {
+  font-size: clamp(32px, 6vw, 48px);
+  letter-spacing: -0.03em;
+}
+.head p {
+  color: var(--text-2);
+  margin: var(--s3) 0 var(--s6);
+  max-width: 56ch;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s6);
+}
+/* Mobile: the table of contents is a plain list above the guides. */
+.toc {
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  background: var(--panel);
+  padding: var(--s4);
+  display: grid;
+  gap: var(--s4);
+}
+.toc ul {
+  list-style: none;
+  margin: var(--s1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s4);
+}
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+  display: inline-block;
+  padding: var(--s1) 0;
+}
+.toc a:hover {
+  color: var(--accent);
+}
+.tocHead {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.body {
+  min-width: 0;
+}
+.sec {
+  scroll-margin-top: 88px;
+  padding-top: var(--s7);
+  border-top: 1px solid var(--line);
+  margin-top: var(--s7);
+}
+.sec:first-child {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+.sec h2 {
+  font-size: clamp(26px, 4vw, 34px);
+  letter-spacing: -0.02em;
+}
+.sec h3 {
+  font-size: 18px;
+  margin: var(--s6) 0 var(--s2);
+}
+.sec p,
+.sec li {
+  color: rgba(255, 255, 255, 0.82);
+  overflow-wrap: anywhere;
+}
+.sec p {
+  margin: var(--s3) 0 0;
+}
+.sec ol,
+.sec ul {
+  margin: var(--s3) 0 0;
+  padding-left: var(--s5);
+}
+.sec li {
+  margin-top: var(--s2);
+}
+.sec strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.sec a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+.sec code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--raised);
+  border-radius: var(--r-s);
+  padding: 1px 6px;
+}
+.lead {
+  font-size: 19px;
+}
+.tableWrap {
+  overflow-x: auto;
+  margin-top: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+}
+.tableWrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  min-width: 520px;
+}
+.tableWrap th,
+.tableWrap td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+.tableWrap th {
+  color: var(--text-2);
+  font-weight: 500;
+  background: var(--panel);
+}
+.tableWrap tr:last-child td {
+  border-bottom: 0;
+}
+.fig {
+  margin: var(--s4) 0 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--bg);
+  min-width: 0;
+}
+.fig figcaption {
+  padding: var(--s2) var(--s4);
+  border-bottom: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.fig pre {
+  margin: 0;
+  padding: var(--s4);
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.sec .fig code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+.sec .up {
+  display: inline-block;
+  margin-top: var(--s5);
+  color: var(--text-2);
+  font-size: 14px;
+  text-decoration: none;
+}
+.sec .up:hover {
+  color: var(--text);
+}
+@media (min-width: 960px) {
+  .layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--s7);
+    align-items: start;
+  }
+  .toc {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 112px);
+    overflow-y: auto;
+    border: 0;
+    background: none;
+    padding: 0;
+  }
+  .toc ul {
+    flex-direction: column;
+    gap: 0;
+  }
+  .toc a {
+    font-size: 14px;
+    color: var(--text-2);
+  }
+}
+@media (max-width: 640px) {
+  .page { padding: var(--s7) var(--s4) var(--s8); }
+  .fig pre { font-size: 12.5px; }
+}
