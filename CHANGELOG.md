@@ -9,6 +9,17 @@ Release notes are generated from the version section below. `scripts/release.sh`
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-05
+
+### Improved
+
+- Switches in Settings and onboarding are Refill's own green switch, so they read clearly as on or off in every window, focused or not.
+- Copilot, Cursor and Gemini descriptions in Settings → Accounts are plain sentences instead of file paths.
+
+### Fixed
+
+- Marketing screenshots are rendered from the real app instead of HTML stand-ins.
+
 ## [0.2.0] - 2026-10-05
 
 ### New
