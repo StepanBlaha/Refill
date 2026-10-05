@@ -2,8 +2,9 @@
   padding: clamp(96px, 14vw, 180px) var(--s4);
   position: relative;
 }
+/* Page background is always black; only elements (cards, panels) are gray. */
 .alt {
-  background: var(--panel);
+  background: var(--bg);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
