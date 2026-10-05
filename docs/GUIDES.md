@@ -732,11 +732,7 @@ The page is read-only and has no password. Anyone on the same Wi-Fi can open it 
 
 ### Change the port
 
-The default is 7788. There is no field for it in Settings. Set it, then quit and reopen Refill.
-
-```bash
-defaults write cz.stepanblaha.refill port -int 7790
-```
+The default is 7788. Change it in **Settings → General → Dashboard → Port** and press Return; the dashboard restarts on the new port.
 
 ### JSON endpoints
 

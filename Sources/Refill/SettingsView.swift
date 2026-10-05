@@ -126,6 +126,11 @@ struct GeneralTab: View {
                 Button("Open") { NSWorkspace.shared.open(URL(string: "http://127.0.0.1:\(port)")!) }.buttonStyle(DarkButton())
             }
             RowDivider()
+            Row(title: "Port") {
+                TextField("7788", value: $port, format: .number.grouping(.never)).textFieldStyle(DarkField()).frame(width: 80)
+                    .onSubmit { if (1024...65535).contains(port) { monitor.restartServer() } else { port = 7788 } }
+            }
+            RowDivider()
             ToggleRow(title: "Visible on Wi-Fi", subtitle: "Open it from your phone", isOn: $lan)
                 .onChange(of: lan) { _, _ in monitor.restartServer() }
         }
