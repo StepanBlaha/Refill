@@ -83,7 +83,7 @@ struct DoneStep: View {
         StepFrame(mood: .party, title: "All topped up",
                   line: "I live in your menu bar now. Look for the little tank.") {
             Toggle("Launch Refill at login", isOn: Binding(get: { login }, set: { login = $0; LoginItem.set($0); login = LoginItem.isOn }))
-                .toggleStyle(.switch).tint(Theme.lime).font(Theme.rounded(14, .medium)).frame(width: 240)
+                .toggleStyle(RefillSwitch()).tint(Theme.lime).font(Theme.rounded(14, .medium)).frame(width: 240)
         }
     }
 }

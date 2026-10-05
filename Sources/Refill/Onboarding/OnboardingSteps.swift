@@ -108,7 +108,7 @@ struct NotificationsStep: View {
                     OBPill(label: granted == false ? "Denied: enable in System Settings" : "Allow notifications",
                            symbol: "bell.fill", prominent: granted == nil, action: request)
                 }
-                Toggle("Play a sound", isOn: $sound).toggleStyle(.switch).tint(Theme.lime)
+                Toggle("Play a sound", isOn: $sound).toggleStyle(RefillSwitch()).tint(Theme.lime)
                     .font(Theme.rounded(13, .medium)).frame(width: 190)
             }
         }

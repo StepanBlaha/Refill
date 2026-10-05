@@ -116,7 +116,7 @@ struct SinkEditor: View {
                 Label("Setup guide", systemImage: "book").font(.system(size: 12, weight: .medium))
             }
             .buttonStyle(DarkButton())
-            Toggle("", isOn: $sink.enabled).labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.accent)
+            Toggle("", isOn: $sink.enabled).labelsHidden().toggleStyle(RefillSwitch())
         }
 
         Panel(title: "Connection") {

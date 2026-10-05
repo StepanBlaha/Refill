@@ -10,13 +10,13 @@ enum ExtraProviders {
 
     static let entries: [Entry] = [
         Entry(key: "provider.copilot", name: "GitHub Copilot",
-              source: "Reads: `gh auth token` or ~/.config/github-copilot/apps.json",
+              source: "Uses your GitHub CLI login (gh auth login)",
               installed: { CopilotProvider.isInstalled }, fetch: { await CopilotProvider.fetch() }),
         Entry(key: "provider.cursor", name: "Cursor",
-              source: "Reads: Cursor app login in Application Support/Cursor state.vscdb",
+              source: "Uses the Cursor app you are signed in to",
               installed: { CursorProvider.isInstalled }, fetch: { await CursorProvider.fetch() }),
         Entry(key: "provider.gemini", name: "Gemini CLI",
-              source: "Reads: ~/.gemini/oauth_creds.json",
+              source: "Uses your Gemini CLI login",
               installed: { GeminiProvider.isInstalled }, fetch: { await GeminiProvider.fetch() }),
     ]
 

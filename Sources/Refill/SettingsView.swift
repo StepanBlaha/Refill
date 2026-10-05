@@ -87,7 +87,7 @@ struct GeneralTab: View {
                 DarkMenu(items: sounds.map { ($0, $0) }, selection: $soundName)
                     .onChange(of: soundName) { _, n in NSSound(named: NSSound.Name(n))?.play() }
                     .opacity(sound ? 1 : 0.4)
-                Toggle("", isOn: $sound).labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.accent)
+                Toggle("", isOn: $sound).labelsHidden().toggleStyle(RefillSwitch())
             }
             RowDivider()
             ToggleRow(title: "Notch", subtitle: "Drip slides out of the notch on events", isOn: $notch)

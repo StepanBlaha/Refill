@@ -36,7 +36,9 @@ enum PreviewRender {
 
     /// AppKit snapshot so real controls (toggles, menus) draw, unlike ImageRenderer.
     static func snap(_ v: some View, _ size: NSSize, _ path: String) {
-        let host = NSHostingView(rootView: v.tint(Theme.accent).preferredColorScheme(.dark).background(Color.black))
+        // Render as the key window so switches/tints draw active (green), not inactive gray.
+        let host = NSHostingView(rootView: v.tint(Theme.accent).preferredColorScheme(.dark)
+            .environment(\.controlActiveState, .key).background(Color.black))
         host.appearance = NSAppearance(named: .darkAqua)
         let win = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless], backing: .buffered, defer: false)
         win.contentView = host

@@ -61,7 +61,7 @@ struct ToggleRow: View {
 
     var body: some View {
         Row(title: title, subtitle: subtitle) {
-            Toggle("", isOn: $isOn).labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.accent)
+            Toggle("", isOn: $isOn).labelsHidden().toggleStyle(RefillSwitch())
         }
     }
 }
@@ -153,5 +153,35 @@ struct DarkMenu<T: Hashable>: View {
             .contentShape(Rectangle())
         }
         .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+    }
+}
+
+/// Brand switch: green when on, drawn by us so it looks the same in every window state.
+struct RefillSwitch: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        // Label (if any) on the left, like the system switch; labelsHidden() still hides it.
+        HStack(spacing: Space.s) {
+            configuration.label
+            Spacer(minLength: 0)
+            knob(configuration)
+        }
+    }
+
+    private func knob(_ configuration: Configuration) -> some View {
+        Button { configuration.isOn.toggle() } label: {
+            ZStack(alignment: configuration.isOn ? .trailing : .leading) {
+                Capsule().fill(configuration.isOn ? Theme.accent : Color.white.opacity(0.18))
+                    .frame(width: 34, height: 20)
+                Circle().fill(Color.white).frame(width: 16, height: 16).padding(2)
+                    .shadow(color: .black.opacity(0.25), radius: 1, y: 1)
+            }
+            .animation(.spring(response: 0.25, dampingFraction: 1), value: configuration.isOn)
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement()
+        .accessibilityLabel(Text("Switch"))
+        .accessibilityValue(Text(configuration.isOn ? "On" : "Off"))
+        .accessibilityAddTraits(.isButton)
     }
 }
