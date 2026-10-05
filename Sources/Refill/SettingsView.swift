@@ -209,6 +209,10 @@ struct AccountsTab: View {
                     .buttonStyle(DarkButton(prominent: true)).disabled(newName.isEmpty)
             }
             if !status.isEmpty { RowDivider(); Row(title: status) { EmptyView() } }
+            RowDivider()
+            Row(title: "Step-by-step help") {
+                Button("Setup guide") { NSWorkspace.shared.open(Guides.url("accounts")) }.buttonStyle(DarkButton())
+            }
         }
 
         Panel(title: "Extra config folders", footer: "~/.claude and every ~/.claude-* folder are found automatically. One path per line.") {

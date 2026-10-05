@@ -58,6 +58,9 @@ enum SinkKind: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    /// Section of the online setup guide for this integration.
+    var guideURL: URL { Guides.url(rawValue.lowercased()) }
+
     var help: String {
         switch self {
         case .ntfy: return "Install the ntfy app (iOS/Android), subscribe to the same topic. Free, no account."

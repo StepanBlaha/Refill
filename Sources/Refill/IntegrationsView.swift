@@ -59,6 +59,8 @@ struct IntegrationsTab: View {
                     Text("Connect lights, your phone, anything").font(.system(size: 15, weight: .semibold))
                     Text("Phone: ntfy, Pushover or Telegram. Lights: Home Assistant, Hue or WLED. Or a custom webhook.")
                         .font(.system(size: 12)).foregroundStyle(Theme.muted).multilineTextAlignment(.center).frame(maxWidth: 300)
+                    Button("Read the setup guides") { NSWorkspace.shared.open(URL(string: Guides.base)!) }
+                        .buttonStyle(DarkButton())
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -110,6 +112,10 @@ struct SinkEditor: View {
                 }
             }
             Spacer()
+            Button { NSWorkspace.shared.open(sink.kind.guideURL) } label: {
+                Label("Setup guide", systemImage: "book").font(.system(size: 12, weight: .medium))
+            }
+            .buttonStyle(DarkButton())
             Toggle("", isOn: $sink.enabled).labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.accent)
         }
 
