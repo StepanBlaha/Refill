@@ -2,11 +2,11 @@
 
 Menu bar app for macOS that watches your AI subscription limits and signals the moment one resets.
 
-[**Download for macOS**](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg) · [Website](https://stepanblaha.github.io/Refill/) · [MIT](LICENSE)
+[**Download for macOS**](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg) · [Homebrew](#install) · [Website](https://stepanblaha.github.io/Refill/) · [MIT](LICENSE)
 
 ![Refill in the menu bar, with Drip and usage for Claude and Codex](branding/og-1200x630.png)
 
-> **First launch:** Refill isn't notarized by Apple, so macOS blocks it once. Open it, then go to **System Settings → Privacy & Security → Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/Refill.app`.
+> **Not notarized.** There is no Apple Developer license, so Gatekeeper stops a downloaded app once. Homebrew and the one-line installer clear that. The disk image needs **System Settings → Privacy & Security → Open Anyway**.
 
 Requires macOS 14 (Sonoma) or newer. Free. No Refill account. Refill is an independent app, not affiliated with Anthropic, OpenAI, GitHub, Cursor or Google.
 
@@ -18,9 +18,30 @@ A reset is **scheduled** when a known `resets_at` passes while usage was above z
 
 ## Install
 
-1. Download [Refill.dmg](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg) and drag Refill to Applications.
-2. Open it. If macOS says it can't verify the app, use **Open Anyway** as above.
-3. Log into Claude Code or Codex (or Copilot, Cursor, Gemini CLI). Refill finds the logins that are already on your Mac.
+macOS 14 (Sonoma) or newer. Settings in `~/.config/refill` are kept when you replace the app. Log into Claude Code or Codex (or Copilot, Cursor, Gemini CLI) and Refill finds the logins already on your Mac.
+
+### Homebrew
+
+```bash
+brew install --cask stepanblaha/tap/refill
+```
+
+The cask removes the quarantine flag after install. Update with `brew upgrade --cask refill`.
+
+### One line
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash
+```
+
+This downloads the latest `Refill.zip`, checks its sha256, replaces `/Applications/Refill.app`, clears quarantine and opens Refill. It asks for an administrator password only when `/Applications` isn't writable. Release 0.1.1 has no zip, so the script installs that disk image and checks the sha256 GitHub publishes for the file.
+
+### By hand
+
+1. Download [Refill.zip](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.zip) or [Refill.dmg](https://github.com/StepanBlaha/Refill/releases/latest/download/Refill.dmg). If this release has no zip yet, use the disk image. Move **Refill** to Applications.
+2. Open it. When macOS says it can't verify the app, go to **System Settings → Privacy & Security → Open Anyway**. Or run `xattr -dr com.apple.quarantine /Applications/Refill.app`.
+
+The zip is an ad-hoc signed app (`codesign --sign -`). Each release also uploads `Refill.zip.sha256` and `Refill.dmg.sha256`.
 
 Open at login is on by default the first time you launch from `/Applications`. Change it in Settings → General.
 
@@ -76,7 +97,7 @@ The provider usage endpoints are undocumented and can change or be restricted. R
 
 ```bash
 scripts/run-xcode.sh      # full app + widgets → /Applications/Refill.app (Xcode, team FW5CYB98R7)
-scripts/package.sh        # Release .dmg in build/ (set DEVELOPER_ID / NOTARY_PROFILE to sign + notarize)
+scripts/package.sh        # Release .dmg and .zip in build/ (set DEVELOPER_ID / NOTARY_PROFILE to sign + notarize)
 swift build && swift test # compile + unit tests (reset detection, parsing, integrations)
 Refill --render <dir>     # design snapshots: menu, moods, settings, history, accounts
 Refill --render-og <path> # 1200×630 social banner
@@ -89,12 +110,12 @@ Companion iPhone app: `cd Companion && xcodegen generate`, then open `RefillComp
 ## Releasing
 
 ```bash
-scripts/release.sh 0.2.0   # bump VERSION, tag v0.2.0, push → GitHub Actions builds and publishes the .dmg
+scripts/release.sh 0.2.0   # bump VERSION, tag v0.2.0, push → GitHub Actions publishes the .dmg, the .zip and checksums
 ```
 
 The app checks GitHub Releases once a day and shows "Update available" in the menu.
 
-`scripts/package.sh` can optionally Developer ID-sign and notarize (`DEVELOPER_ID`, `NOTARY_PROFILE`). Without that, the dmg is unsigned and the first-launch note above applies.
+`scripts/package.sh` can optionally Developer ID-sign and notarize (`DEVELOPER_ID`, `NOTARY_PROFILE`). Without that, the archives are ad-hoc signed (`codesign --sign -`) and the install note above applies.
 
 ## Project
 

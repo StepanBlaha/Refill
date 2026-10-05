@@ -40,12 +40,17 @@ jobs:
       - name: Release notes
         run: scripts/release-notes.sh "$VERSION" > build/notes.md
       - name: Homebrew cask
-        run: scripts/homebrew-cask.sh build/Refill.dmg
+        run: scripts/homebrew-cask.sh build/Refill.zip
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           name: Refill ${{ env.VERSION }}
           body_path: build/notes.md
-          # One asset. README links releases/latest/download/Refill.dmg.
-          # The versioned name was a byte-for-byte copy of this file.
-          files: build/Refill.dmg
+          # Stable names only, so latest/download/Refill.dmg and Refill.zip
+          # keep working. The .sha256 files are what scripts/install.sh checks.
+          # A versioned second copy of the same bytes is not uploaded.
+          files: |
+            build/Refill.dmg
+            build/Refill.dmg.sha256
+            build/Refill.zip
+            build/Refill.zip.sha256

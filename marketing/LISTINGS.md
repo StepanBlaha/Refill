@@ -116,18 +116,12 @@ Refill is a free, open-source macOS menu bar app that watches Claude, Codex, Cop
 
 ## 5. Homebrew
 
-The cask is not in the tap yet. After you publish a release, print it and paste it into https://github.com/StepanBlaha/homebrew-tap as `Casks/refill.rb`:
-
-```bash
-scripts/homebrew-cask.sh build/Refill.dmg
-```
-
-The release workflow prints the same text in the job log once the dmg exists. The URL is `https://github.com/StepanBlaha/Refill/releases/download/v#{version}/Refill.dmg`, which is the single asset the release uploads. `releases/latest/download/Refill.dmg` stays the README link.
-
-Once the cask is pushed to the tap, the install line is:
+`Casks/refill.rb` belongs in https://github.com/StepanBlaha/homebrew-tap. The stanza for 0.1.1 is in `AGENT_CONTEXT.md`. Install line, once that file is on `main` of the tap:
 
 ```bash
 brew install --cask stepanblaha/tap/refill
 ```
+
+0.1.1 published only `Refill.dmg`, so that cask points at the disk image. The next release also uploads `Refill.zip` and a `.sha256` for the zip and the disk image. After that release, point the cask at the zip. The release job prints the stanza (`scripts/homebrew-cask.sh build/Refill.zip`), or run it locally on the zip. The cask's `postflight` clears `com.apple.quarantine`. Brink's cask does not; it only has caveats.
 
 The official Homebrew cask list (`brew install --cask refill` with no tap) wants a notarized app and an app people already use. Submit there after notarization, not before.

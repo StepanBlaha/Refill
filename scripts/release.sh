@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Cut a release: scripts/release.sh 0.2.0
 # Bumps VERSION + project.yml, commits, tags v<version>, pushes. GitHub Actions builds
-# the .dmg and publishes the Release; the site's Download button picks it up automatically.
+# Refill.dmg, Refill.zip and a .sha256 for each, and publishes the Release.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 V="${1:?usage: scripts/release.sh <version>}"
@@ -9,7 +9,9 @@ V="${1:?usage: scripts/release.sh <version>}"
 swift test > /dev/null
 # Notes come from CHANGELOG.md (### New / Improved / Fixed). Fail before tagging if they're missing.
 scripts/release-notes.sh "$V" > /tmp/refill-notes.md
-if grep -qx "## [$V] - Unreleased" CHANGELOG.md; then
+# -F: the version brackets are literal. Without it, [0.1.1] is a character class
+# and the date stamp never matches.
+if grep -Fxq "## [$V] - Unreleased" CHANGELOG.md; then
   sed -i '' "s/^## \[$V\] - Unreleased$/## [$V] - $(date +%Y-%m-%d)/" CHANGELOG.md
 fi
 echo "$V" > VERSION
@@ -20,4 +22,4 @@ git push -q origin HEAD "v$V"
 echo "Pushed v$V. Watch it build: https://github.com/StepanBlaha/Refill/actions"
 echo "Release notes that will be published:"
 cat /tmp/refill-notes.md
-echo "After the dmg is built, the job log prints the Homebrew cask. Or locally: scripts/homebrew-cask.sh build/Refill.dmg"
+echo "After the zip is built, the job log prints the Homebrew cask. Or locally: scripts/homebrew-cask.sh build/Refill.zip"

@@ -64,7 +64,7 @@ Where Refill gets talked about, in one place: who it's for, which channels, a la
 | **X / Bluesky / Threads** | One image, the site link, then replies | Medium |
 | **LinkedIn and Instagram** | Personal network. Copy is in `PERSONAL-POSTS.md` | Medium |
 | **Awesome lists and directories** | Slow traffic. `LISTINGS.md` | Medium |
-| **Homebrew tap** | `brew install --cask stepanblaha/tap/refill` once the cask is added | Medium, after the release |
+| **Homebrew tap** | `brew install --cask stepanblaha/tap/refill` | Medium |
 
 Short video: `marketing/media/notch-reset.gif` and `marketing/social/reel.mp4` are in the repo as HTML stand-ins. Use them so a post is not blocked, and replace the GIF with a Mac recording (`scripts/capture-marketing.sh`) when you have one. The social card is still enough for day one.
 

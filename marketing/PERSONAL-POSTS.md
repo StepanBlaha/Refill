@@ -64,7 +64,7 @@ So I shipped Refill: a menu bar app that watches those limits and tells me when 
 ```
 
 ```
-5/ The part that took the longest was the notch on a real MacBook: a long message used to spill out of the pill. It measures the line and grows now.
+5/ The notch is a fixed pill under the camera housing. A long line truncates. It does not grow to fit the message.
 ```
 
 ```

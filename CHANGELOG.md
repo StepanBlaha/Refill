@@ -9,7 +9,12 @@ Release notes are generated from the version section below. `scripts/release.sh`
 
 ## [Unreleased]
 
-## [0.1.1] - Unreleased
+### New
+
+- Three ways to install without notarization. Homebrew: `brew install --cask stepanblaha/tap/refill`. One line: `curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash`. By hand: `Refill.zip` or `Refill.dmg`, then **System Settings → Privacy & Security → Open Anyway**, or `xattr -dr com.apple.quarantine /Applications/Refill.app`.
+- Each release uploads `Refill.zip` (a ditto archive of the app, ad-hoc signed with `codesign --sign -` when nothing has signed it yet) next to `Refill.dmg`, and a `.sha256` for each. The installer checks that checksum before it replaces `/Applications/Refill.app`.
+
+## [0.1.1] - 2026-10-04
 
 ### New
 
@@ -23,7 +28,6 @@ Release notes are generated from the version section below. `scripts/release.sh`
 
 ### Fixed
 
-- The notch banner on the top edge measures its message and grows, so a long Drip line, an account name or larger text stays inside the pill instead of being clipped.
 - The menu, the dashboard toast and the landing-page status pill wrap instead of overflowing.
 
 ## [0.1.0] - 2026-09-30

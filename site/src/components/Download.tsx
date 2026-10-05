@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Drip from "./Drip";
 import Status from "./Status";
-import { DMG, REPO, RELEASES_API } from "@/lib/site";
+import { BREW, DMG, INSTALL_SH, RELEASES_API, REPO, ZIP } from "@/lib/site";
 import { gsap, motionSafe } from "@/lib/gsap";
 import c from "./Shared.module.css";
 import s from "./Download.module.css";
@@ -50,21 +50,33 @@ export default function Download() {
         <Drip mood="party" size={96} />
         <h2 className={c.h2}>Get Refill.</h2>
         <p className={c.sub}>Lives in your menu bar. Costs nothing. Judges nobody.</p>
-        <div className={s.row}>
-          <a className={`${c.btn} ${s.lg}`} href={DMG}>Download for macOS</a>
-          <a className={`${c.btn} ${c.ghost} ${s.lg}`} href={REPO}>View on GitHub</a>
-        </div>
+        <p className={c.fine}>It isn&apos;t notarized. These three ways still install it.</p>
+        <ul className={s.ways}>
+          <li>
+            <h3>Homebrew</h3>
+            <code className={s.cmd}>{BREW}</code>
+          </li>
+          <li>
+            <h3>One line</h3>
+            <code className={s.cmd}>{INSTALL_SH}</code>
+          </li>
+          <li>
+            <h3>Download</h3>
+            <p>
+              <a href={ZIP}>Refill.zip</a> or <a href={DMG}>Refill.dmg</a>. If this release has no zip yet, use the
+              disk image. Move Refill to Applications. Open it, then go to System Settings &rarr; Privacy &amp;
+              Security and click <b>Open Anyway</b>. Or run{" "}
+              <code>xattr -dr com.apple.quarantine /Applications/Refill.app</code>.
+            </p>
+            <div className={s.row}>
+              <a className={`${c.btn} ${s.lg}`} href={DMG}>Download for macOS</a>
+              <a className={`${c.btn} ${c.ghost} ${s.lg}`} href={REPO}>View on GitHub</a>
+            </div>
+          </li>
+        </ul>
         <p className={c.fine}>
-          macOS 14+ &middot; free &amp; open source &middot; opens at login from Applications
+          Homebrew and the one-line installer clear the quarantine flag. macOS 14+ &middot; free &amp; open source
         </p>
-        <details className={c.fine}>
-          <summary>First launch: macOS says it can&apos;t verify the app</summary>
-          <p>
-            Refill is open source and not notarized by Apple. Open it once, then go to System Settings &rarr;
-            Privacy &amp; Security and click <b>Open Anyway</b>. Or run{" "}
-            <code>xattr -dr com.apple.quarantine /Applications/Refill.app</code> in Terminal.
-          </p>
-        </details>
         {version && <Status kind="success">Latest release: {version}</Status>}
         {failed && !version && (
           <Status kind="warning">Could not check the latest version. The download button still gets the newest release.</Status>

@@ -5,6 +5,10 @@ export const SITE_URL = "https://stepanblaha.github.io/Refill/";
 export const REPO = "https://github.com/StepanBlaha/Refill";
 export const ISSUES = `${REPO}/issues`;
 export const DMG = `${REPO}/releases/latest/download/Refill.dmg`;
+export const ZIP = `${REPO}/releases/latest/download/Refill.zip`;
+export const BREW = "brew install --cask stepanblaha/tap/refill";
+export const INSTALL_SH =
+  "curl -fsSL https://raw.githubusercontent.com/StepanBlaha/Refill/main/scripts/install.sh | bash";
 export const RELEASES_API = "https://api.github.com/repos/StepanBlaha/Refill/releases/latest";
 export const AUTHOR = { name: "Stepan Blaha", url: "https://github.com/StepanBlaha" };
 export const DISCLAIMER =
