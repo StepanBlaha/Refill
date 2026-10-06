@@ -106,14 +106,14 @@ final class CodexUsageTests: XCTestCase {
         let line = #"{"timestamp":"2026-09-24T09:58:56Z","type":"event_msg","payload":{"type":"token_count","info":null,"rate_limits":{"limit_id":"codex","plan_type":null,"primary":{"used_percent":31,"window_minutes":300,"resets_at":1790260549},"secondary":{"used_percent":5,"window_minutes":10080,"resets_at":1790847349}}}}"#
         let snap = try fetch(files: [("rollout-2026-09-24T09-58-56-owner.jsonl", line, now.addingTimeInterval(-12 * 86400))])
         let seen = parseISODate("2026-09-24T09:58:56Z")
+        let used = ["primary": 31.0, "secondary": 5.0]
         for key in ["primary", "secondary"] {
             let window = try XCTUnwrap(snap.windows.first { $0.key == key })
+            XCTAssertEqual(window.utilization, used[key]!, accuracy: 0.001)
             XCTAssertTrue(window.stale, key)
             XCTAssertNil(window.percentLeft, key)
             XCTAssertEqual(window.observedAt, seen)
         }
-        XCTAssertEqual(snap.windows.first { $0.key == "secondary" }?.utilization, 5, accuracy: 0.001)
-        XCTAssertEqual(snap.windows.first { $0.key == "primary" }?.utilization, 31, accuracy: 0.001)
         XCTAssertNil(snap.plan)
     }
 
