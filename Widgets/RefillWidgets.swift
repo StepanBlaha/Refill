@@ -128,7 +128,7 @@ struct MediumView: View {
                         if let w = a.fiveHour {
                             VStack(alignment: .leading, spacing: 3) {
                                 HStack(spacing: 4) {
-                                    Text(a.name).font(Theme.rounded(11, .semibold)).foregroundStyle(Theme.text)
+                                    Text(a.title).font(Theme.rounded(11, .semibold)).foregroundStyle(Theme.text)
                                         .lineLimit(1).frame(minWidth: 0, alignment: .leading)
                                     Spacer(minLength: 4)
                                     Text("\(Int(remaining(w).rounded()))% · \(refillsIn(w, from: e.date))")
@@ -157,7 +157,7 @@ struct LargeView: View {
                 }
                 ForEach(e.accounts.prefix(4)) { a in
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(a.name).font(Theme.rounded(13, .semibold)).foregroundStyle(Theme.text).lineLimit(1)
+                        Text(a.title).font(Theme.rounded(13, .semibold)).foregroundStyle(Theme.text).lineLimit(1)
                         ForEach(a.windows.prefix(2)) { w in
                             HStack(spacing: 8) {
                                 Text(w.label).font(Theme.rounded(10)).foregroundStyle(Theme.muted).frame(width: 64, alignment: .leading)

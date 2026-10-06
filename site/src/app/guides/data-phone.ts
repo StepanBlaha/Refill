@@ -24,7 +24,7 @@ export const phone: Section[] = [
       { t: "h", x: "Send a test" },
       { t: "p", x: test },
       { t: "h", x: "What Refill sends" },
-      { t: "p", x: "A JSON `POST` to the server root. Priority is 4 for a reset and 3 for everything else. Tags are `zap`, `warning`, `battery` or `droplet` (test)." },
+      { t: "p", x: "A JSON `POST` to the server root for tests, warnings and empty tanks, and for a reset when the Mac is awake. Priority is 4 for a reset and 3 for everything else. Tags are `zap`, `warning`, `battery` or `droplet` (test)." },
       { t: "code", title: "POST https://ntfy.sh", x: `{
   "message": "If you see this, the pipes work. Drip approves.",
   "priority": 3,
@@ -32,6 +32,14 @@ export const phone: Section[] = [
   "title": "Testing, testing",
   "topic": "refill-1a2b3c4d"
 }` },
+      { t: "h", x: "Resets while the Mac sleeps or is off" },
+      { t: "p", x: "With ntfy enabled and **Send on → Refill** on, Refill also posts a delayed message for each window that has been used and has a reset time. ntfy holds it and delivers it about 30 seconds after the reset, using the `At` header, even if the Mac is asleep or powered off. The message id is stable for that account and window (`refill-` plus a short hash of the account id and window). Publishing the same id again replaces the pending push, so a changed reset time does not leave a duplicate. Cancelling deletes that id." },
+      { t: "p", x: "The access token stays in `~/.config/refill/integrations.json` on the Mac. Refill's note of what it scheduled is `~/.config/refill/ntfy-schedule.json` (mode 0600) and contains no token. The delayed body is the account's display name and the window, for example `Work: 5h session is full again.` The title is `Refilled`." },
+      { t: "p", x: "ntfy.sh accepts a delay from 10 seconds up to 3 days. A weekly reset further out is scheduled once the Mac is awake inside that window. A limit that starts while the Mac is off is scheduled the next time Refill sees it." },
+      { t: "p", x: "If the Mac is awake at the reset, Refill sends the normal ntfy message immediately and deletes the delayed one, so you get one push. If the Mac slept through delivery, the delayed push already went out, and the alert after wake does not send a second ntfy message. The local notification on wake still appears." },
+      { t: "p", x: "If **Also mute phone and chat pushes** is on and the delivery hour falls inside quiet hours, that reset is not scheduled." },
+      { t: "p", x: "An external script that posted the same ids is no longer needed. If you installed the LaunchAgent `local.refill.ntfy-schedule`, remove it so it does not publish a second copy:" },
+      { t: "code", copy: true, x: "launchctl bootout gui/$(id -u)/local.refill.ntfy-schedule\nrm -f ~/Library/LaunchAgents/local.refill.ntfy-schedule.plist" },
       { t: "h", x: "If it fails" },
       { t: "ul", x: [
         "`HTTP 403`: the topic is protected. Add an access token.",

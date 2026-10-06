@@ -57,11 +57,11 @@ final class HistoryStore: ObservableObject {
         var fresh: [HistorySample] = []
         for a in accounts where a.error == nil {
             for w in a.windows {
-                let s = HistorySample(t: now, accountId: a.id, accountName: a.name, provider: a.provider,
+                let s = HistorySample(t: now, accountId: a.id, accountName: a.title, provider: a.provider,
                                       windowKey: w.key, windowLabel: w.label, utilization: w.utilization,
                                       resetsAt: w.resetsAt)
                 if let l = lastByKey[Self.key(s)], l.utilization == s.utilization, l.resetsAt == s.resetsAt,
-                   now.timeIntervalSince(l.t) < 15 * 60 { continue }
+                   l.accountName == s.accountName, now.timeIntervalSince(l.t) < 15 * 60 { continue }
                 fresh.append(s); lastByKey[Self.key(s)] = s
             }
         }

@@ -1,5 +1,20 @@
 import Foundation
 
+/// One Gemini CLI config directory (the folder that contains `oauth_creds.json`).
+/// The default `~/.gemini` keeps the id `gemini:default`.
+struct GeminiProfile: Equatable {
+    var credsDir: String
+    var isDefault: Bool
+    var fromEnv: Bool
+    var userListed: Bool
+
+    var id: String { isDefault ? "gemini:default" : "gemini:" + credsDir }
+    var fallbackName: String {
+        isDefault ? "Gemini" : "Gemini · " + (credsDir as NSString).lastPathComponent
+    }
+    var credsFile: String { (credsDir as NSString).appendingPathComponent("oauth_creds.json") }
+}
+
 /// Gemini CLI quota through Code Assist (cloudcode-pa). Uses ~/.gemini/oauth_creds.json;
 /// refreshes in memory when expired (never written back). The OAuth client id/secret
 /// are the public gemini-cli ones, discovered at runtime from the installed CLI
@@ -9,11 +24,118 @@ enum GeminiProvider {
     static let creds = Paths.home.appendingPathComponent(".gemini/oauth_creds.json")
     static let base = "https://cloudcode-pa.googleapis.com/v1internal"
 
-    static var isInstalled: Bool { ProviderSupport.exists(creds.path) }
+    /// `GEMINI_CLI_HOME` replaces the home directory. Creds land in `<home>/.gemini/`.
+    /// A folder that already contains `oauth_creds.json` is used as-is.
+    static func resolveCredsDir(candidate: String, files: Set<String>, dirs: Set<String>, preferNested: Bool) -> String {
+        let nested = (candidate as NSString).appendingPathComponent(".gemini")
+        let nestedFile = (nested as NSString).appendingPathComponent("oauth_creds.json")
+        let directFile = (candidate as NSString).appendingPathComponent("oauth_creds.json")
+        if files.contains(nestedFile) { return nested }
+        if files.contains(directFile) { return candidate }
+        if preferNested || dirs.contains(nested) { return nested }
+        return candidate
+    }
+
+    static func discover(home: String, cliHomeEnv: String?, extraDirs: [String], directoryNames: [String],
+                         accountHomes: [String], files: Set<String>, dirs: Set<String>) -> [GeminiProfile] {
+        let defaultDir = CodexProvider.normalize(path: home + "/.gemini", home: home)
+        var byDir: [String: GeminiProfile] = [:]
+        func add(raw: String, fromEnv: Bool, userListed: Bool, preferNested: Bool) {
+            let candidate = CodexProvider.normalize(path: raw, home: home)
+            guard !candidate.isEmpty else { return }
+            let dir = resolveCredsDir(candidate: candidate, files: files, dirs: dirs, preferNested: preferNested)
+            let isDefault = dir == defaultDir
+            if var existing = byDir[dir] {
+                existing.fromEnv = existing.fromEnv || fromEnv
+                existing.userListed = existing.userListed || userListed
+                if isDefault { existing.isDefault = true }
+                byDir[dir] = existing
+                return
+            }
+            byDir[dir] = GeminiProfile(credsDir: dir, isDefault: isDefault, fromEnv: fromEnv, userListed: userListed)
+        }
+        if dirs.contains(defaultDir) || files.contains((defaultDir as NSString).appendingPathComponent("oauth_creds.json")) {
+            add(raw: defaultDir, fromEnv: false, userListed: false, preferNested: false)
+        }
+        if let env = cliHomeEnv?.trimmingCharacters(in: .whitespacesAndNewlines), !env.isEmpty {
+            add(raw: env, fromEnv: true, userListed: false, preferNested: true)
+        }
+        for name in directoryNames where name.hasPrefix(".gemini-") || name.hasPrefix(".gemini_") {
+            add(raw: home + "/" + name, fromEnv: false, userListed: false, preferNested: false)
+        }
+        for homePath in accountHomes {
+            add(raw: homePath, fromEnv: false, userListed: true, preferNested: true)
+        }
+        for extra in extraDirs {
+            add(raw: extra, fromEnv: false, userListed: true, preferNested: false)
+        }
+        let rest = byDir.values.filter { !$0.isDefault }.sorted { $0.credsDir < $1.credsDir }
+        if let def = byDir.values.first(where: \.isDefault) { return [def] + rest }
+        return rest
+    }
+
+    static func profiles(extraDirs: [String]) -> [GeminiProfile] {
+        let fm = FileManager.default
+        let home = Paths.home.path
+        let names = (try? fm.contentsOfDirectory(atPath: home)) ?? []
+        let root = home + "/.gemini-accounts"
+        let accountHomes = ((try? fm.contentsOfDirectory(atPath: root)) ?? [])
+            .filter { !$0.hasPrefix(".") }
+            .map { root + "/" + $0 }
+        var files = Set<String>()
+        var dirs = Set<String>()
+        func consider(_ path: String) {
+            var isDir: ObjCBool = false
+            guard fm.fileExists(atPath: path, isDirectory: &isDir) else { return }
+            if isDir.boolValue { dirs.insert(CodexProvider.normalize(path: path, home: home)) }
+            else { files.insert(CodexProvider.normalize(path: path, home: home)) }
+        }
+        let candidates = [home + "/.gemini"] + names.filter { $0.hasPrefix(".gemini-") || $0.hasPrefix(".gemini_") }.map { home + "/" + $0 }
+        var raws = candidates + accountHomes + extraDirs.map { CodexProvider.normalize(path: $0, home: home) }
+        if let env = ProcessInfo.processInfo.environment["GEMINI_CLI_HOME"] { raws.append(env) }
+        for raw in raws {
+            let p = CodexProvider.normalize(path: raw, home: home)
+            consider(p)
+            consider((p as NSString).appendingPathComponent("oauth_creds.json"))
+            consider((p as NSString).appendingPathComponent(".gemini"))
+            consider((p as NSString).appendingPathComponent(".gemini/oauth_creds.json"))
+        }
+        return discover(home: home, cliHomeEnv: ProcessInfo.processInfo.environment["GEMINI_CLI_HOME"],
+                        extraDirs: extraDirs, directoryNames: names, accountHomes: accountHomes,
+                        files: files, dirs: dirs)
+    }
+
+    static var isInstalled: Bool { !profiles(extraDirs: Prefs.lines(UserDefaults.standard, Prefs.K.extraGemini)).isEmpty }
+
+    static func fetchAll() async -> [AccountSnapshot] {
+        let hidden = Set(UserDefaults.standard.stringArray(forKey: "hiddenAccounts") ?? [])
+        let extras = Prefs.lines(UserDefaults.standard, Prefs.K.extraGemini)
+        let visible = profiles(extraDirs: extras).filter { !hidden.contains($0.id) }
+        return await withTaskGroup(of: (Int, AccountSnapshot?).self) { group in
+            for (i, p) in visible.enumerated() {
+                group.addTask {
+                    let s = await GeminiProvider.fetch(p)
+                    if !p.isDefault, !p.userListed, !p.fromEnv, s.windows.isEmpty, s.error != nil { return (i, nil) }
+                    return (i, s)
+                }
+            }
+            var out: [(Int, AccountSnapshot)] = []
+            for await (i, snap) in group {
+                if let snap { out.append((i, snap)) }
+            }
+            return out.sorted { $0.0 < $1.0 }.map(\.1)
+        }
+    }
 
     static func fetch() async -> AccountSnapshot {
-        func fail(_ m: String) -> AccountSnapshot { ProviderSupport.failed(id: id, provider: "gemini", name: "Gemini", m) }
-        guard let d = try? Data(contentsOf: creds), let c = ProviderSupport.json(d) else { return fail("No Gemini CLI login") }
+        await fetchAll().first ?? ProviderSupport.failed(id: id, provider: "gemini", name: "Gemini", "No Gemini CLI login")
+    }
+
+    static func fetch(_ p: GeminiProfile) async -> AccountSnapshot {
+        func fail(_ m: String) -> AccountSnapshot {
+            ProviderSupport.failed(id: p.id, provider: "gemini", name: p.fallbackName, m)
+        }
+        guard let d = try? Data(contentsOf: URL(fileURLWithPath: p.credsFile)), let c = ProviderSupport.json(d) else { return fail("No Gemini CLI login") }
         var access = c["access_token"] as? String
         let expiry = (ProviderSupport.num(c["expiry_date"])).map { Date(timeIntervalSince1970: $0 / 1000) }
         let email = (c["id_token"] as? String).flatMap { ProviderSupport.jwtPayload($0)?["email"] as? String }
@@ -31,7 +153,7 @@ enum GeminiProvider {
             guard let quota = try await post("retrieveUserQuota", token: token, body: body) else {
                 return fail("Quota request failed")
             }
-            guard var snap = parseQuota(quota) else { return fail("Unexpected response") }
+            guard var snap = parseQuota(quota, id: p.id, name: p.fallbackName) else { return fail("Unexpected response") }
             snap.email = email
             snap.plan = info?.plan
             return snap
@@ -129,7 +251,7 @@ enum GeminiProvider {
         return nil
     }
 
-    static func parseQuota(_ data: Data, now: Date = Date()) -> AccountSnapshot? {
+    static func parseQuota(_ data: Data, now: Date = Date(), id: String = GeminiProvider.id, name: String = "Gemini") -> AccountSnapshot? {
         guard let j = ProviderSupport.json(data), let buckets = j["buckets"] as? [[String: Any]] else { return nil }
         // Most-used bucket per family wins.
         var best: [String: (label: String, used: Double, reset: Date?)] = [:]
@@ -143,7 +265,7 @@ enum GeminiProvider {
         }
         let order = ["pro", "flash", "flash_lite"]
         let windows = order.compactMap { k in best[k].map { UsageWindow(key: k, label: $0.label, utilization: $0.used, resetsAt: $0.reset) } }
-        var snap = AccountSnapshot(id: id, provider: "gemini", name: "Gemini", email: nil, plan: nil, windows: windows, updatedAt: now)
+        var snap = AccountSnapshot(id: id, provider: "gemini", name: name, email: nil, plan: nil, windows: windows, updatedAt: now)
         if windows.isEmpty { snap.error = "No quota buckets" }
         return snap
     }

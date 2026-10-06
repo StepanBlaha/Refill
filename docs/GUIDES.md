@@ -4,7 +4,7 @@ Step-by-step setup for everything in Refill that needs configuring. The same gui
 
 ## Contents
 
-**Sources:** [Claude and Codex accounts](#accounts), [GitHub Copilot](#copilot), [Cursor](#cursor), [Gemini CLI](#gemini)
+**Sources:** [Accounts](#accounts), [GitHub Copilot](#copilot), [Cursor](#cursor), [Gemini CLI](#gemini)
 
 **Phone and chat:** [ntfy](#ntfy), [Pushover](#pushover), [Telegram](#telegram), [Discord](#discord), [Slack](#slack)
 
@@ -16,14 +16,15 @@ Step-by-step setup for everything in Refill that needs configuring. The same gui
 
 <a id="accounts"></a>
 
-## Claude and Codex accounts
+## Accounts
 
-**What you get.** Refill finds the Claude Code and Codex logins already on your Mac, and you can add more.
+**What you get.** Refill finds the Claude Code, Codex, Copilot and Gemini logins already on your Mac, and you can add more. Cursor stays one login. You can rename any of them.
 
 ### What Refill finds on its own
 
-- Claude Code: the default `~/.claude` and every `~/.claude-*` folder. Each folder is one login.
-- Codex CLI: `~/.codex/sessions`, read offline. It updates when you use Codex. Turn it off under **Settings → Accounts → Other tools**.
+- Claude Code: the default `~/.claude` and every `~/.claude-*` and `~/.claude_*` folder. Each folder is one login.
+- Codex CLI: `~/.codex` (this keeps the account id `codex:default`), the folder in `CODEX_HOME` when that is different, and every `~/.codex-*` and `~/.codex_*` folder. Read offline from each home's `sessions` logs. It updates when you use that home. Turn every Codex home off with **Settings → Accounts → Codex CLI**.
+- The Copilot, Cursor and Gemini sections below cover those tools.
 
 ### Add a second Claude account
 
@@ -43,31 +44,52 @@ To use that account later, run Claude Code with its folder:
 alias claude-work='CLAUDE_CONFIG_DIR=$HOME/.claude-work claude'
 ```
 
-### Folders outside ~/.claude-*
+### Add a second Codex account
 
-Put one path per line in **Settings → Accounts → Extra config folders**.
+1. Under **Codex CLI**, type a name such as `work`, then click **Add**.
+2. Terminal opens with `CODEX_HOME` set to `~/.codex-work`, runs `codex login`, then starts Codex once so a session log exists.
+3. Quit Codex, close the window, and click **Refresh**.
+
+```bash
+scripts/add-codex-account.sh work
+```
+
+```bash
+alias codex-work='CODEX_HOME=$HOME/.codex-work codex'
+```
+
+The default `~/.codex` stays `codex:default` even when `CODEX_HOME` points at it, so history and hidden accounts from older Refill builds still match. A `~/.codex-*` folder with no sessions is hidden until you log in, unless you list it under **Extra Codex folders**. The Add button writes that path for you.
+
+### Folders outside the automatic names
+
+Put one path per line in **Extra Claude folders**, **Extra Codex folders**, or **Extra Gemini folders**. `~` is fine.
+
+### Rename an account
+
+Click **⋯** next to an account (or right-click it) and choose **Rename…**. The name is stored for that account id and shown in the menu, the notch, the dashboard, widgets, history and notifications. Leave it blank and save to go back to the email, then the folder name.
 
 ### Hide, show or remove an account
 
-- Click **⋯** next to an account (or right-click it) and choose **Hide from Refill**. Hidden accounts are not checked and never alert. Bring one back under **Hidden → Show**.
-- **Move profile to Trash…** is for extra Claude profiles only. It signs that profile out on this Mac and can be undone from the Trash. The default `~/.claude` is never offered.
+- **Hide from Refill** skips that account. It is not checked and never alerts. This works for Claude, Codex, Copilot, Gemini and Cursor. Bring one back under **Hidden → Show**. There is no separate mute: hide is how you silence one account.
+- **Move profile to Trash…** is offered for extra Claude, Codex and Gemini profile folders. It signs that profile out on this Mac and can be undone from the Trash. The default `~/.claude`, `~/.codex` and `~/.gemini` are never offered. Copilot and Cursor have no profile folder to trash.
 
 ### If it fails
 
-- `Not signed in. Run claude and type /login.`: that profile has no login. Do step 2 above.
+- `Not signed in. Run claude and type /login.`: that profile has no login. Do the Claude steps above.
 - `Login expired. Run claude once to renew it.`: run Claude Code once in that profile. Or turn on **Settings → Accounts → Renew expired logins** so Refill renews it. Leave it off if Claude Code runs all day.
 - `Rate limited. Next try at …`: Refill pauses that account after an HTTP 429 and retries by itself.
+- `No Codex sessions yet`: use that Codex home once. Numbers update only when Codex writes a session log.
 
 <a id="copilot"></a>
 
 ## GitHub Copilot
 
-**What you get.** Monthly premium-request and chat quota for your Copilot seat.
+**What you get.** Monthly premium-request and chat quota for every GitHub login that has a Copilot seat.
 
 ### Steps
 
-1. Install the GitHub CLI and sign in with the account that has Copilot.
-2. Refill reads the token with `gh auth token`. If `gh` is missing, it falls back to the editor login in `~/.config/github-copilot`.
+1. Install the GitHub CLI and sign in with each account that has Copilot. `gh auth login` adds another login. `gh auth status` lists them.
+2. Refill reads each `github.com` login with `gh auth token --user <login>`. The first login it tracks stays `copilot:default`, so switching the active `gh` user does not reshuffle history. Other logins are `copilot:<login>`.
 3. Check **Settings → Accounts → More providers → GitHub Copilot** is on. Click **Refresh**.
 
 ```bash
@@ -78,18 +100,19 @@ brew install gh
 gh auth login
 ```
 
-Refill only asks Copilot when it looks installed. Usage resets monthly. The endpoint is unofficial and can change.
+If `gh` has no `github.com` login, Refill falls back to the single editor token in `~/.config/github-copilot` (`apps.json` or `hosts.json`) as `copilot:default`. Enterprise hosts are ignored. The Copilot editor itself is one login. Usage resets monthly. The endpoint is unofficial and can change.
 
 ### If it fails
 
 - `No GitHub token (run gh auth login)`: sign in with the command above.
-- `HTTP 401` or `403 (token rejected or no Copilot seat)`: the signed-in GitHub account has no Copilot seat. Check with `gh auth status`.
+- `No GitHub token for <login>`: that login has no token. Run `gh auth login` again for it.
+- `HTTP 401` or `403 (token rejected or no Copilot seat)`: that GitHub account has no Copilot seat. Check with `gh auth status`. Hide the row if you do not want it listed.
 
 <a id="cursor"></a>
 
 ## Cursor
 
-**What you get.** Monthly usage for your Cursor plan, with no extra login.
+**What you get.** Monthly usage for the Cursor plan signed in on this Mac, with no extra login.
 
 ### Steps
 
@@ -97,6 +120,8 @@ Refill only asks Copilot when it looks installed. Usage resets monthly. The endp
 2. Check **Settings → Accounts → More providers → Cursor** is on. Click **Refresh**.
 
 Refill reads the sign-in from Cursor's local database, `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb`, in read-only mode. It then asks cursor.com for your usage. The billing cycle end is the reset.
+
+Cursor stores one login per Mac user. Refill does not invent a second Cursor account. A second person needs their own macOS user, or you switch the login inside Cursor (that replaces the one Refill shows, id `cursor:default`). You can still rename or hide it.
 
 ### If it fails
 
@@ -108,11 +133,11 @@ Refill reads the sign-in from Cursor's local database, `~/Library/Application Su
 
 ## Gemini CLI
 
-**What you get.** Per-model quota for Gemini CLI, with Pro and Flash tracked separately.
+**What you get.** Per-model quota for every Gemini CLI login, with Pro and Flash tracked separately.
 
 ### Steps
 
-1. Install Gemini CLI, run it once and sign in with Google. It writes `~/.gemini/oauth_creds.json`.
+1. Install Gemini CLI, run it once and sign in with Google. The default login is `~/.gemini/oauth_creds.json`, and that account stays `gemini:default`.
 2. Check **Settings → Accounts → More providers → Gemini CLI** is on. Click **Refresh**.
 
 ```bash
@@ -123,7 +148,25 @@ npm install -g @google/gemini-cli
 gemini
 ```
 
-When the saved token expires, Refill refreshes it in memory and never writes it back. It needs the installed CLI to find the public OAuth client, or you can set `GEMINI_OAUTH_CLIENT_ID` and `GEMINI_OAUTH_CLIENT_SECRET`.
+### Add another Gemini account
+
+Gemini CLI treats `GEMINI_CLI_HOME` as a home directory and writes creds to `$GEMINI_CLI_HOME/.gemini/oauth_creds.json`, not to the home itself.
+
+1. Under **Add a Gemini account**, type a name such as `work`, then click **Add**.
+2. Terminal opens with `GEMINI_CLI_HOME` set to `~/.gemini-accounts/work`. Sign in, then exit.
+3. Click **Refresh**. The login lives at `~/.gemini-accounts/work/.gemini/oauth_creds.json`.
+
+```bash
+scripts/add-gemini-account.sh work
+```
+
+```bash
+alias gemini-work='GEMINI_CLI_HOME=$HOME/.gemini-accounts/work gemini'
+```
+
+A folder you already use can be listed under **Extra Gemini folders**. Point it at the directory that contains `oauth_creds.json`, or at a `GEMINI_CLI_HOME` whose `.gemini` child contains that file. `~/.gemini-*` and `~/.gemini_*` folders in your home directory are picked up on their own when they hold creds.
+
+When the saved token expires, Refill refreshes it in memory and never writes it back. It needs the installed CLI to find the public OAuth client, or you can set `GEMINI_OAUTH_CLIENT_ID` and `GEMINI_OAUTH_CLIENT_SECRET`. The client is shared. Each account keeps its own token.
 
 ### If it fails
 
@@ -159,7 +202,26 @@ Click **Send test**. Refill shows `OK 200` when the service accepted the request
 
 ### What Refill sends
 
-A JSON `POST` to the server root. Priority is 4 for a reset and 3 for everything else. Tags are `zap`, `warning`, `battery` or `droplet` (test).
+A JSON `POST` to the server root for tests, warnings and empty tanks, and for a reset when the Mac is awake. Priority is 4 for a reset and 3 for everything else. Tags are `zap`, `warning`, `battery` or `droplet` (test).
+
+### Resets while the Mac sleeps or is off
+
+With ntfy enabled and **Send on → Refill** on, Refill also posts a delayed message for each window that has been used and has a reset time. ntfy holds it and delivers it about 30 seconds after the reset, using the `At` header, even if the Mac is asleep or powered off. The message id is stable for that account and window (`refill-` plus a short hash of the account id and window). Publishing the same id again replaces the pending push, so a changed reset time does not leave a duplicate. Cancelling deletes that id.
+
+The access token stays in `~/.config/refill/integrations.json` on the Mac. Refill's note of what it scheduled is `~/.config/refill/ntfy-schedule.json` (mode 0600) and contains no token. The delayed body is the account's display name and the window, for example `Work: 5h session is full again.` The title is `Refilled`.
+
+ntfy.sh accepts a delay from 10 seconds up to 3 days. A weekly reset further out is scheduled once the Mac is awake inside that window. A limit that starts while the Mac is off is scheduled the next time Refill sees it.
+
+If the Mac is awake at the reset, Refill sends the normal ntfy message immediately and deletes the delayed one, so you get one push. If the Mac slept through delivery, the delayed push already went out, and the alert after wake does not send a second ntfy message. The local notification on wake still appears.
+
+If **Also mute phone and chat pushes** is on and the delivery hour falls inside quiet hours, that reset is not scheduled.
+
+An external script that posted the same ids is no longer needed. If you installed the LaunchAgent `local.refill.ntfy-schedule`, remove it so it does not publish a second copy:
+
+```bash
+launchctl bootout gui/$(id -u)/local.refill.ntfy-schedule
+rm -f ~/Library/LaunchAgents/local.refill.ntfy-schedule.plist
+```
 
 *POST https://ntfy.sh*
 
@@ -782,7 +844,7 @@ The app writes a snapshot that the widget reads, so keep Refill running. The wid
 | Notification and notch | Still shown |
 | Shell hook | Still runs |
 | Home Assistant, Hue, WLED, custom webhook | Still fire |
-| ntfy, Pushover, Telegram, Discord, Slack | Fire, unless you turn on the mute option |
+| ntfy, Pushover, Telegram, Discord, Slack | Fire, unless you turn on the mute option. A delayed ntfy reset whose delivery hour is inside quiet hours is not scheduled when that option is on. |
 
 ### Warning thresholds
 
@@ -811,7 +873,7 @@ Each integration has its own **Send on** switches for Refill (reset), Warning an
 - Check the integration is switched on and the right **Send on** toggles are enabled.
 - Look at `~/.config/refill/events.jsonl` to see which events fired.
 - Settings live in `~/.config/refill`. `integrations.json` holds your tokens and is readable only by you. Do not share it.
-- A reset is detected when a known reset time passes after use, or when a poll sees the time jump forward. Refill must be running.
+- A reset is detected when a known reset time passes after use, or when a poll sees the time jump forward. The menu, the notch and most integrations need Refill running. An ntfy reset that Refill already scheduled still arrives if the Mac is asleep or off. See [ntfy](#ntfy).
 
 ### Updates and installs
 

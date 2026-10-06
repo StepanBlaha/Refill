@@ -166,27 +166,30 @@ struct AccountsTab: View {
     @EnvironmentObject var monitor: Monitor
     @AppStorage(Prefs.K.codex) var codex = true
     @AppStorage(Prefs.K.extraDirs) var extraDirs = ""
+    @AppStorage(Prefs.K.extraCodex) var extraCodex = ""
+    @AppStorage(Prefs.K.extraGemini) var extraGemini = ""
     @AppStorage("refreshTokens") var refreshTokens = true
     @State private var hiddenIds = AccountActions.hidden
 
-    static func label(_ id: String) -> String {
-        if id.hasPrefix("claude:") { return "Claude · " + (id.dropFirst(7) as Substring).split(separator: "/").last.map(String.init)! }
-        return id.split(separator: ":").first.map { $0.capitalized } ?? id
-    }
-    @State private var newName = ""
-    @State private var status = ""
+    @State private var claudeName = ""
+    @State private var claudeStatus = ""
+    @State private var codexName = ""
+    @State private var codexStatus = ""
+    @State private var geminiName = ""
+    @State private var geminiStatus = ""
 
     var body: some View {
         Panel(title: "Detected") {
             ForEach(Array(monitor.accounts.enumerated()), id: \.1.id) { i, a in
                 if i > 0 { RowDivider() }
-                Row(title: a.email ?? a.name, subtitle: a.error ?? [a.name, a.plan?.capitalized].compactMap { $0 }.joined(separator: " · ")) {
+                Row(title: a.title, subtitle: a.error ?? a.detail) {
                     Circle().fill(a.error == nil ? Theme.accent : Theme.amber).frame(width: 6, height: 6)
                     Menu { AccountMenuItems(account: a) } label: {
                         Image(systemName: "ellipsis").font(.system(size: 12, weight: .semibold)).foregroundStyle(Theme.muted)
                             .frame(width: 24, height: 20).contentShape(Rectangle())
                     }
                     .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+                    .onHover { ClickFeedback.cursor(hovering: $0, enabled: true) }
                 }
                 .contextMenu { AccountMenuItems(account: a) }
             }
@@ -199,7 +202,7 @@ struct AccountsTab: View {
             Panel(title: "Hidden", footer: "Hidden accounts aren't checked and never alert.") {
                 ForEach(Array(hiddenIds.sorted().enumerated()), id: \.1) { i, id in
                     if i > 0 { RowDivider() }
-                    Row(title: Self.label(id)) {
+                    Row(title: AccountNames.hiddenLabel(id)) {
                         Button("Show") { AccountActions.unhide(id, monitor: monitor); hiddenIds = AccountActions.hidden }
                             .buttonStyle(DarkButton())
                     }
@@ -209,24 +212,50 @@ struct AccountsTab: View {
 
         Panel(title: "Add a Claude account", footer: "Opens Terminal with a separate Claude profile. Type /login there, then quit. Refill picks it up on the next refresh.") {
             Row(title: "Name") {
-                TextField("work", text: $newName).textFieldStyle(DarkField()).frame(width: 140)
-                Button("Add") { status = AccountAdder.addClaude(name: newName); newName = "" }
-                    .buttonStyle(DarkButton(prominent: true)).disabled(newName.isEmpty)
+                TextField("work", text: $claudeName).textFieldStyle(DarkField()).frame(width: 140)
+                Button("Add") { claudeStatus = AccountAdder.addClaude(name: claudeName); claudeName = "" }
+                    .buttonStyle(DarkButton(prominent: true)).disabled(claudeName.isEmpty)
             }
-            if !status.isEmpty { RowDivider(); Row(title: status) { EmptyView() } }
+            if !claudeStatus.isEmpty { RowDivider(); Row(title: claudeStatus) { EmptyView() } }
             RowDivider()
             Row(title: "Step-by-step help") {
                 Button("Setup guide") { NSWorkspace.shared.open(Guides.url("accounts")) }.buttonStyle(DarkButton())
             }
         }
 
-        Panel(title: "Extra config folders", footer: "~/.claude and every ~/.claude-* folder are found automatically. One path per line.") {
+        Panel(title: "Extra Claude folders", footer: "~/.claude and every ~/.claude-* folder are found automatically. One path per line.") {
             TextEditor(text: $extraDirs).font(.system(size: 12, design: .monospaced))
                 .scrollContentBackground(.hidden).padding(Space.s).frame(height: 64)
         }
 
-        Panel(title: "Other tools") {
-            ToggleRow(title: "Codex CLI", subtitle: "Reads ~/.codex/sessions, offline", isOn: $codex)
+        Panel(title: "Codex CLI", footer: "Reads session logs offline. The default ~/.codex stays the account you already have. CODEX_HOME and every ~/.codex-* folder are found too.") {
+            ToggleRow(title: "Codex CLI", subtitle: "Off skips every Codex home", isOn: $codex)
+            RowDivider()
+            Row(title: "Name") {
+                TextField("work", text: $codexName).textFieldStyle(DarkField()).frame(width: 140)
+                Button("Add") { codexStatus = AccountAdder.addCodex(name: codexName); codexName = "" }
+                    .buttonStyle(DarkButton(prominent: true)).disabled(codexName.isEmpty)
+            }
+            if !codexStatus.isEmpty { RowDivider(); Row(title: codexStatus) { EmptyView() } }
+        }
+
+        Panel(title: "Extra Codex folders", footer: "One Codex home per line, if it is not ~/.codex or ~/.codex-*. ~ is fine.") {
+            TextEditor(text: $extraCodex).font(.system(size: 12, design: .monospaced))
+                .scrollContentBackground(.hidden).padding(Space.s).frame(height: 64)
+        }
+
+        Panel(title: "Add a Gemini account", footer: "Opens Terminal with GEMINI_CLI_HOME set. Gemini CLI stores the login in that folder's .gemini directory. Sign in, then quit.") {
+            Row(title: "Name") {
+                TextField("work", text: $geminiName).textFieldStyle(DarkField()).frame(width: 140)
+                Button("Add") { geminiStatus = AccountAdder.addGemini(name: geminiName); geminiName = "" }
+                    .buttonStyle(DarkButton(prominent: true)).disabled(geminiName.isEmpty)
+            }
+            if !geminiStatus.isEmpty { RowDivider(); Row(title: geminiStatus) { EmptyView() } }
+        }
+
+        Panel(title: "Extra Gemini folders", footer: "One folder per line. A folder with oauth_creds.json, or a GEMINI_CLI_HOME whose .gemini child has that file. ~ is fine.") {
+            TextEditor(text: $extraGemini).font(.system(size: 12, design: .monospaced))
+                .scrollContentBackground(.hidden).padding(Space.s).frame(height: 64)
         }
 
         ProvidersPanel()

@@ -5,10 +5,12 @@ struct Prefs {
         static let notify = "notify", sound = "sound", soundName = "soundName", hook = "hook"
         static let poll = "pollMinutes", codex = "codex", port = "port", lan = "lan"
         static let extraDirs = "extraClaudeDirs", thresholds = "thresholds"
+        static let extraCodex = "extraCodexDirs", extraGemini = "extraGeminiDirs"
         static let quiet = "quietHours", quietFrom = "quietFrom", quietTo = "quietTo", quietPush = "quietMutesPush"
     }
     var notify = true, sound = true, soundName = "Glass", hook = true, lan = false
     var pollMinutes = 5.0, codex = true, port = 7788, extraDirs: [String] = []
+    var extraCodex: [String] = [], extraGemini: [String] = []
     var thresholds: [Double] = [80, 95]
     var quiet = false, quietFrom = 22, quietTo = 8, quietMutesPush = false
 
@@ -35,9 +37,15 @@ struct Prefs {
         p.pollMinutes = max(1, d.object(forKey: K.poll) as? Double ?? p.pollMinutes)
         p.codex = d.object(forKey: K.codex) as? Bool ?? p.codex
         p.port = d.object(forKey: K.port) as? Int ?? p.port
-        p.extraDirs = (d.string(forKey: K.extraDirs) ?? "").split(whereSeparator: \.isNewline)
-            .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        p.extraDirs = lines(d, K.extraDirs)
+        p.extraCodex = lines(d, K.extraCodex)
+        p.extraGemini = lines(d, K.extraGemini)
         return p
+    }
+
+    static func lines(_ d: UserDefaults, _ key: String) -> [String] {
+        (d.string(forKey: key) ?? "").split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
     }
 }
 
@@ -74,6 +82,12 @@ final class Monitor: ObservableObject {
         server = s
         timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
+        }
+        NotificationCenter.default.addObserver(forName: .refillIntegrationsChanged, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                await NtfyScheduler.sync(accounts: self.accounts)
+            }
         }
         Task { await refresh() }
     }
@@ -119,9 +133,17 @@ final class Monitor: ObservableObject {
             if !p.isDefault, !userDirs.contains(p.configDir), s.windows.isEmpty, s.error != nil { continue }
             fresh.append(s)
         }
-        if prefs.codex, CodexProvider.isInstalled { fresh.append(CodexProvider.fetch()) }
+        if prefs.codex {
+            for h in CodexProvider.present(extraDirs: prefs.extraCodex) where !hidden.contains(h.id) {
+                let s = CodexProvider.fetch(h)
+                // Auto-discovered ~/.codex-* homes with no sessions are noise.
+                if !h.isDefault, !h.userListed, !h.fromEnv, s.windows.isEmpty, s.error != nil { continue }
+                fresh.append(s)
+            }
+        }
         for p in AppHooks.providers { fresh += await p() }
         fresh.removeAll { hidden.contains($0.id) }
+        fresh = labeled(fresh)
 
         for i in fresh.indices {
             guard let old = accounts.first(where: { $0.id == fresh[i].id }) else { continue }
@@ -141,6 +163,8 @@ final class Monitor: ObservableObject {
         lastFetch = Date()
         lastRefresh = lastFetch
         persist()
+        let scheduled = accounts
+        Task { await NtfyScheduler.sync(accounts: scheduled) }
     }
 
     private func fire(_ a: AccountSnapshot, _ w: UsageWindow, kind: EventKind, reason: String, tag: String = "") {
@@ -148,7 +172,7 @@ final class Monitor: ObservableObject {
         // resets_at jitters by seconds between calls; bucket to 10 min for dedupe.
         guard let key = ResetDetector.key(accountId: a.id, window: w, kind: kind, tag: tag),
               fired.insert(key).inserted else { return }
-        let who = a.email ?? a.name
+        let who = a.title
         let (title, msg) = Voice.line(for: kind, account: who, window: w.label, used: w.utilization,
                                       resetsIn: r.timeIntervalSinceNow)
         emit(RefillEvent(kind: kind, provider: a.provider, accountId: a.id, accountName: who,
@@ -187,6 +211,21 @@ final class Monitor: ObservableObject {
         accounts.removeAll { $0.id == id }
         persist()
         AppHooks.onRefresh.forEach { $0(accounts) }
+        let left = accounts
+        Task { await NtfyScheduler.sync(accounts: left) }
+    }
+
+    /// Apply renamed labels without a network refresh.
+    func relabel() {
+        accounts = labeled(accounts)
+        persist()
+        SharedStatus.write(accounts, lastEvent: events.last)
+        let labeledAccounts = accounts
+        Task { await NtfyScheduler.sync(accounts: labeledAccounts) }
+    }
+
+    private func labeled(_ list: [AccountSnapshot]) -> [AccountSnapshot] {
+        list.map { var a = $0; a.label = AccountNames.custom(a.id); return a }
     }
 
     func restartServer() { server?.start(port: UInt16(Prefs.current.port), lan: Prefs.current.lan) }
@@ -209,7 +248,7 @@ final class Monitor: ObservableObject {
     private func load() {
         guard let d = try? Data(contentsOf: Paths.stateFile),
               let st = try? JSONDecoder.refill.decode(SavedState.self, from: d) else { return }
-        accounts = st.accounts
+        accounts = labeled(st.accounts)
         fired = Set(st.fired)
         events = st.events
     }

@@ -1,18 +1,75 @@
 import Foundation
 
+/// One Codex CLI home. The default `~/.codex` keeps the id `codex:default`
+/// so history, hide and fired alerts from older Refill builds still match.
+struct CodexHome: Equatable {
+    var path: String
+    var isDefault: Bool
+    var fromEnv: Bool
+    var userListed: Bool
+
+    var id: String { isDefault ? "codex:default" : "codex:" + path }
+    var sessionsURL: URL { URL(fileURLWithPath: path).appendingPathComponent("sessions", isDirectory: true) }
+    var fallbackName: String {
+        isDefault ? "Codex" : "Codex · " + (path as NSString).lastPathComponent
+    }
+}
+
 /// Codex CLI writes `token_count` events with `rate_limits` into its session
 /// rollout logs. We read the newest one — no network, no credentials.
 enum CodexProvider {
-    static let sessions = Paths.home.appendingPathComponent(".codex/sessions")
-
-    static var isInstalled: Bool {
-        FileManager.default.fileExists(atPath: Paths.home.appendingPathComponent(".codex").path)
+    static func discover(home: String, codexHomeEnv: String?, extraDirs: [String], directoryNames: [String]) -> [CodexHome] {
+        let defaultPath = normalize(path: home + "/.codex", home: home)
+        var byPath: [String: CodexHome] = [
+            defaultPath: CodexHome(path: defaultPath, isDefault: true, fromEnv: false, userListed: false),
+        ]
+        func add(_ raw: String, fromEnv: Bool, userListed: Bool) {
+            let p = normalize(path: raw, home: home)
+            guard !p.isEmpty else { return }
+            if var existing = byPath[p] {
+                existing.fromEnv = existing.fromEnv || fromEnv
+                existing.userListed = existing.userListed || userListed
+                byPath[p] = existing
+                return
+            }
+            byPath[p] = CodexHome(path: p, isDefault: false, fromEnv: fromEnv, userListed: userListed)
+        }
+        if let env = codexHomeEnv?.trimmingCharacters(in: .whitespacesAndNewlines), !env.isEmpty {
+            add(env, fromEnv: true, userListed: false)
+        }
+        for name in directoryNames where name.hasPrefix(".codex-") || name.hasPrefix(".codex_") {
+            add(home + "/" + name, fromEnv: false, userListed: false)
+        }
+        for extra in extraDirs { add(extra, fromEnv: false, userListed: true) }
+        let rest = byPath.values.filter { !$0.isDefault }.sorted { $0.path < $1.path }
+        return [byPath[defaultPath]!] + rest
     }
 
-    static func fetch() -> AccountSnapshot {
-        var snap = AccountSnapshot(id: "codex:default", provider: "codex", name: "Codex",
+    /// `~` expands against `home` so tests don't depend on the machine's real home.
+    static func normalize(path: String, home: String) -> String {
+        let trimmed = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        let expanded: String
+        if trimmed == "~" { expanded = home }
+        else if trimmed.hasPrefix("~/") { expanded = home + String(trimmed.dropFirst(1)) }
+        else { expanded = trimmed }
+        return (expanded as NSString).standardizingPath
+    }
+
+    static func present(extraDirs: [String]) -> [CodexHome] {
+        let fm = FileManager.default
+        let home = Paths.home.path
+        let names = (try? fm.contentsOfDirectory(atPath: home)) ?? []
+        let env = ProcessInfo.processInfo.environment["CODEX_HOME"]
+        return discover(home: home, codexHomeEnv: env, extraDirs: extraDirs, directoryNames: names)
+            .filter { fm.fileExists(atPath: $0.path) }
+    }
+
+    static var isInstalled: Bool { !present(extraDirs: []).isEmpty }
+
+    static func fetch(_ home: CodexHome) -> AccountSnapshot {
+        var snap = AccountSnapshot(id: home.id, provider: "codex", name: home.fallbackName,
                                    email: nil, plan: nil, windows: [], updatedAt: Date())
-        guard let file = newestRollout() else {
+        guard let file = newestRollout(in: home.sessionsURL) else {
             snap.error = "No Codex sessions yet"
             return snap
         }
@@ -48,7 +105,7 @@ enum CodexProvider {
         }
     }
 
-    static func newestRollout() -> URL? {
+    static func newestRollout(in sessions: URL) -> URL? {
         guard let e = FileManager.default.enumerator(at: sessions,
                                                      includingPropertiesForKeys: [.contentModificationDateKey]) else { return nil }
         var best: (URL, Date)?

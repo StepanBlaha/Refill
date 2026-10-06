@@ -63,7 +63,7 @@ enum SinkKind: String, Codable, CaseIterable, Identifiable {
 
     var help: String {
         switch self {
-        case .ntfy: return "Install the ntfy app (iOS/Android), subscribe to the same topic. Free, no account."
+        case .ntfy: return "Install the ntfy app (iOS/Android), subscribe to the same topic. Free, no account. Reset pushes are scheduled ahead of time, so they still arrive if the Mac is asleep or off."
         case .pushover: return "pushover.net: create an app for the token; user key is on your dashboard."
         case .telegram: return "Make a bot via @BotFather, message it once, get chat id from api.telegram.org/bot<token>/getUpdates."
         case .homeAssistant: return "HA automation with a Webhook trigger (ID above). Payload has kind, color, rgb, message: drive any light brand."
@@ -101,13 +101,25 @@ enum Integrations {
         guard let d = try? JSONEncoder.refill.encode(sinks) else { return }
         try? d.write(to: Paths.integrationsFile, options: .atomic)
         try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: Paths.integrationsFile.path)
+        NotificationCenter.default.post(name: .refillIntegrationsChanged, object: nil)
     }
 
     /// Phone/chat kinds; muted during quiet hours when the user opts in. Lights always fire.
     static let pushKinds: Set<SinkKind> = [.ntfy, .pushover, .telegram, .discord, .slack]
 
     static func dispatch(_ e: RefillEvent, quiet: Bool = false) {
-        for s in load() where s.wants(e.kind) && !(quiet && pushKinds.contains(s.kind)) { Task { _ = await send(s, e) } }
+        for s in load() where s.wants(e.kind) {
+            let muted = quiet && pushKinds.contains(s.kind)
+            if s.kind == .ntfy, e.kind == .reset {
+                // Leave a pre-scheduled push alone during quiet hours. It was
+                // skipped at schedule time when delivery itself falls in quiet hours.
+                if muted { continue }
+                if !NtfyScheduler.shouldSendImmediate(sink: s, event: e) { continue }
+            } else if muted {
+                continue
+            }
+            Task { _ = await send(s, e) }
+        }
     }
 
     /// Returns a short human status ("OK 200" / error) for the Test button.

@@ -45,7 +45,7 @@ struct AccountCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(account.name).font(Theme.rounded(17, .bold)).foregroundStyle(Theme.text)
+                    Text(account.title).font(Theme.rounded(17, .bold)).foregroundStyle(Theme.text)
                     Text([account.provider.capitalized, account.plan].compactMap { $0 }.joined(separator: " · "))
                         .font(Theme.mono(11)).foregroundStyle(Theme.muted)
                 }

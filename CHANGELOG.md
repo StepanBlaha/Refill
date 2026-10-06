@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Release notes are generated from the version section below. `scripts/release.sh` and the release workflow publish **New**, **Improved** and **Fixed** for that version, with the install blurb in front.
 
-## [Unreleased]
+## [0.3.0] - Unreleased
+
+### New
+
+- Several Codex homes. `~/.codex` keeps the account id `codex:default`. `CODEX_HOME`, every `~/.codex-*` and `~/.codex_*` folder, and extra folders in Settings are their own accounts. **Settings → Accounts → Codex CLI** opens Terminal with `CODEX_HOME` set so you can log in.
+- Several GitHub Copilot accounts, one per `github.com` login from `gh auth status`. The login Refill already tracked stays `copilot:default`. With no `gh` login, the editor token in `~/.config/github-copilot` is still that one account.
+- Several Gemini CLI accounts. `~/.gemini` stays `gemini:default`. `GEMINI_CLI_HOME`, `~/.gemini-*`, `~/.gemini-accounts/<name>` and extra folders are separate accounts. **Add a Gemini account** opens Terminal with `GEMINI_CLI_HOME` set. Gemini CLI stores the login in that home's `.gemini` folder.
+- Rename an account from **⋯ → Rename…**. The name is stored for that account id and shown in the menu, the notch, the dashboard, widgets, history and notifications. Leave it blank to use the email or folder name again.
+- When ntfy is on, Refill schedules a delayed push for each known reset (the ntfy `At` header) so it arrives while the Mac sleeps or is off. The same message id per account and window replaces a pending push when the reset time changes. The ntfy token stays in `integrations.json` on the Mac.
+
+### Improved
+
+- Hide applies to Codex, Copilot, Gemini and Cursor the same way it does to Claude. Extra Codex and Gemini profile folders can be moved to the Trash. The default folder for each tool cannot. Cursor stays one account, because the Cursor app stores one login per Mac user.
 
 ## [0.2.1] - 2026-10-05
 

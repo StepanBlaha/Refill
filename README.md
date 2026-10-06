@@ -50,18 +50,24 @@ Open at login is on by default the first time you launch from `/Applications`. C
 | Source | What Refill reads |
 |---|---|
 | **Claude** | Every Claude Code login: the default `~/.claude`, any `~/.claude-*` directory, and extra dirs you add in Settings. Credentials come from the Keychain item Claude Code creates. Usage comes from `api.anthropic.com/api/oauth/usage` (5-hour session, week, week-Opus/Sonnet). Expired tokens are refreshed and written back to the Keychain. |
-| **Codex CLI** | `rate_limits` from the newest `~/.codex/sessions/**/rollout-*.jsonl`. Offline. It updates when you use Codex. |
-| **GitHub Copilot** | Premium requests and chat quota, using `gh auth token` or `~/.config/github-copilot/`. Resets monthly. |
-| **Cursor** | Monthly usage from the Cursor login already on this Mac (`state.vscdb`, read-only). |
-| **Gemini CLI** | Per-model quota for `~/.gemini/oauth_creds.json`. Pro and Flash are tracked separately. A refreshed token stays in memory. |
+| **Codex CLI** | `rate_limits` from the newest session log in each Codex home: `~/.codex` (still the account id `codex:default`), `CODEX_HOME`, every `~/.codex-*` and `~/.codex_*` folder, and extra folders in Settings. Offline. It updates when you use that Codex home. |
+| **GitHub Copilot** | Premium requests and chat quota for every `github.com` login `gh auth status` lists. The login Refill already tracked stays `copilot:default`. If `gh` has no github.com login, the editor token in `~/.config/github-copilot/` is still that one account. Resets monthly. |
+| **Cursor** | Monthly usage from the one Cursor login on this Mac (`state.vscdb`, read-only). Cursor stores a single login per Mac user, so Refill does too. |
+| **Gemini CLI** | Per-model quota for each Gemini CLI config: `~/.gemini` (still `gemini:default`), `GEMINI_CLI_HOME` (creds in `<home>/.gemini/oauth_creds.json`), `~/.gemini-*`, `~/.gemini-accounts/<name>`, and extra folders. Pro and Flash are tracked separately. A refreshed token stays in memory. |
 
 Copilot, Cursor and Gemini are skipped unless they look installed, and each can be turned off in Settings. HTTP 429 pauses that account (honors `Retry-After`, otherwise 15 minutes). "Renew expired logins" can be turned off in Settings → Accounts so Refill doesn't race Claude Code for a refresh token.
 
-Add another Claude account:
+Rename any account from the **⋯** menu. The name is stored for that account id and shown in the menu, the notch, the dashboard, widgets and notifications. A blank name falls back to the email, then the folder name.
+
+Add another account from a clone of the repo, or from **Settings → Accounts**:
 
 ```bash
 scripts/add-claude-account.sh work   # CLAUDE_CONFIG_DIR=~/.claude-work claude → /login
+scripts/add-codex-account.sh work    # CODEX_HOME=~/.codex-work codex login
+scripts/add-gemini-account.sh work   # GEMINI_CLI_HOME=~/.gemini-accounts/work gemini
 ```
+
+A longer walkthrough, including the sleep-time ntfy push, is in [docs/SETUP.md](docs/SETUP.md).
 
 ## Signals
 
@@ -82,7 +88,7 @@ Each event (`reset`, `warning`, `empty`, `test`) carries a title and a message i
 
 Integrations:
 
-- **Phone:** ntfy, Pushover, Telegram
+- **Phone:** ntfy, Pushover, Telegram. With ntfy turned on, Refill schedules each known reset ahead of time (`At` header) so the push still arrives if the Mac is asleep or off. The token stays in `integrations.json`. A Mac that is awake at the reset sends one immediate push and cancels the delayed one.
 - **Chat:** Discord, Slack
 - **Lights:** Home Assistant webhook (payload includes `rgb` / `color`), Philips Hue (group flash), WLED (color or preset)
 - **Custom webhook:** method, headers, and a body template with `{{kind}}` `{{title}}` `{{message}}` `{{color}}` `{{r}}` `{{g}}` `{{b}}` `{{json}}` and more
@@ -112,7 +118,7 @@ Companion iPhone app: `cd Companion && xcodegen generate`, then open `RefillComp
 ## Releasing
 
 ```bash
-scripts/release.sh 0.2.0   # bump VERSION, tag v0.2.0, push → GitHub Actions publishes the .dmg, the .zip and checksums
+scripts/release.sh 0.3.0   # tests, stamps the changelog date, tags v0.3.0, pushes → GitHub Actions publishes the .dmg, the .zip and checksums
 ```
 
 The app checks GitHub Releases once a day and shows "Update available" in the menu.

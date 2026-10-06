@@ -1,5 +1,47 @@
 # Agent context
 
+## Multi-account and sleep-time ntfy (0.3.0)
+
+Handoff for the 0.3.0 work on branch `cursor/multi-account-sleep-push-7df0`. No tag was created and no GitHub release was published. The Homebrew tap was not touched. This agent cannot push to `StepanBlaha/homebrew-tap`.
+
+## What landed
+
+- Codex: `CodexProvider.discover` always keeps `~/.codex` as `codex:default`. `CODEX_HOME`, `~/.codex-*`, `~/.codex_*` and `extraCodexDirs` are `codex:<absolute path>`. Empty auto-discovered homes are skipped. **Add** writes the new folder into `extraCodexDirs` and opens Terminal with `CODEX_HOME` set (`codex login`, then `codex`). `scripts/add-codex-account.sh` does the same without the defaults write.
+- Copilot: every `github.com` login from `gh auth status`. `copilotAnchorLogin` keeps `copilot:default` stable. Other ids are `copilot:<login>` (`copilot:login:default` if the login is the word `default`). No gh logins: the old editor token path, one account. Enterprise hosts ignored. Fetch is concurrent and skips hidden ids.
+- Gemini: `~/.gemini` stays `gemini:default`. `GEMINI_CLI_HOME` is a home directory; creds are `$GEMINI_CLI_HOME/.gemini/oauth_creds.json`. Also `~/.gemini-*`, `~/.gemini-accounts/<name>` (prefer nested) and `extraGeminiDirs`. A folder that already contains `oauth_creds.json` is used as-is. Add opens Terminal with `GEMINI_CLI_HOME=~/.gemini-accounts/<name>`. `scripts/add-gemini-account.sh` matches.
+- Cursor: still `cursor:default`. One `cursorAuth` token in `state.vscdb` per Mac user. Documented, not split.
+- Names: UserDefaults `accountLabels`. `AccountSnapshot.label`, computed `title` (label, else email, else name) and `detail`. Menu, notch (via `RefillEvent.accountName`), dashboard, widgets, history samples, companion and the scheduled ntfy body use `title`. **⋯ → Rename…**. Blank clears it.
+- Hide already existed (`hiddenAccounts`). Codex, Copilot, Gemini and Cursor now skip hidden ids before reading. Trash covers extra Codex and Gemini dirs as well as Claude. No separate mute.
+- ntfy: `NtfyScheduler` posts `{server}/{topic}/{messageId}` with `At`, `Title: Refilled`, tags `zap`, priority 4. `messageId` is `refill-` + first 16 hex of SHA-256(`accountId|windowKey`), same shape as the external script, so a republish replaces. Bookings in `~/.config/refill/ntfy-schedule.json` mode 0600, no token. Awake at reset: cancel the pending message and send the normal ntfy push. Asleep through delivery: skip the second ntfy send. A booking due within 45s is not deleted by a sync. Quiet hours plus "mute phone and chat" skips scheduling when the delivery hour is quiet. `Integrations.save` posts `.refillIntegrationsChanged` so a new ntfy sink schedules without waiting for the next poll.
+- Docs: README, `docs/GUIDES.md`, `docs/SETUP.md`, the site guide data, `legal/PRIVACY.md` and the site privacy page. CHANGELOG `## [0.3.0] - Unreleased`. `VERSION` and `project.yml` `MARKETING_VERSION` are `0.3.0`.
+- `.github/workflows/ci.yml` runs `swift test` on `macos-15` for pull requests and pushes to `main`. `release.yml` still only runs on tags `v*` and workflow_dispatch. It does not run on a pull request.
+
+## What this environment could not do
+
+This machine is Linux. There is no Swift toolchain and no Mac, so `swift test` was not run here and the app was not launched. `bash scripts/release-notes.sh 0.3.0` was run to confirm the changelog section parses. UI hover, press and focus states were not exercised in a browser: this is a native Mac app. The macOS CI workflow on the pull request is the build check.
+
+## What Štěpán does next
+
+1. Read the CI result on the pull request (`swift test` on macos-15). Merge when it is green. Do not tag from the pull request.
+2. On a Mac, from a clean `main` after the merge:
+
+   ```bash
+   scripts/release.sh 0.3.0
+   ```
+
+   That runs `swift test`, requires the changelog section, rewrites `## [0.3.0] - Unreleased` to today's date, writes `VERSION` and `MARKETING_VERSION`, commits `Release 0.3.0`, tags `v0.3.0`, and pushes the branch and the tag. GitHub Actions (`.github/workflows/release.yml`, macos-15) then builds, runs tests again, and uploads `Refill.dmg`, `Refill.zip`, and a `.sha256` for each. The job log prints a Homebrew cask for the zip.
+3. Paste that cask into `StepanBlaha/homebrew-tap` `Casks/refill.rb` and merge it yourself. The url should be `Refill.zip`. Keep the quarantine `postflight`. This agent cannot push the tap.
+4. On the Mac that should run it:
+
+   ```bash
+   brew upgrade --cask refill
+   ```
+
+   First install is `brew install --cask stepanblaha/tap/refill`.
+5. If `~/Library/LaunchAgents/local.refill.ntfy-schedule.plist` is loaded, boot it out. Refill schedules the ntfy pushes itself. The commands are in `docs/SETUP.md`.
+
+The sections below are earlier handoffs. Where they disagree with this one, this one is current. In particular: do not cut 0.2.1 again, and do not treat the external ntfy script as the way resets are scheduled.
+
 ## Unsigned installs
 
 Handoff for installing Refill without notarization. No release was cut and no tag was pushed.

@@ -5,36 +5,40 @@ enum ExtraProviders {
     struct Entry {
         let key: String, name: String, source: String
         let installed: () -> Bool
-        let fetch: () async -> AccountSnapshot
+        let fetch: () async -> [AccountSnapshot]
     }
 
     static let entries: [Entry] = [
         Entry(key: "provider.copilot", name: "GitHub Copilot",
-              source: "Uses your GitHub CLI login (gh auth login)",
-              installed: { CopilotProvider.isInstalled }, fetch: { await CopilotProvider.fetch() }),
+              source: "Every GitHub CLI login (`gh auth status`). One editor login if gh isn't signed in.",
+              installed: { CopilotProvider.isInstalled }, fetch: { await CopilotProvider.fetchAll() }),
         Entry(key: "provider.cursor", name: "Cursor",
-              source: "Uses the Cursor app you are signed in to",
-              installed: { CursorProvider.isInstalled }, fetch: { await CursorProvider.fetch() }),
+              source: "The Cursor app on this Mac. One login per Mac user.",
+              installed: { CursorProvider.isInstalled }, fetch: {
+                  let hidden = Set(UserDefaults.standard.stringArray(forKey: "hiddenAccounts") ?? [])
+                  if hidden.contains(CursorProvider.id) { return [] }
+                  return [await CursorProvider.fetch()]
+              }),
         Entry(key: "provider.gemini", name: "Gemini CLI",
-              source: "Uses your Gemini CLI login",
-              installed: { GeminiProvider.isInstalled }, fetch: { await GeminiProvider.fetch() }),
+              source: "Every Gemini CLI config folder (`~/.gemini`, `~/.gemini-*`, extra folders).",
+              installed: { GeminiProvider.isInstalled }, fetch: { await GeminiProvider.fetchAll() }),
     ]
 
     /// Runs every installed + enabled provider concurrently, each capped at 10s.
     static func fetchAll() async -> [AccountSnapshot] {
         let active = entries.filter { ProviderSupport.flag($0.key) && $0.installed() }
-        return await withTaskGroup(of: (Int, AccountSnapshot).self) { group in
+        return await withTaskGroup(of: (Int, [AccountSnapshot]).self) { group in
             for (i, e) in active.enumerated() {
                 group.addTask { (i, await withTimeout(10, e)) }
             }
-            var out: [(Int, AccountSnapshot)] = []
+            var out: [(Int, [AccountSnapshot])] = []
             for await r in group { out.append(r) }
-            return out.sorted { $0.0 < $1.0 }.map(\.1)
+            return out.sorted { $0.0 < $1.0 }.flatMap(\.1)
         }
     }
 
-    static func withTimeout(_ seconds: Double, _ e: Entry) async -> AccountSnapshot {
-        await withTaskGroup(of: AccountSnapshot?.self) { g in
+    static func withTimeout(_ seconds: Double, _ e: Entry) async -> [AccountSnapshot] {
+        await withTaskGroup(of: [AccountSnapshot]?.self) { g in
             g.addTask { await e.fetch() }
             g.addTask {
                 try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
@@ -42,8 +46,8 @@ enum ExtraProviders {
             }
             let first = await g.next() ?? nil
             g.cancelAll()
-            return first ?? ProviderSupport.failed(id: "\(e.key):timeout", provider: String(e.key.dropFirst(9)),
-                                                   name: e.name, "Timed out")
+            return first ?? [ProviderSupport.failed(id: "\(e.key):timeout", provider: String(e.key.dropFirst(9)),
+                                                    name: e.name, "Timed out")]
         }
     }
 

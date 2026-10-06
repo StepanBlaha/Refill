@@ -136,7 +136,7 @@ struct AccountCard: View {
             HStack(spacing: Space.s) {
                 Image(systemName: account.provider == "codex" ? "chevron.left.forwardslash.chevron.right" : "sparkle")
                     .font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.muted).frame(width: 14)
-                Text((account.email ?? account.name).softWrapped).font(.system(size: 13, weight: .semibold))
+                Text(account.title.softWrapped).font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.text)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
@@ -147,6 +147,7 @@ struct AccountCard: View {
                 }
                 .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
                 .opacity(hover ? 1 : 0)
+                .onHover { ClickFeedback.cursor(hovering: $0, enabled: true) }
                 if let plan = account.plan {
                     Text(plan.capitalized).font(.system(size: 10, weight: .medium)).foregroundStyle(Theme.muted)
                         .padding(.horizontal, 6).padding(.vertical, 2)
@@ -218,7 +219,7 @@ struct Pill: View {
                 .padding(.horizontal, Space.s).padding(.vertical, 5)
                 .background(hover ? Theme.hover : Theme.panel, in: RoundedRectangle(cornerRadius: Theme.radius + 2))
         }
-        .buttonStyle(.plain).onHover { hover = $0 }
+        .buttonStyle(PointerButtonStyle()).onHover { hover = $0 }
     }
 }
 
@@ -235,6 +236,6 @@ struct IconButton: View {
                 .animation(spinning ? .linear(duration: 0.9).repeatForever(autoreverses: false) : .default, value: spinning)
                 .frame(width: 26, height: 26).background(hover ? Theme.hover : .clear, in: RoundedRectangle(cornerRadius: Theme.radius + 2))
         }
-        .buttonStyle(.plain).onHover { hover = $0 }
+        .buttonStyle(PointerButtonStyle()).onHover { hover = $0 }
     }
 }
