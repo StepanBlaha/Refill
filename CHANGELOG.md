@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Release notes are generated from the version section below. `scripts/release.sh` and the release workflow publish **New**, **Improved** and **Fixed** for that version, with the install blurb in front.
 
-## [0.3.2] - Unreleased
+## [0.3.2] - 2026-10-06
 
 ### Fixed
 
