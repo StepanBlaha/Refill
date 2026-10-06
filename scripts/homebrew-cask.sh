@@ -4,7 +4,8 @@
 #
 # The tap is a separate repo. Paste the output into Casks/refill.rb there.
 # Brink's cask has caveats only. This one also clears the quarantine flag in
-# postflight, so an unsigned app is not stuck on Gatekeeper.
+# postflight_steps, so an unsigned app is not stuck on Gatekeeper.
+# `postflight do` is deprecated; Homebrew wants `postflight_steps` and `{{appdir}}`.
 #
 #   scripts/homebrew-cask.sh build/Refill.zip
 #   scripts/homebrew-cask.sh build/Refill.dmg   # 0.1.1 shipped a disk image only
@@ -91,10 +92,12 @@ cask "refill" do
 
   app "Refill.app"
 
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Refill.app"],
-                   must_succeed: false
+  postflight_steps do
+    on_macos do
+      run "/usr/bin/xattr",
+          args: ["-dr", "com.apple.quarantine", "{{appdir}}/Refill.app"],
+          must_succeed: false
+    end
   end
 
   zap trash: [

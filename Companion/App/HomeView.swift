@@ -70,17 +70,20 @@ struct WindowRow: View {
             HStack {
                 Text(window.label).font(Theme.rounded(14, .medium)).foregroundStyle(Theme.text)
                 Spacer()
-                Text("\(Int(window.remaining.rounded()))% left").font(Theme.mono(13, .semibold))
-                    .foregroundStyle(Theme.level(used: window.utilization))
+                Text(window.remaining.map { "\(Int($0.rounded()))% left" } ?? "—")
+                    .font(Theme.mono(13, .semibold))
+                    .foregroundStyle(window.stale ? Theme.muted : Theme.level(used: window.utilization))
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Theme.line)
                     Capsule().fill(Theme.level(used: window.utilization))
-                        .frame(width: max(6, g.size.width * window.remaining / 100))
+                        .frame(width: window.stale ? 0 : max(6, g.size.width * (window.remaining ?? 0) / 100))
                 }
             }.frame(height: 10)
-            if let r = window.resetsAt {
+            if window.stale {
+                Text(lastSeenLabel(window.observedAt)).font(Theme.mono(11)).foregroundStyle(Theme.muted)
+            } else if let r = window.resetsAt {
                 TimelineView(.periodic(from: .now, by: 30)) { ctx in
                     let t = r.timeIntervalSince(ctx.date)
                     Text(t > 0 ? "Refills in \(shortDuration(t))" : "Refill due")

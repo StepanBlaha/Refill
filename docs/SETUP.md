@@ -74,7 +74,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=$HOME/.claude-work claude'
 
 ### Codex
 
-Each Codex home is one account, read offline from its newest session log. It updates when you use that home.
+Each Codex home is one account. Refill asks OpenAI for live usage with the ChatGPT login in that home. If the request fails, the newest session log is a fallback, and a window whose reset has already passed shows as — and last seen.
 
 - `~/.codex` is always `codex:default`, even if `CODEX_HOME` points at it. Older history, hide state and fired alerts keep matching.
 - A different `CODEX_HOME`, every `~/.codex-*` and `~/.codex_*` folder, and **Extra Codex folders** are separate accounts (`codex:` plus the absolute path).
@@ -87,7 +87,7 @@ codex login
 codex
 ```
 
-Or `scripts/add-codex-account.sh work` from a clone. A discovered `~/.codex-*` folder with no sessions is hidden as noise until a log exists. The Add button lists the path so you see "No Codex sessions yet" before the first session.
+Or `scripts/add-codex-account.sh work` from a clone. A discovered `~/.codex-*` folder with no login and no session log is hidden as noise. The Add button lists the path so you see "No Codex login" before you sign in.
 
 ```bash
 alias codex-work='CODEX_HOME=$HOME/.codex-work codex'
@@ -159,7 +159,7 @@ Keeping the Mac awake (`pmset`, clamshell, a Mac that stays on) still matters fo
 |---|---|
 | "Refill can't be opened" | `xattr -dr com.apple.quarantine /Applications/Refill.app`, or **Open Anyway**. |
 | New `~/.claude-*` or `~/.codex-*` missing | It has no login or no session, so Refill hides the noise. Log in, or list the path under the extra-folders box to see the error. |
-| `No Codex sessions yet` | Run Codex once in that home. |
+| `No Codex login. Run codex login in this home.` | Run `codex login` in that home. A Keychain prompt for `Codex Auth` is the login Codex already stored. |
 | Same Claude account twice | It is logged into two folders. Hide one, or trash the extra profile. |
 | Copilot shows one row | `gh auth status` has one github.com login, or only the editor token exists. |
 | Cursor will not split | One login per Mac user. See above. |

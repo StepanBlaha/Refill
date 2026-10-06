@@ -4,8 +4,62 @@ struct UsageWindow: Codable, Hashable, Identifiable {
     var id: String { key }
     let key: String
     let label: String
-    let utilization: Double      // 0...100
+    let utilization: Double      // 0...100, share already consumed
     let resetsAt: Date?
+    /// When a session-log fallback was written. Nil for a live reading.
+    let observedAt: Date?
+    /// The number comes from a log whose window has already ended.
+    let stale: Bool
+
+    init(key: String, label: String, utilization: Double, resetsAt: Date?,
+         observedAt: Date? = nil, stale: Bool = false) {
+        self.key = key
+        self.label = label
+        self.utilization = utilization
+        self.resetsAt = resetsAt
+        self.observedAt = observedAt
+        self.stale = stale
+    }
+
+    /// Percent still available. Nil when the reading is stale, so a passed
+    /// reset is never drawn as a full tank.
+    var percentLeft: Double? {
+        guard !stale else { return nil }
+        return max(0, min(100, 100 - utilization))
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case key, label, utilization, resetsAt, observedAt, stale
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        key = try c.decode(String.self, forKey: .key)
+        label = try c.decode(String.self, forKey: .label)
+        utilization = try c.decode(Double.self, forKey: .utilization)
+        resetsAt = try c.decodeIfPresent(Date.self, forKey: .resetsAt)
+        observedAt = try c.decodeIfPresent(Date.self, forKey: .observedAt)
+        stale = try c.decodeIfPresent(Bool.self, forKey: .stale) ?? false
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(key, forKey: .key)
+        try c.encode(label, forKey: .label)
+        try c.encode(utilization, forKey: .utilization)
+        try c.encodeIfPresent(resetsAt, forKey: .resetsAt)
+        try c.encodeIfPresent(observedAt, forKey: .observedAt)
+        try c.encode(stale, forKey: .stale)
+    }
+}
+
+/// "last seen 24 Sep" for a stale Codex log. Local calendar, no time.
+func lastSeenLabel(_ date: Date?) -> String {
+    guard let date else { return "last seen" }
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.dateFormat = "d MMM"
+    return "last seen \(f.string(from: date))"
 }
 
 struct AccountSnapshot: Codable, Identifiable {

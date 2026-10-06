@@ -6,8 +6,24 @@ struct WireWindow: Decodable, Identifiable {
     let label: String
     let utilization: Double
     let resetsAt: Date?
+    let observedAt: Date?
+    let stale: Bool
     var id: String { key }
-    var remaining: Double { max(0, min(100, 100 - utilization)) }
+    var remaining: Double? { stale ? nil : max(0, min(100, 100 - utilization)) }
+
+    enum CodingKeys: String, CodingKey {
+        case key, label, utilization, resetsAt, observedAt, stale
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        key = try c.decode(String.self, forKey: .key)
+        label = try c.decodeIfPresent(String.self, forKey: .label) ?? key
+        utilization = try c.decode(Double.self, forKey: .utilization)
+        resetsAt = try c.decodeIfPresent(Date.self, forKey: .resetsAt)
+        observedAt = try c.decodeIfPresent(Date.self, forKey: .observedAt)
+        stale = try c.decodeIfPresent(Bool.self, forKey: .stale) ?? false
+    }
 }
 
 struct WireAccount: Decodable, Identifiable {
@@ -81,9 +97,10 @@ final class Store: ObservableObject {
     /// Lowest remaining % across all 5h windows.
     var lowestRemaining: Double? {
         let accounts = status?.accounts ?? []
-        let five = accounts.flatMap { $0.windows }.filter { $0.key.contains("5h") || $0.label.lowercased().contains("5") }
-        let pool = five.isEmpty ? accounts.flatMap { $0.windows } : five
-        return pool.map { $0.remaining }.min()
+        let live = accounts.flatMap { $0.windows }.filter { !$0.stale }
+        let five = live.filter { $0.key.contains("5h") || $0.label.lowercased().contains("5") }
+        let pool = five.isEmpty ? live : five
+        return pool.compactMap { $0.remaining }.min()
     }
 
     var mood: Voice.Mood { Voice.mood(remaining: lowestRemaining, recentReset: recentReset) }

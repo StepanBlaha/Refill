@@ -114,7 +114,7 @@ enum Dashboard {
     function lowest(){
       var low=null;
       ((status&&status.accounts)||[]).forEach(function(a){(a.windows||[]).forEach(function(w){
-        if(w.key==='five_hour'||w.key==='primary'){var r=Math.max(0,100-w.utilization);if(low===null||r<low)low=r}})});
+        if(!w.stale&&(w.key==='five_hour'||w.key==='primary')){var r=Math.max(0,100-w.utilization);if(low===null||r<low)low=r}})});
       return low;
     }
     function moodOf(){
@@ -138,16 +138,24 @@ enum Dashboard {
       }
       A.forEach(function(a,i){(a.windows||[]).forEach(function(w){
         var t=document.querySelector('.tank[data-a="'+i+'"][data-k="'+w.key+'"]');if(!t)return;
-        var rem=Math.max(0,Math.min(100,Math.round(100-w.utilization))),l=t.querySelector('.fill');
-        l.style.width=rem+'%';l.className='fill '+col(w.utilization)+(l.classList.contains('pop')?' pop':'');
-        t.querySelector('.n').textContent=rem+'% left';
-        t.querySelector('.cd').dataset.r=w.resetsAt||'';
+        var l=t.querySelector('.fill'),cd=t.querySelector('.cd');
+        if(w.stale){
+          l.style.width='0%';l.className='fill';
+          t.querySelector('.n').textContent='—';
+          cd.dataset.r='';cd.dataset.seen=w.observedAt||'';cd.textContent=seenText(w.observedAt);
+        }else{
+          var rem=Math.max(0,Math.min(100,Math.round(100-w.utilization)));
+          l.style.width=rem+'%';l.className='fill '+col(w.utilization)+(l.classList.contains('pop')?' pop':'');
+          t.querySelector('.n').textContent=rem+'% left';
+          cd.dataset.r=w.resetsAt||'';cd.dataset.seen='';
+        }
       })});
       var lo=lowest();curPct=lo===null?100:lo;
       tick();
     }
     function tick(){
       Array.prototype.forEach.call(document.querySelectorAll('.cd'),function(e){
+        if(e.dataset.seen){e.textContent=seenText(e.dataset.seen);return}
         var r=e.dataset.r;if(!r){e.textContent='not started';return}
         var s=Math.floor((Date.parse(r)-Date.now())/1000);
         if(s<=0){e.textContent='ready';return}
@@ -157,6 +165,11 @@ enum Dashboard {
       if(status&&status.updatedAt){var u=Math.max(0,Math.round((Date.now()-Date.parse(status.updatedAt))/1000));$('foot').textContent='updated '+ago(u)+' ago'}
     }
     function ago(s){return s<60?s+'s':s<3600?Math.floor(s/60)+'m':s<86400?Math.floor(s/3600)+'h':Math.floor(s/86400)+'d'}
+    function seenText(iso){
+      if(!iso)return 'last seen';
+      var t=Date.parse(iso);if(isNaN(t))return 'last seen';
+      try{return 'last seen '+new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'})}catch(e){return 'last seen'}
+    }
     function renderFeed(){
       var L=events.slice(-10).reverse();
       $('feed').innerHTML=L.length?L.map(function(e){

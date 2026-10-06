@@ -23,7 +23,7 @@ Step-by-step setup for everything in Refill that needs configuring. The same gui
 ### What Refill finds on its own
 
 - Claude Code: the default `~/.claude` and every `~/.claude-*` and `~/.claude_*` folder. Each folder is one login.
-- Codex CLI: `~/.codex` (this keeps the account id `codex:default`), the folder in `CODEX_HOME` when that is different, and every `~/.codex-*` and `~/.codex_*` folder. Read offline from each home's `sessions` logs. It updates when you use that home. Turn every Codex home off with **Settings → Accounts → Codex CLI**.
+- Codex CLI: `~/.codex` (this keeps the account id `codex:default`), the folder in `CODEX_HOME` when that is different, and every `~/.codex-*` and `~/.codex_*` folder. Each home is read from the ChatGPT login already in that folder (`auth.json`, or the Keychain item `Codex Auth`). Turn every Codex home off with **Settings → Accounts → Codex CLI**.
 - The Copilot, Cursor and Gemini sections below cover those tools.
 
 ### Add a second Claude account
@@ -47,7 +47,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=$HOME/.claude-work claude'
 ### Add a second Codex account
 
 1. Under **Codex CLI**, type a name such as `work`, then click **Add**.
-2. Terminal opens with `CODEX_HOME` set to `~/.codex-work`, runs `codex login`, then starts Codex once so a session log exists.
+2. Terminal opens with `CODEX_HOME` set to `~/.codex-work` and runs `codex login`. That login is what Refill reads.
 3. Quit Codex, close the window, and click **Refresh**.
 
 ```bash
@@ -78,7 +78,9 @@ Click **⋯** next to an account (or right-click it) and choose **Rename…**. T
 - `Not signed in. Run claude and type /login.`: that profile has no login. Do the Claude steps above.
 - `Login expired. Run claude once to renew it.`: run Claude Code once in that profile. Or turn on **Settings → Accounts → Renew expired logins** so Refill renews it. Leave it off if Claude Code runs all day.
 - `Rate limited. Next try at …`: Refill pauses that account after an HTTP 429 and retries by itself.
-- `No Codex sessions yet`: use that Codex home once. Numbers update only when Codex writes a session log.
+- `No Codex login. Run codex login in this home.`: that folder has no ChatGPT login. Run `codex login` there (or the Add steps above). An API key alone is not enough.
+- `Login expired. Run codex login in this home.`: run `codex login` again in that home. Or turn on **Settings → Accounts → Renew expired logins** so Refill renews it. The first time Refill reads a Keychain login, macOS may ask to allow access to `Codex Auth`.
+- A Codex row shows **—** and **last seen**: the live usage request failed, and the newest session log's window has already ended. Refill will not draw that old log as a full tank. Sign in, then click **Refresh**.
 
 <a id="copilot"></a>
 

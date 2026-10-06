@@ -228,7 +228,7 @@ struct AccountsTab: View {
                 .scrollContentBackground(.hidden).padding(Space.s).frame(height: 64)
         }
 
-        Panel(title: "Codex CLI", footer: "Reads session logs offline. The default ~/.codex stays the account you already have. CODEX_HOME and every ~/.codex-* folder are found too.") {
+        Panel(title: "Codex CLI", footer: "Uses the ChatGPT login already in each Codex home. The default ~/.codex stays the account you already have. CODEX_HOME and every ~/.codex-* folder are found too.") {
             ToggleRow(title: "Codex CLI", subtitle: "Off skips every Codex home", isOn: $codex)
             RowDivider()
             Row(title: "Name") {

@@ -172,7 +172,7 @@ struct AccountCard: View {
 struct TankRow: View {
     let window: UsageWindow
     var accountId = ""
-    var left: Double { max(0, min(100, 100 - window.utilization)) }
+    var left: Double { window.percentLeft ?? 0 }
     var color: Color { Theme.level(used: window.utilization) }
 
     var body: some View {
@@ -185,25 +185,29 @@ struct TankRow: View {
                     Text(subtitle(ctx.date)).font(.system(size: 11)).monospacedDigit().foregroundStyle(Theme.muted)
                         .fixedSize()
                 }
-                Text("\(Int(left.rounded()))%").font(.system(size: 12, weight: .semibold)).monospacedDigit()
-                    .foregroundStyle(window.utilization >= 70 ? color : Theme.text)
+                Text(window.percentLeft.map { "\(Int($0.rounded()))%" } ?? "—")
+                    .font(.system(size: 12, weight: .semibold)).monospacedDigit()
+                    .foregroundStyle(window.stale ? Theme.muted : (window.utilization >= 70 ? color : Theme.text))
                     .frame(minWidth: 34, alignment: .trailing)
                     .fixedSize()
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.white.opacity(0.1))
-                    Capsule().fill(color).frame(width: max(left > 0 ? 3 : 0, g.size.width * left / 100))
+                    Capsule().fill(color).frame(width: window.stale ? 0 : max(left > 0 ? 3 : 0, g.size.width * left / 100))
                 }
             }
             .frame(height: 3)
             .animation(.spring(response: 0.4, dampingFraction: 1), value: left)
-            BurnBadge(accountId: accountId, windowKey: window.key)
-                .frame(maxWidth: .infinity, alignment: .trailing)
+            if !window.stale {
+                BurnBadge(accountId: accountId, windowKey: window.key)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
         }
     }
 
     func subtitle(_ now: Date) -> String {
+        if window.stale { return lastSeenLabel(window.observedAt) }
         guard let r = window.resetsAt else { return "not started" }
         return r <= now ? "ready" : "in \(shortDuration(r.timeIntervalSince(now)))"
     }

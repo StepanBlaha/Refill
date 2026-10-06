@@ -53,14 +53,14 @@ enum AccountAdder {
         mkdir -p "$CODEX_HOME"
         codex login
         echo ""
-        echo "Starting Codex once so Refill can read a session log."
+        echo "Starting Codex once. Refill reads the login you just saved."
         codex
         echo ""
         echo "Done. Drip will pick the account up on its next refresh."
 
         """
         return launch(script, name: "codex-" + name,
-                      ok: "Terminal opened. Sign in, use Codex once, then hit refresh.")
+                      ok: "Terminal opened. Sign in, then hit refresh.")
     }
 
     @discardableResult

@@ -30,6 +30,14 @@ final class ResetDetectorTests: XCTestCase {
         XCTAssertEqual(ResetDetector.scheduledResets([w(50, -1), w(50, 60), w(0, -1), w(10, nil)], now: now).count, 1)
     }
 
+    func testStaleWindowDoesNotLookLikeARefill() {
+        let stale = UsageWindow(key: "secondary", label: "Week", utilization: 5,
+                                resetsAt: now.addingTimeInterval(-10), observedAt: now, stale: true)
+        XCTAssertTrue(ResetDetector.scheduledResets([stale], now: now).isEmpty)
+        XCTAssertTrue(ResetDetector.crossings(old: [], new: [stale], thresholds: [80]).isEmpty)
+        XCTAssertTrue(ResetDetector.observedResets(old: [w(80, -60)], new: [stale], now: now).isEmpty)
+    }
+
     func testCrossingsIncludeEmptyAndOnlyUpward() {
         let c = ResetDetector.crossings(old: [w(70, 60)], new: [w(100, 60)], thresholds: [80, 95])
         XCTAssertEqual(c.map(\.threshold), [80, 95, 100])

@@ -122,6 +122,6 @@ Refill is a free, open-source macOS menu bar app that watches Claude, Codex, Cop
 brew install --cask stepanblaha/tap/refill
 ```
 
-0.1.1 published only `Refill.dmg`, so that cask points at the disk image. The next release also uploads `Refill.zip` and a `.sha256` for the zip and the disk image. After that release, point the cask at the zip. The release job prints the stanza (`scripts/homebrew-cask.sh build/Refill.zip`), or run it locally on the zip. The cask's `postflight` clears `com.apple.quarantine`. Brink's cask does not; it only has caveats.
+0.1.1 published only `Refill.dmg`, so that cask points at the disk image. The next release also uploads `Refill.zip` and a `.sha256` for the zip and the disk image. After that release, point the cask at the zip. The release job prints the stanza (`scripts/homebrew-cask.sh build/Refill.zip`), or run it locally on the zip. The cask's `postflight_steps` clears `com.apple.quarantine`. Brink's cask does not; it only has caveats.
 
 The official Homebrew cask list (`brew install --cask refill` with no tap) wants a notarized app and an app people already use. Submit there after notarization, not before.

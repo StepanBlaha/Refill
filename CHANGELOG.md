@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Release notes are generated from the version section below. `scripts/release.sh` and the release workflow publish **New**, **Improved** and **Fixed** for that version, with the install blurb in front.
 
+## [0.3.2] - Unreleased
+
+### Fixed
+
+- Codex usage comes from the live ChatGPT usage endpoint using the login already in that Codex home, so a week that is used up shows 0% left even when the local session log is old. If that request fails, an old log whose reset time has passed is shown as — and last seen, not as a full tank.
+
+### Improved
+
+- The Homebrew cask template uses `postflight_steps` instead of the deprecated `postflight` block.
+
 ## [0.3.1] - 2026-10-06
 
 ### Fixed
