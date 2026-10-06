@@ -51,7 +51,10 @@ struct RefillProvider: TimelineProvider {
 
 extension AccountSnapshot {
     var fiveHour: UsageWindow? {
-        windows.first { $0.key == "five_hour" || $0.key == "primary" || $0.label.contains("5h") } ?? windows.first
+        windows.first { !$0.stale && ($0.key == "five_hour" || $0.key == "primary" || $0.label.contains("5h")) }
+            ?? windows.first { $0.key == "five_hour" || $0.key == "primary" || $0.label.contains("5h") }
+            ?? windows.first { !$0.stale }
+            ?? windows.first
     }
 }
 
@@ -61,15 +64,21 @@ extension RefillEntry {
         accounts.compactMap { a in a.fiveHour.map { (a, $0) } }.max { $0.1.utilization < $1.1.utilization }
     }
     var mood: Voice.Mood {
-        guard let l = lowest else { return .asleep }
-        let rem = 100 - l.window.utilization
+        guard let l = lowest, !l.window.stale else { return accounts.isEmpty ? .asleep : .happy }
+        let rem = l.window.percentLeft ?? 100
         return rem <= 0 ? .asleep : rem < 15 ? .sweaty : rem < 45 ? .focused : .happy
     }
 }
 
-func remaining(_ w: UsageWindow) -> Double { max(0, min(100, 100 - w.utilization)) }
+func remaining(_ w: UsageWindow) -> Double { w.percentLeft ?? 0 }
+
+func remainingLabel(_ w: UsageWindow) -> String {
+    guard let left = w.percentLeft else { return "—" }
+    return "\(Int(left.rounded()))%"
+}
 
 func refillsIn(_ w: UsageWindow, from now: Date) -> String {
+    if w.stale { return lastSeenLabel(w.observedAt) }
     guard let r = w.resetsAt, r > now else { return "refilled" }
     return "refills in \(shortDuration(r.timeIntervalSince(now)))"
 }
@@ -84,7 +93,7 @@ struct TankBar: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(Theme.line)
                 Capsule().fill(Theme.level(used: window.utilization))
-                    .frame(width: max(height, g.size.width * remaining(window) / 100))
+                    .frame(width: window.stale ? 0 : max(height, g.size.width * remaining(window) / 100))
             }
         }.frame(height: height)
     }
@@ -109,7 +118,7 @@ struct SmallView: View {
                     Spacer()
                 }
                 Spacer(minLength: 0)
-                Text("\(Int(remaining(l.window).rounded()))%")
+                Text(remainingLabel(l.window))
                     .font(Theme.rounded(34, .heavy)).foregroundStyle(Theme.level(used: l.window.utilization))
                 Text(refillsIn(l.window, from: e.date)).font(Theme.rounded(11, .medium)).foregroundStyle(Theme.muted)
             }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -131,7 +140,7 @@ struct MediumView: View {
                                     Text(a.title).font(Theme.rounded(11, .semibold)).foregroundStyle(Theme.text)
                                         .lineLimit(1).frame(minWidth: 0, alignment: .leading)
                                     Spacer(minLength: 4)
-                                    Text("\(Int(remaining(w).rounded()))% · \(refillsIn(w, from: e.date))")
+                                    Text("\(remainingLabel(w)) · \(refillsIn(w, from: e.date))")
                                         .font(Theme.mono(9)).foregroundStyle(Theme.muted)
                                         .lineLimit(1).minimumScaleFactor(0.7).layoutPriority(1)
                                 }
@@ -162,7 +171,7 @@ struct LargeView: View {
                             HStack(spacing: 8) {
                                 Text(w.label).font(Theme.rounded(10)).foregroundStyle(Theme.muted).frame(width: 64, alignment: .leading)
                                 TankBar(window: w, height: 7)
-                                Text("\(Int(remaining(w).rounded()))%").font(Theme.mono(10)).foregroundStyle(Theme.text)
+                                Text(remainingLabel(w)).font(Theme.mono(10)).foregroundStyle(Theme.text)
                                     .frame(width: 32, alignment: .trailing)
                             }
                             Text(refillsIn(w, from: e.date)).font(Theme.mono(9)).foregroundStyle(Theme.muted)

@@ -50,12 +50,12 @@ Open at login is on by default the first time you launch from `/Applications`. C
 | Source | What Refill reads |
 |---|---|
 | **Claude** | Every Claude Code login: the default `~/.claude`, any `~/.claude-*` directory, and extra dirs you add in Settings. Credentials come from the Keychain item Claude Code creates. Usage comes from `api.anthropic.com/api/oauth/usage` (5-hour session, week, week-Opus/Sonnet). Expired tokens are refreshed and written back to the Keychain. |
-| **Codex CLI** | `rate_limits` from the newest session log in each Codex home: `~/.codex` (still the account id `codex:default`), `CODEX_HOME`, every `~/.codex-*` and `~/.codex_*` folder, and extra folders in Settings. Offline. It updates when you use that Codex home. |
+| **Codex CLI** | Live usage for each Codex home (`~/.codex`, still the account id `codex:default`, plus `CODEX_HOME`, every `~/.codex-*` and `~/.codex_*` folder, and extra folders in Settings). Refill uses the ChatGPT login in that home's `auth.json`, or the `Codex Auth` Keychain item, and asks `chatgpt.com/backend-api/wham/usage`. An expired access token is refreshed and written back. If that request fails, the newest session log is a fallback, and a window whose reset has already passed is shown as — rather than a full tank. |
 | **GitHub Copilot** | Premium requests and chat quota for every `github.com` login `gh auth status` lists. The login Refill already tracked stays `copilot:default`. If `gh` has no github.com login, the editor token in `~/.config/github-copilot/` is still that one account. Resets monthly. |
 | **Cursor** | Monthly usage from the one Cursor login on this Mac (`state.vscdb`, read-only). Cursor stores a single login per Mac user, so Refill does too. |
 | **Gemini CLI** | Per-model quota for each Gemini CLI config: `~/.gemini` (still `gemini:default`), `GEMINI_CLI_HOME` (creds in `<home>/.gemini/oauth_creds.json`), `~/.gemini-*`, `~/.gemini-accounts/<name>`, and extra folders. Pro and Flash are tracked separately. A refreshed token stays in memory. |
 
-Copilot, Cursor and Gemini are skipped unless they look installed, and each can be turned off in Settings. HTTP 429 pauses that account (honors `Retry-After`, otherwise 15 minutes). "Renew expired logins" can be turned off in Settings → Accounts so Refill doesn't race Claude Code for a refresh token.
+Copilot, Cursor and Gemini are skipped unless they look installed, and each can be turned off in Settings. HTTP 429 pauses that account (honors `Retry-After`, otherwise 15 minutes). "Renew expired logins" can be turned off in Settings → Accounts so Refill doesn't race Claude Code or Codex for a refresh token.
 
 Rename any account from the **⋯** menu. The name is stored for that account id and shown in the menu, the notch, the dashboard, widgets and notifications. A blank name falls back to the email, then the folder name.
 
@@ -97,7 +97,7 @@ History keeps a burn-rate chart per tank so you can see whether the current pace
 
 ## Privacy
 
-Usage, history and settings stay in `~/.config/refill` on your Mac. There is no Refill account, no telemetry and no Refill server. Tokens are sent only to the provider they belong to, and to integrations you configure yourself. Codex is read from local files only.
+Usage, history and settings stay in `~/.config/refill` on your Mac. There is no Refill account, no telemetry and no Refill server. Tokens are sent only to the provider they belong to, and to integrations you configure yourself. Codex session logs stay on the Mac; only the access token (and, when it has expired, the refresh token) is sent to OpenAI.
 
 The provider usage endpoints are undocumented and can change or be restricted. Refill doesn't send prompts or spend quota.
 

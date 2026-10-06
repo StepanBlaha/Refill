@@ -1,5 +1,39 @@
 # Agent context
 
+## Live Codex usage, stale logs show — (0.3.2)
+
+Handoff for the 0.3.2 fix on branch `cursor/codex-live-usage-7df0`. No tag and no GitHub release. `## [0.3.2] - Unreleased` is ready for `scripts/release.sh`. `VERSION` and `project.yml` `MARKETING_VERSION` are `0.3.2`.
+
+### Why 0.3.1 still showed a full week
+
+0.3.1 reads the newest `rollout-*.jsonl` under `~/.codex/sessions` and keeps `used_percent` as consumed. On the owner's Mac that file is `sessions/2026/09/24/rollout-2026-09-24T09-58-56-….jsonl`, twelve days old. Its last plan line (`limit_id` `codex`) has primary used 31% (`window_minutes` 300, `resets_at` 1790260549) and secondary used 5% (`window_minutes` 10080, `resets_at` 1790847349). Both resets are already past. The code was reading that file correctly. The desktop app, the IDE extension and cloud sessions do not write a new rollout there, so the log is not a live quota.
+
+`archived_sessions` is where Codex moves a thread after archive (`codex-rs/thread-store/src/local/archive_thread.rs`). `~/Library/Logs/com.openai.codex` is app logs. Neither is a usage source. Active rollouts are still `<CODEX_HOME>/sessions/YYYY/MM/DD/rollout-*.jsonl` (`codex-rs/rollout/src/recorder.rs`). Discovery stays on `sessions/`.
+
+### Live request
+
+`GET https://chatgpt.com/backend-api/wham/usage`
+
+That is `rate_limit_status_url` in `codex-rs/backend-client/src/client/rate_limit_resets.rs` for `PathStyle::ChatGptApi` (`{base}/wham/usage`) with the ChatGPT base `https://chatgpt.com/backend-api`. Headers follow `Client::headers` in `codex-rs/backend-client/src/client.rs`: `Authorization: Bearer`, `ChatGPT-Account-ID`, `User-Agent: codex-cli`, and `X-OpenAI-Fedramp: true` only when the access token says the account is fedramp.
+
+The login is `<CODEX_HOME>/auth.json` (`tokens.access_token`, `tokens.refresh_token`, `tokens.account_id`). If that file has no tokens, Refill reads the Keychain item service `Codex Auth`, account `cli|<first 16 hex of SHA-256 of the canonical home path>` (`compute_store_key` in `codex-rs/login/src/auth/storage.rs`). The first Keychain read can prompt.
+
+Refresh is `POST https://auth.openai.com/oauth/token` with `client_id` `app_EMoamEEZ73f0CkXaXp7hrann` and `grant_type` `refresh_token` (`REFRESH_TOKEN_URL` and `CLIENT_ID` in `codex-rs/login/src/auth/manager.rs`). Refill refreshes only when the access token's `exp` is past or the usage call returns 401, and only when Settings → Renew expired logins is on (default). The new tokens are written back to the same `auth.json` (mode 0600) or Keychain item. Unknown JSON keys are kept. `id_token` is replaced only when it is already a string.
+
+The plan windows are `rate_limit.primary_window` and `secondary_window` (also accepted under `rate_limits.rate_limit`). `used_percent` is consumed. `limit_window_seconds` 18000 is "5h session", 604800 is "Week", including when the week is the primary window and secondary is null. `additional_rate_limits` does not replace the plan snapshot. A live `used_percent` of 0 is 100% left, because the server just said so.
+
+### Stale logs
+
+Session logs are the fallback when there is no login or the request fails. A log window is stale when its reset time is already past. `percentLeft` is nil. The menu, dashboard, widgets and companion show — and "last seen 24 Sep", with an empty bar. They do not show 100% left. A stale primary window does not fill the menu-bar tank, schedule a refill, record history, or post an ntfy push. A log whose reset is still in the future still shows its percent.
+
+### What Štěpán does
+
+Install 0.3.2 when it is released (`brew upgrade --cask refill` after the new cask is pasted). No new login is required if `~/.codex/auth.json` already has ChatGPT tokens. If Codex stored them only in the Keychain, allow the `Codex Auth` prompt once. If the week row says "Login expired" or "No Codex login", run `codex login` in that home. An API key with no ChatGPT login cannot hit this endpoint. After a successful refresh the week row should match Codex's own usage. If the live call fails, the 24 Sep log shows — and last seen, not 100% left.
+
+The cask template in `scripts/homebrew-cask.sh` now uses `postflight_steps` / `on_macos` / `run` with `{{appdir}}` and `must_succeed: false` (Homebrew Cask Cookbook; `postflight do` warns). The published 0.3.1 cask in the tap is unchanged. This agent does not push the tap and does not tag 0.3.2.
+
+Linux CI for this change cannot run `swift test`. macOS `swift test` is the check.
+
 ## Codex week showed 100% left when it was empty (0.3.1)
 
 Handoff for the 0.3.1 fix on branch `cursor/codex-weekly-usage-7df0`. No tag was created and no GitHub release was published. `## [0.3.1] - Unreleased` is ready for `scripts/release.sh`.

@@ -7,6 +7,7 @@ enum ResetDetector {
     /// Thresholds (plus 100) crossed upward between two polls.
     static func crossings(old: [UsageWindow], new: [UsageWindow], thresholds: [Double]) -> [Crossing] {
         new.flatMap { nw -> [Crossing] in
+            guard !nw.stale else { return [] }
             let before = old.first(where: { $0.key == nw.key })?.utilization ?? nw.utilization
             return (thresholds + [100]).filter { before < $0 && nw.utilization >= $0 }
                 .map { Crossing(window: nw, threshold: $0) }
@@ -17,8 +18,8 @@ enum ResetDetector {
     /// (or vanished after passing) and usage dropped.
     static func observedResets(old: [UsageWindow], new: [UsageWindow], now: Date = Date()) -> [UsageWindow] {
         old.filter { ow in
-            guard ow.utilization > 0, let oldReset = ow.resetsAt,
-                  let nw = new.first(where: { $0.key == ow.key }) else { return false }
+            guard !ow.stale, ow.utilization > 0, let oldReset = ow.resetsAt,
+                  let nw = new.first(where: { $0.key == ow.key }), !nw.stale else { return false }
             let moved = nw.resetsAt.map { $0 > oldReset.addingTimeInterval(600) } ?? (oldReset < now)
             return moved && nw.utilization < ow.utilization
         }
@@ -26,7 +27,7 @@ enum ResetDetector {
 
     /// Windows whose known reset time has passed while they were in use.
     static func scheduledResets(_ windows: [UsageWindow], now: Date = Date()) -> [UsageWindow] {
-        windows.filter { w in w.utilization > 0 && (w.resetsAt.map { $0 <= now } ?? false) }
+        windows.filter { w in !w.stale && w.utilization > 0 && (w.resetsAt.map { $0 <= now } ?? false) }
     }
 
     /// Dedupe key; resets_at jitters by seconds, so bucket to 10 minutes.

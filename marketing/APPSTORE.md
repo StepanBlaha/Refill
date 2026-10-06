@@ -20,7 +20,7 @@ Refill is a menu bar app that watches the AI subscription limits you already pay
 It lives in the menu bar. Each account is a tank: a thin bar for what is left, and Drip, a small glass tank whose face follows the lowest window. When a window refills, Drip says so. It also warns as you cross the thresholds you set (80% and 95% by default) and when a tank hits empty.
 
 THE MENU BAR
-Claude Code (every login on the Mac: the 5-hour session, the week, and the weekly model windows), Codex from local session logs, and, when those tools are installed, GitHub Copilot, Cursor and Gemini CLI.
+Claude Code (every login on the Mac: the 5-hour session, the week, and the weekly model windows), Codex from the ChatGPT login already in each Codex home, and, when those tools are installed, GitHub Copilot, Cursor and Gemini CLI.
 
 THE NOTCH
 Drip slides out of the MacBook notch with a short line in plain language. Turn it off if you would rather not.
@@ -35,7 +35,7 @@ ALSO
 A local dashboard, menu bar widgets, an iPhone companion that reads that dashboard on your Wi-Fi, and a check for a newer GitHub release.
 
 PRIVATE BY DESIGN
-There is no Refill account, no telemetry and no Refill server. Usage, history and settings stay in ~/.config/refill on your Mac. Tokens are sent only to the provider they belong to, and to integrations you configure yourself. Codex is read from local files only. Refill does not send prompts or spend quota.
+There is no Refill account, no telemetry and no Refill server. Usage, history and settings stay in ~/.config/refill on your Mac. Tokens are sent only to the provider they belong to, and to integrations you configure yourself. Codex usage is requested from OpenAI with the login already on the Mac. Session logs stay local. Refill does not send prompts or spend quota.
 
 REQUIREMENTS
 macOS 14 or later. Refill reads logins you already have. It does not ask you to create a Refill account.

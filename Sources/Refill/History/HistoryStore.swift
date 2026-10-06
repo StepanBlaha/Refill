@@ -56,7 +56,7 @@ final class HistoryStore: ObservableObject {
         let now = Date()
         var fresh: [HistorySample] = []
         for a in accounts where a.error == nil {
-            for w in a.windows {
+            for w in a.windows where !w.stale {
                 let s = HistorySample(t: now, accountId: a.id, accountName: a.title, provider: a.provider,
                                       windowKey: w.key, windowLabel: w.label, utilization: w.utilization,
                                       resetsAt: w.resetsAt)

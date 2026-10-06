@@ -82,6 +82,14 @@ func parseISODate(_ s: String?) -> Date? {
     return f.date(from: s)
 }
 
+func lastSeenLabel(_ date: Date?) -> String {
+    guard let date else { return "last seen" }
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.dateFormat = "d MMM"
+    return "last seen \(f.string(from: date))"
+}
+
 func shortDuration(_ t: TimeInterval) -> String {
     let s = max(0, Int(t))
     let d = s / 86400, h = (s % 86400) / 3600, m = (s % 3600) / 60

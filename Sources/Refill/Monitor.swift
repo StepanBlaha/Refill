@@ -94,8 +94,9 @@ final class Monitor: ObservableObject {
 
     /// Lowest remaining % across 5h windows: what the menu bar tank and Drip react to.
     var lowestRemaining: Double? {
-        accounts.flatMap(\.windows).filter { $0.key == "five_hour" || $0.key == "primary" }
-            .map { max(0, 100 - $0.utilization) }.min()
+        accounts.flatMap(\.windows)
+            .filter { ($0.key == "five_hour" || $0.key == "primary") && !$0.stale }
+            .compactMap(\.percentLeft).min()
     }
 
     var recentReset: Bool {
@@ -135,7 +136,7 @@ final class Monitor: ObservableObject {
         }
         if prefs.codex {
             for h in CodexProvider.present(extraDirs: prefs.extraCodex) where !hidden.contains(h.id) {
-                let s = CodexProvider.fetch(h)
+                let s = await CodexProvider.fetch(h)
                 // Auto-discovered ~/.codex-* homes with no sessions are noise.
                 if !h.isDefault, !h.userListed, !h.fromEnv, s.windows.isEmpty, s.error != nil { continue }
                 fresh.append(s)

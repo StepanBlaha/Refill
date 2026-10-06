@@ -11,7 +11,9 @@ case "${1:-status}" in
 import json, sys, datetime as dt
 d = json.load(open(sys.argv[1]))
 now = dt.datetime.now(dt.timezone.utc)
-def left(w): return max(0, round(100 - w["utilization"]))
+def left(w):
+    if w.get("stale"): return None
+    return max(0, round(100 - w["utilization"]))
 def eta(s):
     if not s: return "-"
     t = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
@@ -24,6 +26,9 @@ for a in d.get("accounts", []):
     if a.get("error"):
         rows.append((who, a["provider"], "error", "-", a["error"][:30])); continue
     for w in a.get("windows", []):
+        if w.get("stale"):
+            rows.append((who, a["provider"], w["label"], "—", "last seen"))
+            continue
         rows.append((who, a["provider"], w["label"], f'{left(w)}%', eta(w.get("resetsAt"))))
 wd = [max(len(str(r[i])) for r in rows) for i in range(5)]
 for i, r in enumerate(rows):
@@ -40,6 +45,7 @@ best = None
 for a in d.get("accounts", []):
     if p and a["provider"] != p: continue
     for w in a.get("windows", []):
+        if w.get("stale"): continue
         if w["key"] == "five_hour":
             l = max(0, round(100 - w["utilization"]))
             best = l if best is None else min(best, l)

@@ -49,7 +49,7 @@ enum NtfyScheduler {
             let server = sink.v("server").isEmpty ? "https://ntfy.sh" : sink.v("server")
             for account in accounts {
                 for window in account.windows {
-                    guard window.utilization > 0, let resets = window.resetsAt else { continue }
+                    guard !window.stale, window.utilization > 0, let resets = window.resetsAt else { continue }
                     let ahead = resets.timeIntervalSince(now)
                     guard ahead > 0, ahead <= maxAhead else { continue }
                     let deliver = resets.addingTimeInterval(afterReset)

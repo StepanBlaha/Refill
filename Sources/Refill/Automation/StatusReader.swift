@@ -11,7 +11,10 @@ enum StatusReader {
     struct Reading {
         let account: AccountSnapshot
         let window: UsageWindow
-        var remaining: Int { min(100, max(0, Int((100 - window.utilization).rounded()))) }
+        var remaining: Int? {
+            guard let left = window.percentLeft else { return nil }
+            return min(100, max(0, Int(left.rounded())))
+        }
     }
 
     static func read() -> Status? {
@@ -38,7 +41,8 @@ enum StatusReader {
             guard a.error == nil, let w = a.windows.first(where: { $0.key == window }) else { return nil }
             return Reading(account: a, window: w)
         }
-        return out.max { $0.window.utilization < $1.window.utilization }
+        let live = out.filter { !$0.window.stale }
+        return (live.isEmpty ? out : live).max { $0.window.utilization < $1.window.utilization }
     }
 
     static func remaining(provider: String?, window: String, account: String? = nil) -> Int? {
@@ -60,7 +64,13 @@ enum StatusReader {
             return "No usage data for \(name) yet. Is Refill running?"
         }
         let who = provider == nil ? r.account.provider.capitalized : name
-        var s = "\(who) has \(r.remaining)% left"
+        if r.window.stale {
+            return "\(who) usage isn't current (\(lastSeenLabel(r.window.observedAt)))."
+        }
+        guard let left = r.remaining else {
+            return "No usage data for \(name) yet. Is Refill running?"
+        }
+        var s = "\(who) has \(left)% left"
         if let t = r.window.resetsAt, t > Date() { s += ", refills in \(shortDuration(t.timeIntervalSinceNow))" }
         return s
     }

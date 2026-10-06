@@ -7,7 +7,7 @@ import c from "./Shared.module.css";
 import s from "./Sources.module.css";
 
 const OTHERS = [
-  ["Codex", "Reads rate limits from your local Codex session logs. Offline, updates when you use it.", [18, 64], 5.5],
+  ["Codex", "Live usage from the ChatGPT login already in each Codex home. An old session log is only a fallback.", [18, 64], 5.5],
   ["GitHub Copilot", "Premium requests and chat quota, read with your GitHub CLI login. Resets monthly.", [38, 86], 6.5],
   ["Cursor", "Monthly usage from the Cursor app you already have signed in.", [52, 92], 5],
   ["Gemini CLI", "Per-model quota for your Gemini CLI login, Pro and Flash tracked separately.", [26, 74], 7],
