@@ -17,11 +17,11 @@ final class CodexDiscoveryTests: XCTestCase {
             directoryNames: [".codex", ".codex-work", ".codex_school", "notes"])
         XCTAssertEqual(homes.map(\.id), [
             "codex:default",
-            "/tmp/codex-env",
-            home + "/.codex-work",
-            home + "/.codex_school",
-            home + "/clients/codex",
-        ].map { $0 == "codex:default" ? $0 : ($0.hasPrefix("codex:") ? $0 : "codex:" + $0) })
+            "codex:" + home + "/.codex-work",
+            "codex:" + home + "/.codex_school",
+            "codex:" + home + "/clients/codex",
+            "codex:/tmp/codex-env",
+        ])
         let env = try? XCTUnwrap(homes.first { $0.path == "/tmp/codex-env" })
         XCTAssertEqual(env?.fromEnv, true)
         XCTAssertEqual(env?.isDefault, false)
