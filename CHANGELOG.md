@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Release notes are generated from the version section below. `scripts/release.sh` and the release workflow publish **New**, **Improved** and **Fixed** for that version, with the install blurb in front.
 
+## [0.3.1] - Unreleased
+
+### Fixed
+
+- Codex weekly usage follows the session log. A week that is fully used shows 0% left, including when that window's reset time is already past. Refill was treating the past reset as a full tank, so the week row showed 100%. The menu, notch, dashboard, widgets and notifications all use that same percent. The plan limit in the log is kept when a later model-bucket line says something else.
+
 ## [0.3.0] - 2026-10-06
 
 ### New
