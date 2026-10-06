@@ -1,5 +1,51 @@
 # Agent context
 
+## Codex week showed 100% left when it was empty (0.3.1)
+
+Handoff for the 0.3.1 fix on branch `cursor/codex-weekly-usage-7df0`. No tag was created and no GitHub release was published. `## [0.3.1] - Unreleased` is ready for `scripts/release.sh`.
+
+## Root cause
+
+Codex writes `used_percent` on `rate_limits.primary` (5h, `window_minutes` 300) and `rate_limits.secondary` (week, `window_minutes` 10080). That number is the share already consumed, the same meaning as Claude's `utilization`. Every surface shows percent left as `100 - utilization`. The menu row is the label plus that percent, so "Week 100%" means Refill stored utilization 0.
+
+`CodexProvider.fetch` rewrote a past `resets_at` to utilization 0 ("stale log: usage is effectively 0"). A weekly window at `used_percent` 100 whose reset timestamp was already in the past was stored as empty, and the row showed 100% left. The 5h row often still looked right because its reset was still in the future, so only the week flipped. Codex's own status view does not do this; it shows `used_percent` as consumed.
+
+A second reader bug could show the same full week: the last `rate_limits` line in the newest rollout was used even when it was a model bucket (`limit_id` `codex_other`) and an earlier line was the plan bucket (`limit_id` missing or `codex`).
+
+## What landed
+
+- The logged `used_percent` is kept. A past reset time no longer fills the tank. Percent left on the menu, notch, dashboard, widgets, companion and notifications all come from that one utilization value.
+- Field aliases from the Codex event and OpenAPI shapes are read: `reset_at`, `resets_in_seconds`, `reset_after_seconds`, `limit_window_seconds` (604800 seconds is the week label). A `resets_at` above 10_000_000_000 is treated as milliseconds.
+- When several `rate_limits` lines exist, the newest plan line wins. A later model bucket does not replace it. If the file has no plan line, the newest line is still used. The file itself is still the newest `rollout-*.jsonl` under that home's `sessions/` by modification time.
+- Tests in `Tests/RefillTests/CodexUsageTests.swift` use rollout-shaped JSONL, including a week at 100% used with a past reset, a negative `resets_in_seconds`, a newer `codex_other` line, and an older rollout file.
+- `VERSION` and `project.yml` `MARKETING_VERSION` are `0.3.1`. CHANGELOG heading is exactly `## [0.3.1] - Unreleased`.
+
+## What Štěpán can check on the Mac
+
+The account is `~/.codex` (`codex:default`) unless Settings or `CODEX_HOME` added another home. Refill lists each home that exists. The file for a home is the newest `rollout-*.jsonl` under `<home>/sessions/` by modification time. In that file, the last line that contains `"rate_limits"` and whose `limit_id` is missing or `codex` is the one that counts.
+
+```bash
+python3 - <<'PY'
+import glob, json, os
+home = os.path.expanduser("~/.codex")
+files = glob.glob(home + "/sessions/**/rollout-*.jsonl", recursive=True)
+files.sort(key=lambda p: os.path.getmtime(p))
+print("newest:", files[-1] if files else "none")
+if not files: raise SystemExit
+last = None
+for line in open(files[-1], encoding="utf-8", errors="replace"):
+    if '"rate_limits"' in line:
+        last = line
+print(json.dumps(json.loads(last)["payload"]["rate_limits"], indent=2)[:4000])
+PY
+```
+
+Look at `secondary.used_percent`, `secondary.window_minutes` and `secondary.resets_at`. If `used_percent` is 100 and `resets_at` is before now, 0.3.0 showed Week 100% left. 0.3.1 shows 0% left. The countdown can still say "ready" once that timestamp has passed. Also check whether the menu lists more than one Codex account; an idle `~/.codex` can sit next to the home that is actually in use.
+
+This machine is Linux and has no Swift toolchain, so `swift test` was not run here. macOS CI (`.github/workflows/ci.yml`, `macos-15`) is the test run.
+
+The sections below are earlier handoffs. Where they disagree with this one, this one is current. 0.3.0 was tagged and published after the handoff under it; do not tag 0.3.1 from this branch.
+
 ## Multi-account and sleep-time ntfy (0.3.0)
 
 Handoff for the 0.3.0 work on branch `cursor/multi-account-sleep-push-7df0`. No tag was created and no GitHub release was published. The Homebrew tap was not touched. This agent cannot push to `StepanBlaha/homebrew-tap`.
