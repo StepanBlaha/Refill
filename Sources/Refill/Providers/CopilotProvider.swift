@@ -142,7 +142,8 @@ enum CopilotProvider {
             guard var snap = parse(data, id: id, name: name) else {
                 return ProviderSupport.failed(id: id, provider: "copilot", name: name, "Unexpected response")
             }
-            snap.email = login ?? await self.login(token: token)
+            if let login { snap.email = login }
+            else { snap.email = await self.login(token: token) }
             return snap
         } catch {
             return ProviderSupport.failed(id: id, provider: "copilot", name: name, error.localizedDescription)
