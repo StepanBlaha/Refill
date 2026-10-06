@@ -15,9 +15,16 @@ struct WireAccount: Decodable, Identifiable {
     let provider: String
     let name: String
     let email: String?
+    let label: String?
     let plan: String?
     let error: String?
     let windows: [WireWindow]
+
+    var title: String {
+        if let label = label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty { return label }
+        if let email = email?.trimmingCharacters(in: .whitespacesAndNewlines), !email.isEmpty { return email }
+        return name
+    }
 }
 
 struct WireStatus: Decodable {

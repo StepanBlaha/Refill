@@ -26,7 +26,8 @@ enum Dashboard {
     .word{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
     .mood{font-size:14px;color:var(--sec);margin-top:4px}
     #snd{font:500 12px var(--font);color:var(--sec);background:var(--card);border:0;border-radius:4px;padding:7px 12px;cursor:pointer;transition:background .15s}
-    #snd:hover{background:var(--hover)}#snd.on{color:var(--green)}
+    #snd:hover{background:var(--hover)}#snd:active{background:var(--card2)}#snd:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+    #snd:disabled{cursor:not-allowed;opacity:.45}#snd.on{color:var(--green)}
     .card{background:var(--card);border-radius:8px;padding:16px;margin-bottom:12px}
     .card.err{}
     .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
@@ -127,11 +128,11 @@ enum Dashboard {
         '<div class="bar"><div class="fill"></div></div></div>';
     }
     function renderAccounts(){
-      var A=(status&&status.accounts)||[],s=JSON.stringify(A.map(function(a){return[a.id,a.error?1:0,a.email,a.plan,(a.windows||[]).map(function(w){return w.key+w.label})]}));
+      var A=(status&&status.accounts)||[],s=JSON.stringify(A.map(function(a){return[a.id,a.error?1:0,a.label,a.email,a.name,a.plan,(a.windows||[]).map(function(w){return w.key+w.label})]}));
       if(s!==sig){
         sig=s;
         $('accts').innerHTML=A.length?A.map(function(a,i){
-          return '<section class="card'+(a.error?' err':'')+'"><div class="ch"><h2>'+esc(a.email||a.name)+'</h2><span class="chip">'+esc(a.provider)+'</span>'+(a.plan?'<span class="chip">'+esc(a.plan)+'</span>':'')+'</div>'+
+          return '<section class="card'+(a.error?' err':'')+'"><div class="ch"><h2>'+esc(a.label||a.email||a.name)+'</h2><span class="chip">'+esc(a.provider)+'</span>'+(a.plan?'<span class="chip">'+esc(a.plan)+'</span>':'')+'</div>'+
             (a.error?'<div class="errtxt">'+esc(a.error)+'</div>':'')+(a.windows||[]).map(function(w){return tank(i,w)}).join('')+'</section>';
         }).join(''):'<div class="empty">No accounts yet. Add one from the menu bar.</div>';
       }

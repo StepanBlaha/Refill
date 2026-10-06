@@ -18,20 +18,50 @@ enum AccountActions {
         Task { await monitor.refresh() }
     }
 
-    /// Extra Claude profiles (~/.claude-*) only; the default ~/.claude is never trashed.
+    /// Extra Claude, Codex and Gemini profiles. The default folder for each is never trashed.
     static func profileDir(_ a: AccountSnapshot) -> URL? {
-        guard a.provider == "claude", a.id.hasPrefix("claude:") else { return nil }
-        let path = String(a.id.dropFirst("claude:".count))
-        guard path != Paths.home.path + "/.claude" else { return nil }
-        return URL(fileURLWithPath: path)
+        let home = Paths.home.path
+        switch a.provider {
+        case "claude":
+            guard a.id.hasPrefix("claude:") else { return nil }
+            let path = String(a.id.dropFirst("claude:".count))
+            guard path != home + "/.claude" else { return nil }
+            return URL(fileURLWithPath: path)
+        case "codex":
+            guard a.id.hasPrefix("codex:"), a.id != "codex:default" else { return nil }
+            return URL(fileURLWithPath: String(a.id.dropFirst("codex:".count)))
+        case "gemini":
+            guard a.id.hasPrefix("gemini:"), a.id != "gemini:default" else { return nil }
+            return URL(fileURLWithPath: String(a.id.dropFirst("gemini:".count)))
+        default:
+            return nil
+        }
+    }
+
+    static func rename(_ a: AccountSnapshot, monitor: Monitor) {
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "Rename account"
+        alert.informativeText = "Shown in the menu, the notch, the dashboard and notifications. Leave it blank to use the email or folder name."
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
+        field.stringValue = AccountNames.custom(a.id) ?? ""
+        field.placeholderString = a.email ?? a.name
+        alert.accessoryView = field
+        alert.addButton(withTitle: "Save")
+        alert.addButton(withTitle: "Cancel")
+        alert.window.initialFirstResponder = field
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        AccountNames.set(a.id, field.stringValue)
+        monitor.relabel()
     }
 
     static func trashProfile(_ a: AccountSnapshot, monitor: Monitor) {
         guard let dir = profileDir(a) else { return }
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
+        let tool = a.provider.capitalized
         alert.messageText = "Move \(dir.lastPathComponent) to the Trash?"
-        alert.informativeText = "This signs \(a.email ?? a.name) out of that Claude profile on this Mac. You can restore the folder from the Trash. Your Claude account itself is not affected."
+        alert.informativeText = "This signs \(a.title) out of that \(tool) profile on this Mac. You can restore the folder from the Trash. The account itself is not affected."
         alert.addButton(withTitle: "Move to Trash")
         alert.addButton(withTitle: "Cancel")
         alert.buttons.first?.hasDestructiveAction = true
@@ -52,6 +82,7 @@ struct AccountMenuItems: View {
 
     var body: some View {
         Button("Refresh") { Task { await monitor.refresh() } }
+        Button("Rename…") { AccountActions.rename(account, monitor: monitor) }
         Divider()
         Button("Hide from Refill") { AccountActions.hide(account, monitor: monitor) }
         if AccountActions.profileDir(account) != nil {

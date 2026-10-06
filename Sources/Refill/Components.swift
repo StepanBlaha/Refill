@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Spacing scale. Every gap in the app is one of these.
@@ -75,18 +76,67 @@ struct DarkField: TextFieldStyle {
     }
 }
 
+enum ClickFeedback {
+    static func cursor(hovering: Bool, enabled: Bool) {
+        guard hovering else { NSCursor.arrow.set(); return }
+        (enabled ? NSCursor.pointingHand : NSCursor.operationNotAllowed).set()
+    }
+}
+
 /// Plain dark button; `.prominent` is the one green action on a screen.
 struct DarkButton: ButtonStyle {
     var prominent = false
     func makeBody(configuration: Configuration) -> some View {
+        DarkButtonBody(configuration: configuration, prominent: prominent)
+    }
+}
+
+private struct DarkButtonBody: View {
+    let configuration: ButtonStyleConfiguration
+    var prominent: Bool
+    @State private var hover = false
+    @Environment(\.isEnabled) private var enabled
+    @Environment(\.isFocused) private var focused
+
+    var body: some View {
         configuration.label.font(.system(size: 12, weight: .medium))
-            .foregroundStyle(prominent ? Color.black : Theme.text)
+            .foregroundStyle(prominent && enabled ? Color.black : Theme.text)
             .padding(.horizontal, 10).padding(.vertical, 5)
-            .background(prominent ? Theme.accent : (configuration.isPressed ? Theme.hover : Theme.raised),
-                        in: RoundedRectangle(cornerRadius: Theme.radius + 1))
-            .opacity(prominent && configuration.isPressed ? 0.8 : 1)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .background(fill, in: RoundedRectangle(cornerRadius: Theme.radius + 1))
+            .overlay(RoundedRectangle(cornerRadius: Theme.radius + 1).stroke(Theme.accent, lineWidth: focused ? 2 : 0))
+            .opacity(!enabled ? 0.45 : (prominent && configuration.isPressed ? 0.8 : 1))
+            .scaleEffect(configuration.isPressed && enabled ? 0.97 : 1)
             .animation(.spring(response: 0.2, dampingFraction: 1), value: configuration.isPressed)
+            .onHover { hover = $0; ClickFeedback.cursor(hovering: $0, enabled: enabled) }
+    }
+
+    private var fill: Color {
+        if !enabled { return Theme.raised }
+        if prominent { return hover && !configuration.isPressed ? Theme.accent.opacity(0.85) : Theme.accent }
+        if configuration.isPressed || hover { return Theme.hover }
+        return Theme.raised
+    }
+}
+
+/// Press, focus ring and pointer cursor for controls that draw their own background.
+struct PointerButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        PointerButtonBody(configuration: configuration)
+    }
+}
+
+private struct PointerButtonBody: View {
+    let configuration: ButtonStyleConfiguration
+    @Environment(\.isEnabled) private var enabled
+    @Environment(\.isFocused) private var focused
+
+    var body: some View {
+        configuration.label
+            .opacity(configuration.isPressed && enabled ? 0.82 : 1)
+            .scaleEffect(configuration.isPressed && enabled ? 0.97 : 1)
+            .overlay(RoundedRectangle(cornerRadius: Theme.radius + 2).stroke(Theme.accent, lineWidth: focused ? 2 : 0))
+            .animation(.spring(response: 0.2, dampingFraction: 1), value: configuration.isPressed)
+            .onHover { ClickFeedback.cursor(hovering: $0, enabled: enabled) }
     }
 }
 
@@ -106,7 +156,7 @@ struct Segmented<T: Hashable>: View {
                                     in: RoundedRectangle(cornerRadius: Theme.radius))
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PointerButtonStyle())
             }
         }
         .padding(2)
@@ -153,6 +203,7 @@ struct DarkMenu<T: Hashable>: View {
             .contentShape(Rectangle())
         }
         .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+        .onHover { ClickFeedback.cursor(hovering: $0, enabled: true) }
     }
 }
 
@@ -178,7 +229,7 @@ struct RefillSwitch: ToggleStyle {
             .animation(.spring(response: 0.25, dampingFraction: 1), value: configuration.isOn)
             .contentShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PointerButtonStyle())
         .accessibilityElement()
         .accessibilityLabel(Text("Switch"))
         .accessibilityValue(Text(configuration.isOn ? "On" : "Off"))

@@ -17,7 +17,7 @@ enum ProviderSupport {
     }
 
     /// Run an executable and return stdout (nil on failure / non-zero exit / timeout).
-    static func run(_ path: String, _ args: [String], timeout: TimeInterval = 10) async -> String? {
+    static func run(_ path: String, _ args: [String], timeout: TimeInterval = 10, allowNonZero: Bool = false) async -> String? {
         guard FileManager.default.isExecutableFile(atPath: path) else { return nil }
         return await Task.detached { () -> String? in
             let p = Process()
@@ -32,7 +32,7 @@ enum ProviderSupport {
             let data = out.fileHandleForReading.readDataToEndOfFile()
             p.waitUntilExit()
             killer.cancel()
-            guard p.terminationStatus == 0 else { return nil }
+            guard allowNonZero || p.terminationStatus == 0 else { return nil }
             return String(data: data, encoding: .utf8)
         }.value
     }

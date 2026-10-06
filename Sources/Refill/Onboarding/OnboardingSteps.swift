@@ -50,7 +50,7 @@ struct AccountsStep: View {
     var body: some View {
         StepFrame(mood: monitor.accounts.isEmpty ? .focused : .happy, title: "Your tanks",
                   line: monitor.accounts.isEmpty ? "Nothing yet. Log in to Claude Code or Codex and I'll find it."
-                                                 : "Found these. More than one Claude login? Add it below.") {
+                                                 : "Found these. More than one login? Add it in Settings → Accounts.") {
             VStack(spacing: 10) {
                 ScrollView {
                     VStack(spacing: 6) { ForEach(monitor.accounts) { accountRow($0) } }
@@ -82,8 +82,8 @@ struct AccountsStep: View {
         HStack {
             Image(systemName: a.provider == "codex" ? "chevron.left.forwardslash.chevron.right" : "sparkle")
                 .foregroundStyle(Theme.lime).frame(width: 20)
-            Text(a.name).font(Theme.rounded(13, .semibold))
-            Text(a.email ?? a.plan ?? "").font(Theme.rounded(12)).foregroundStyle(Theme.muted).lineLimit(1)
+            Text(a.title).font(Theme.rounded(13, .semibold))
+            Text(a.detail).font(Theme.rounded(12)).foregroundStyle(Theme.muted).lineLimit(1)
             Spacer()
             if let e = a.error { Text(e).font(Theme.rounded(11)).foregroundStyle(Theme.coral).lineLimit(1) }
         }

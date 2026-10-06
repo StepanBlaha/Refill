@@ -11,12 +11,30 @@ struct UsageWindow: Codable, Hashable, Identifiable {
 struct AccountSnapshot: Codable, Identifiable {
     let id: String               // stable: provider + profile
     let provider: String         // "claude" | "codex"
-    let name: String
+    let name: String             // provider fallback (folder or tool name)
     var email: String?
     var plan: String?
     var windows: [UsageWindow]
     var updatedAt: Date
     var error: String?
+    /// Custom name from Settings. Nil means "use email, then name".
+    var label: String? = nil
+
+    /// Menu, notch, dashboard and notifications. Custom name, then email, then folder.
+    var title: String {
+        if let label = label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty { return label }
+        if let email = email?.trimmingCharacters(in: .whitespacesAndNewlines), !email.isEmpty { return email }
+        return name
+    }
+
+    /// Secondary line: identity that the title did not already use, plus the plan.
+    var detail: String {
+        var parts: [String] = []
+        if let email, !email.isEmpty, email != title { parts.append(email) }
+        if name != title, name != email { parts.append(name) }
+        if let plan, !plan.isEmpty { parts.append(plan.capitalized) }
+        return parts.joined(separator: " · ")
+    }
 }
 
 enum EventKind: String, Codable, CaseIterable {
@@ -63,6 +81,8 @@ enum Paths {
     static let statusFile = config.appendingPathComponent("status.json")
     static let eventsFile = config.appendingPathComponent("events.jsonl")
     static let stateFile = config.appendingPathComponent("state.json")
+    /// Bookkeeping for ntfy messages scheduled ahead of a reset. No tokens.
+    static let ntfyScheduleFile = config.appendingPathComponent("ntfy-schedule.json")
 
     static func ensure() {
         try? FileManager.default.createDirectory(at: config, withIntermediateDirectories: true)

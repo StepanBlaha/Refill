@@ -495,7 +495,7 @@ function tankRow(win) {
 }
 
 function accountCard(a) {
-  const who = a.email || a.name;
+  const who = a.label || a.email || a.name;
   return `<div class="card">
     <div class="ahead">
       <span style="color:var(--muted);display:flex">${icon(a.icon, 12)}</span>

@@ -105,6 +105,27 @@ struct OBPill: View {
             .overlay(Capsule().stroke(Theme.line))
             .opacity(hover && prominent ? 0.9 : 1)
         }
-        .buttonStyle(.plain).onHover { hover = $0 }
+        .buttonStyle(OBPillPress()).onHover { hover = $0 }
+    }
+}
+
+private struct OBPillPress: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        OBPillPressBody(configuration: configuration)
+    }
+}
+
+private struct OBPillPressBody: View {
+    let configuration: ButtonStyleConfiguration
+    @Environment(\.isEnabled) private var enabled
+    @Environment(\.isFocused) private var focused
+
+    var body: some View {
+        configuration.label
+            .opacity(configuration.isPressed && enabled ? 0.8 : 1)
+            .scaleEffect(configuration.isPressed && enabled ? 0.97 : 1)
+            .overlay(Capsule().stroke(Theme.accent, lineWidth: focused ? 2 : 0))
+            .animation(.spring(response: 0.2, dampingFraction: 1), value: configuration.isPressed)
+            .onHover { ClickFeedback.cursor(hovering: $0, enabled: enabled) }
     }
 }

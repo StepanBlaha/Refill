@@ -31,8 +31,10 @@ enum StatusReader {
         let acct = account?.trimmingCharacters(in: .whitespaces).lowercased()
         let out: [Reading] = st.accounts.compactMap { a in
             if let p = provider, a.provider != p { return nil }
-            if let acct, !acct.isEmpty,
-               a.email?.lowercased() != acct, a.name.lowercased() != acct { return nil }
+            if let acct, !acct.isEmpty {
+                let names = [a.email, a.name, a.label, a.title].compactMap { $0?.lowercased() }
+                if !names.contains(acct) { return nil }
+            }
             guard a.error == nil, let w = a.windows.first(where: { $0.key == window }) else { return nil }
             return Reading(account: a, window: w)
         }

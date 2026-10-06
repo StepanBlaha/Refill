@@ -6,7 +6,7 @@ Requires macOS 14 (Sonoma) or newer. MIT License. Made by Stepan Blaha. Independ
 
 ## Features
 
-- Sources: multi-account Claude Code (5-hour, weekly, Opus and Sonnet windows), Codex (local session logs), GitHub Copilot, Cursor, Gemini CLI.
+- Sources: multi-account Claude Code (5-hour, weekly, Opus and Sonnet windows), Codex (one account per Codex home), GitHub Copilot (one account per GitHub login), Cursor (one login per Mac user), Gemini CLI (one account per config folder). Custom display names. ntfy can deliver a reset while the Mac sleeps.
 - Signals: notch pop-up, native notification, sound, warnings at 80% and 95%, dry-tank alert at 100%. Quiet hours can mute the sound.
 - Integrations: ntfy, Pushover, Telegram, Discord, Slack, Home Assistant, Philips Hue, WLED, webhooks, shell hook, Shortcuts, widgets, local dashboard (opt-in).
 - Burn-rate chart per source: pace against the clock, projected time until dry.
